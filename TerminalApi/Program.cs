@@ -1,17 +1,18 @@
 using System.Data;
+using System.IO.Compression;
 using System.Reflection;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
 using System.Text;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.ResponseCompression;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using TerminalApi.Contexts;
 using TerminalApi.Models.Role;
 using TerminalApi.Models.User;
+using TerminalApi.Services;
 using TerminalApi.Utilities;
-using Microsoft.AspNetCore.ResponseCompression;
-using System.IO.Compression;
-using Microsoft.EntityFrameworkCore;
 
 namespace TerminalApi
 {
@@ -97,7 +98,7 @@ namespace TerminalApi
 
         private static void ConfigureControllers(IServiceCollection services)
         {
-            // Configuration des contrôleurs
+            // Configuration des contrï¿½leurs
             services.AddControllers();
         }
 
@@ -141,12 +142,13 @@ namespace TerminalApi
 
         private static void ConfigureAuthentication(IServiceCollection services)
         {
-            services.AddAuthentication(options =>
-            {
-                options.DefaultSignInScheme = JwtBearerDefaults.AuthenticationScheme;
-                options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-                options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-            })
+            services
+                .AddAuthentication(options =>
+                {
+                    options.DefaultSignInScheme = JwtBearerDefaults.AuthenticationScheme;
+                    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+                })
                 .AddJwtBearer(options =>
                 {
                     options.SaveToken = true;
@@ -158,49 +160,53 @@ namespace TerminalApi
                         ValidateIssuerSigningKey = true,
                         ValidIssuer = EnvironmentVariables.API_BASE_URL,
                         ValidAudience = EnvironmentVariables.USER_BASE_URL,
-                        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(EnvironmentVariables.JWT_KEY)),
-
+                        IssuerSigningKey = new SymmetricSecurityKey(
+                            Encoding.UTF8.GetBytes(EnvironmentVariables.JWT_KEY)
+                        ),
                     };
-
                 });
-                /*.AddCookie(options =>
+            /*.AddCookie(options =>
+            {
+                options.Cookie.Name = CookieName;
+                options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
+                options.Cookie.HttpOnly = true;
+                options.Cookie.SameSite = SameSiteMode.None;
+                options.Cookie.MaxAge = TimeSpan.FromDays(365);
+                options.Cookie.IsEssential = true;
+
+                options.Events.OnRedirectToAccessDenied = (ctx) =>
                 {
-                    options.Cookie.Name = CookieName;
-                    options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
-                    options.Cookie.HttpOnly = true;
-                    options.Cookie.SameSite = SameSiteMode.None;
-                    options.Cookie.MaxAge = TimeSpan.FromDays(365);
-                    options.Cookie.IsEssential = true;
-
-                    options.Events.OnRedirectToAccessDenied = (ctx) =>
+                    if (ctx.Response.StatusCode == 200)
                     {
-                        if (ctx.Response.StatusCode == 200)
-                        {
-                            ctx.Response.StatusCode = 403;
-                        }
+                        ctx.Response.StatusCode = 403;
+                    }
 
-                        return Task.CompletedTask;
-                    };
-                    options.Events.OnRedirectToLogin = (ctx) =>
+                    return Task.CompletedTask;
+                };
+                options.Events.OnRedirectToLogin = (ctx) =>
+                {
+                    if (ctx.Response.StatusCode == 200)
                     {
-                        if (ctx.Response.StatusCode == 200)
-                        {
-                            ctx.Response.StatusCode = 401;
-                        }
+                        ctx.Response.StatusCode = 401;
+                    }
 
-                        return Task.CompletedTask;
-                    };
-                });*/
+                    return Task.CompletedTask;
+                };
+            });*/
         }
 
         private static void ConfigureServices(IServiceCollection services)
         {
+            services.AddSingleton<SendMailService>();
             //Lowercase routing
             services.AddRouting(opt => opt.LowercaseUrls = true);
 
             // Set the active provider via configuration
             var configuration = services.BuildServiceProvider().GetService<IConfiguration>();
-            string? provider = configuration?.GetValue("Provider", EnvironmentVariables.DB_PROVIDER);
+            string? provider = configuration?.GetValue(
+                "Provider",
+                EnvironmentVariables.DB_PROVIDER
+            );
 
             services.AddDbContext<ApiDefaultContext>(options =>
             {
@@ -257,17 +263,19 @@ namespace TerminalApi
             app.MapControllers();
 
             // Check and limit the payload size.
-            app.Use(async (context, next) =>
-            {
-                if (context.Request.ContentLength > 200_000_000)
+            app.Use(
+                async (context, next) =>
                 {
-                    context.Response.StatusCode = StatusCodes.Status413PayloadTooLarge;
-                    await context.Response.WriteAsync("Payload Too Large");
-                    return;
-                }
+                    if (context.Request.ContentLength > 200_000_000)
+                    {
+                        context.Response.StatusCode = StatusCodes.Status413PayloadTooLarge;
+                        await context.Response.WriteAsync("Payload Too Large");
+                        return;
+                    }
 
-                await next.Invoke();
-            });
+                    await next.Invoke();
+                }
+            );
         }
     }
 }

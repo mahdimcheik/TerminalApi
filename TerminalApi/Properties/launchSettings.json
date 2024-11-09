@@ -54,7 +54,11 @@
         "DB_HOST": "localhost",
         "TOKEN_AUDIENCE": "http://localhost:3000",
         "TOKEN_ISSUER": "https://localhost:5001",
-        "JWT_KEY": "i7RdBacZPsi7RdBacZPsi7RdBacZPsi7RdBacZPsi7RdBacZPsi7RdBacZPsi7RdBacZPsi7RdBacZPsi7RdBacZPs"
+        "JWT_KEY": "i7RdBacZPsi7RdBacZPsi7RdBacZPsi7RdBacZPsi7RdBacZPsi7RdBacZPsi7RdBacZPsi7RdBacZPsi7RdBacZPs",
+        "SMTP_BREVO_KEY": "xsmtpsib-988eea00b63b04f3271c9971b7b933d5087e02797f8ca6f926af734e68f3d19e-1pc86jJAtzxKsCS5",
+        "SMTP_BREVO_SERVER": "smtp-relay.brevo.com",
+        "SMTP_BREVO_PORT": "587",
+        "SMTP_BROVO_LOGIN": "avrilwithmahdi@gmail.com"
       }
     }
   }
