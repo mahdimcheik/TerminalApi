@@ -130,6 +130,7 @@ C:\Users\mahdi\source\repos\TerminalApi\TerminalApi\obj\Debug\net8.0\TerminalApi
 C:\Users\mahdi\source\repos\TerminalApi\TerminalApi\obj\Debug\net8.0\TerminalApi.csproj.CoreCompileInputs.cache
 C:\Users\mahdi\source\repos\TerminalApi\TerminalApi\obj\Debug\net8.0\TerminalApi.MvcApplicationPartsAssemblyInfo.cs
 C:\Users\mahdi\source\repos\TerminalApi\TerminalApi\obj\Debug\net8.0\TerminalApi.MvcApplicationPartsAssemblyInfo.cache
+C:\Users\mahdi\source\repos\TerminalApi\TerminalApi\obj\Debug\net8.0\TerminalApi.sourcelink.json
 C:\Users\mahdi\source\repos\TerminalApi\TerminalApi\obj\Debug\net8.0\staticwebassets.build.json
 C:\Users\mahdi\source\repos\TerminalApi\TerminalApi\obj\Debug\net8.0\staticwebassets.development.json
 C:\Users\mahdi\source\repos\TerminalApi\TerminalApi\obj\Debug\net8.0\staticwebassets\msbuild.TerminalApi.Microsoft.AspNetCore.StaticWebAssets.props
