@@ -25,13 +25,10 @@ namespace TerminalApi.Services
 
             var mailMessage = new MailMessage
             {
-                //From = new MailAddress(
-                //    EnvironmentVariables.SMTP_EmailFrom ?? "avrilwithmahdi@gmail.com"
-                //),
                 From = new MailAddress("ne-pas-repondre@dls.fr"),
                 Subject = mail.MailSubject,
                 Body = mail.MailBody,
-                IsBodyHtml = true, // Set to true if the body contains HTML
+                IsBodyHtml = true, 
             };
 
             mailMessage.To.Add(mail.MailTo);
@@ -43,27 +40,23 @@ namespace TerminalApi.Services
         {
             var smtpClient = new SmtpClient(EnvironmentVariables.SMTP_HostAddress)
             {
-                Port = EnvironmentVariables.SMTP_Port, // Common SMTP port; may vary based on provider
+                Port = EnvironmentVariables.SMTP_Port, 
                 Credentials = new NetworkCredential(
                     EnvironmentVariables.SMTP_EmailFrom,
                     EnvironmentVariables.SMTP_Password
                 ),
-                EnableSsl = true // Use SSL for secure connections
+                EnableSsl = true 
             };
             var mailBody = EmailTemplates.ConfirmeMail.Replace(@"{{link}}", link);
             var mailMessage = new MailMessage
             {
-                //From = new MailAddress(
-                //    EnvironmentVariables.SMTP_EmailFrom ?? "avrilwithmahdi@gmail.com"
-                //),
                 From = new MailAddress("ne-pas-repondre@dls.fr"),
                 Subject = mail.MailSubject,
                 Body = mailBody,
-                IsBodyHtml = true, // Set to true if the body contains HTML
+                IsBodyHtml = true, 
             };
 
             mailMessage.To.Add(mail.MailTo);
-
             await smtpClient.SendMailAsync(mailMessage);
         }
 
@@ -71,12 +64,12 @@ namespace TerminalApi.Services
         {
             var smtpClient = new SmtpClient(EnvironmentVariables.SMTP_HostAddress)
             {
-                Port = EnvironmentVariables.SMTP_Port, // Common SMTP port; may vary based on provider
+                Port = EnvironmentVariables.SMTP_Port, 
                 Credentials = new NetworkCredential(
                     EnvironmentVariables.SMTP_EmailFrom,
                     EnvironmentVariables.SMTP_Password
                 ),
-                EnableSsl = true // Use SSL for secure connections
+                EnableSsl = true
             };
             var mailBody = EmailTemplates.ResetPassword.Replace(@"{{link}}", link);
 
@@ -85,7 +78,7 @@ namespace TerminalApi.Services
                 From = new MailAddress("ne-pas-repondre@dls.fr"),
                 Subject = mail.MailSubject,
                 Body = mailBody,
-                IsBodyHtml = true, // Set to true if the body contains HTML
+                IsBodyHtml = true, 
             };
 
             mailMessage.To.Add(mail.MailTo);
