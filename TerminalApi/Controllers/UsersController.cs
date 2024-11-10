@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
@@ -126,9 +126,9 @@ namespace TerminalApi.Controllers
                     new Models.Mail.Mail
                     {
                         MailBody = confirmationLink,
-                        MailSubject = "validation",
+                        MailSubject = "Mail de confirmation",
                         MailTo = newUser.Email
-                    }
+                    }, confirmationLink
                 );
                 // Retourne une réponse avec le statut déterminé, l'identifiant de l'utilisateur, le message de réponse et le statut complet
                 return Ok(new { UserId = newUser.Id, Message = ResponseContent });
@@ -388,13 +388,12 @@ namespace TerminalApi.Controllers
                             + resetToken;
 
                         // Tentative d'envoi de l'e-mail pour la regénération du mot de passe
-                        await mailService.SendEmail(
+                        await mailService.SendResetEmail(
                             new Models.Mail.Mail
                             {
-                                MailBody = "test rest password " + resetLink,
-                                MailSubject = "Reset password",
+                                MailSubject = "Mail de réinitialisation",
                                 MailTo = user.Email
-                            }
+                            }, resetLink
                         );
 
                         return Ok(
