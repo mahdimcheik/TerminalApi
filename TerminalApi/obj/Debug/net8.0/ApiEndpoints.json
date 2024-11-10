@@ -1,5 +1,31 @@
 [
   {
+    "ContainingType": "TerminalApi.Controllers.UsersController",
+    "Method": "ForgotPassword",
+    "RelativePath": "forgot-password",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "model",
+        "Type": "TerminalApi.Models.User.ForgotPasswordInput",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": [
+      {
+        "Type": "TerminalApi.Models.ResponseDTO",
+        "MediaTypes": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "StatusCode": 200
+      }
+    ]
+  },
+  {
     "ContainingType": "TerminalApi.Controllers.MailController",
     "Method": "SendMail",
     "RelativePath": "mail/send",
@@ -39,14 +65,19 @@
     "ContainingType": "TerminalApi.Controllers.UsersController",
     "Method": "EmailConfirmation",
     "RelativePath": "users/email-confirmation",
-    "HttpMethod": "POST",
+    "HttpMethod": "GET",
     "IsController": true,
     "Order": 0,
     "Parameters": [
       {
-        "Name": "input",
-        "Type": "TerminalApi.Models.User.ConfirmAccountInput",
-        "IsRequired": true
+        "Name": "UserId",
+        "Type": "System.String",
+        "IsRequired": false
+      },
+      {
+        "Name": "confirmationToken",
+        "Type": "System.String",
+        "IsRequired": false
       }
     ],
     "ReturnTypes": [
@@ -95,6 +126,32 @@
     "IsController": true,
     "Order": 0,
     "Parameters": [],
+    "ReturnTypes": [
+      {
+        "Type": "TerminalApi.Models.ResponseDTO",
+        "MediaTypes": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "StatusCode": 200
+      }
+    ]
+  },
+  {
+    "ContainingType": "TerminalApi.Controllers.UsersController",
+    "Method": "ChangePassword",
+    "RelativePath": "users/password-reset",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "model",
+        "Type": "TerminalApi.Models.User.PasswordRecoveryInput",
+        "IsRequired": true
+      }
+    ],
     "ReturnTypes": [
       {
         "Type": "TerminalApi.Models.ResponseDTO",

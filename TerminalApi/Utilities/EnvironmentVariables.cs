@@ -11,7 +11,7 @@
         public static string? USER_PREFIX_URL =>
             Environment.GetEnvironmentVariable("USER_PREFIX_URL");
         public static string? USER_BASE_URL =>
-            string.Format("http://{0}{1}", USER_PREFIX_URL, APP_SUFFIX_URL);
+            string.Format("https://{0}{1}", USER_PREFIX_URL, APP_SUFFIX_URL);
 
         public static string? API_PREFIX_URL =>
             Environment.GetEnvironmentVariable("API_PREFIX_URL");

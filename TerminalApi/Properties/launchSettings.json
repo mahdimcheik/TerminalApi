@@ -46,7 +46,7 @@
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development",
         "APP_SUFFIX_URL": "",
-        "USER_PREFIX_URL": "localhost:4200",
+        "USER_PREFIX_URL": "localhost:7113",
         "API_PREFIX_URL": "localhost:5113",
         "DB_NAME": "base",
         "DB_USER": "postgres",

@@ -77,4 +77,33 @@ namespace TerminalApi.Models.User
         }
     }
 
+    public class ForgotPasswordInput
+    {
+        [Required(ErrorMessage = "Email required")]
+        [DataType(DataType.EmailAddress)]
+        public string Email { get; set; }
+    }
+
+    public class ChangePasswordInput
+    {
+        public string OldPassword { get; set; }
+        public string NewPassword { get; set; }
+        public string NewPasswordConfirmation { get; set; }
+    }
+
+    public class PasswordRecoveryInput
+    {
+        [Required(ErrorMessage = "UserId required")]
+        public string UserId { get; set; }
+
+        [Required(ErrorMessage = "ConfirmationToken required")]
+        public string ResetToken { get; set; }
+
+        [Required(ErrorMessage = "Password required")]
+        public string Password { get; set; }
+
+        [Required(ErrorMessage = "PasswordConfirmation required")]
+        public string PasswordConfirmation { get; set; }
+    }
+
 }
