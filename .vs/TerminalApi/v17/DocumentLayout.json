@@ -83,8 +83,7 @@
               "RelativeToolTip": "TerminalApi\\Utilities\\EnvironmentVariables.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAqwAUAAABFAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-11-09T20:36:56.605Z",
-              "EditorCaption": ""
+              "WhenOpened": "2024-11-09T20:36:56.605Z"
             },
             {
               "$type": "Document",
@@ -96,8 +95,7 @@
               "RelativeToolTip": "TerminalApi\\Utilities\\CheckUser.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAgAAAA1AAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-11-09T20:33:26.709Z",
-              "EditorCaption": ""
+              "WhenOpened": "2024-11-09T20:33:26.709Z"
             },
             {
               "$type": "Document",
@@ -109,8 +107,7 @@
               "RelativeToolTip": "TerminalApi\\Models\\ResponseDTO.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAcAAAAFAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-11-09T20:32:20.224Z",
-              "EditorCaption": ""
+              "WhenOpened": "2024-11-09T20:32:20.224Z"
             },
             {
               "$type": "Document",
@@ -122,8 +119,7 @@
               "RelativeToolTip": "TerminalApi\\Controllers\\UsersController.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAA4AAAAeAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-11-09T20:30:45.04Z",
-              "EditorCaption": ""
+              "WhenOpened": "2024-11-09T20:30:45.04Z"
             },
             {
               "$type": "Document",
@@ -135,8 +131,7 @@
               "RelativeToolTip": "TerminalApi\\Utilities\\FrenchIdentityErrorDescriber.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAUAAAAFAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-11-09T20:16:25.557Z",
-              "EditorCaption": ""
+              "WhenOpened": "2024-11-09T20:16:25.557Z"
             },
             {
               "$type": "Document",
@@ -148,8 +143,7 @@
               "RelativeToolTip": "TerminalApi\\Contexts\\ApiDefaultContext.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAC4AAAAFAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-11-09T20:15:41.686Z",
-              "EditorCaption": ""
+              "WhenOpened": "2024-11-09T20:15:41.686Z"
             },
             {
               "$type": "Document",
@@ -161,8 +155,7 @@
               "RelativeToolTip": "TerminalApi\\Models\\Role\\Role.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAcAAAAFAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-11-09T20:14:13.419Z",
-              "EditorCaption": ""
+              "WhenOpened": "2024-11-09T20:14:13.419Z"
             },
             {
               "$type": "Document",
@@ -174,8 +167,7 @@
               "RelativeToolTip": "TerminalApi\\Models\\User\\UserApp.cs",
               "ViewState": "AgIAACUAAAAAAAAAAAAgwE4AAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-11-09T20:13:02.548Z",
-              "EditorCaption": ""
+              "WhenOpened": "2024-11-09T20:13:02.548Z"
             },
             {
               "$type": "Document",
@@ -187,8 +179,7 @@
               "RelativeToolTip": "TerminalApi\\Properties\\launchSettings.json",
               "ViewState": "AgIAACkAAAAAAAAAAAAUwDsAAAAhAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001642|",
-              "WhenOpened": "2024-11-09T20:10:10.629Z",
-              "EditorCaption": ""
+              "WhenOpened": "2024-11-09T20:10:10.629Z"
             },
             {
               "$type": "Document",
@@ -200,8 +191,7 @@
               "RelativeToolTip": "TerminalApi\\Utilities\\CorsHelper.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAACoAAAAFAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-11-09T20:08:19.153Z",
-              "EditorCaption": ""
+              "WhenOpened": "2024-11-09T20:08:19.153Z"
             },
             {
               "$type": "Document",
@@ -213,8 +203,7 @@
               "RelativeToolTip": "TerminalApi\\Program.cs",
               "ViewState": "AgIAAI0AAAAAAAAAAAAhwKAAAAB3AAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-11-09T20:04:14.322Z",
-              "EditorCaption": ""
+              "WhenOpened": "2024-11-09T20:04:14.322Z"
             }
           ]
         }

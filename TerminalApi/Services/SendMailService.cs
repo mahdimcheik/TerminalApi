@@ -15,12 +15,12 @@ namespace TerminalApi.Services
         {
             var smtpClient = new SmtpClient(EnvironmentVariables.SMTP_HostAddress)
             {
-                Port = EnvironmentVariables.SMTP_Port, // Common SMTP port; may vary based on provider
+                Port = EnvironmentVariables.SMTP_Port,
                 Credentials = new NetworkCredential(
                     EnvironmentVariables.SMTP_EmailFrom,
                     EnvironmentVariables.SMTP_Password
                 ),
-                EnableSsl = true // Use SSL for secure connections
+                EnableSsl = true
             };
 
             var mailMessage = new MailMessage
