@@ -39,7 +39,7 @@ namespace TerminalApi.Services
             await smtpClient.SendMailAsync(mailMessage);
         }
 
-        public async Task SendConfirmationEmail(Mail mail)
+        public async Task SendConfirmationEmail(Mail mail, string link)
         {
             var smtpClient = new SmtpClient(EnvironmentVariables.SMTP_HostAddress)
             {
@@ -50,7 +50,7 @@ namespace TerminalApi.Services
                 ),
                 EnableSsl = true // Use SSL for secure connections
             };
-
+            var mailBody = EmailTemplates.ConfirmeMail.Replace(@"{{link}}", link);
             var mailMessage = new MailMessage
             {
                 //From = new MailAddress(
@@ -58,7 +58,33 @@ namespace TerminalApi.Services
                 //),
                 From = new MailAddress("ne-pas-repondre@dls.fr"),
                 Subject = mail.MailSubject,
-                Body = mail.MailBody,
+                Body = mailBody,
+                IsBodyHtml = true, // Set to true if the body contains HTML
+            };
+
+            mailMessage.To.Add(mail.MailTo);
+
+            await smtpClient.SendMailAsync(mailMessage);
+        }
+
+        public async Task SendResetEmail(Mail mail, string link)
+        {
+            var smtpClient = new SmtpClient(EnvironmentVariables.SMTP_HostAddress)
+            {
+                Port = EnvironmentVariables.SMTP_Port, // Common SMTP port; may vary based on provider
+                Credentials = new NetworkCredential(
+                    EnvironmentVariables.SMTP_EmailFrom,
+                    EnvironmentVariables.SMTP_Password
+                ),
+                EnableSsl = true // Use SSL for secure connections
+            };
+            var mailBody = EmailTemplates.ResetPassword.Replace(@"{{link}}", link);
+
+            var mailMessage = new MailMessage
+            {                
+                From = new MailAddress("ne-pas-repondre@dls.fr"),
+                Subject = mail.MailSubject,
+                Body = mailBody,
                 IsBodyHtml = true, // Set to true if the body contains HTML
             };
 
