@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
@@ -478,7 +478,7 @@ namespace TerminalApi.Controllers
             return BadRequest(
                 new ResponseDTO
                 {
-                    Message = "L'utilisateur n'existe pas",
+                    Message = "Problème de validation, votre token est valid ?",
                     Status = 404,
                     Data = ModelState
                 }
