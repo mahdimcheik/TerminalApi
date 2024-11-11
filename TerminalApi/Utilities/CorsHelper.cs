@@ -29,6 +29,8 @@
             "http://localhost:4200",
             "https://localhost:8100",
             "http://localhost:8100",
+            "http://localhost:8082",
+            "http://192.168.1.39:8082",
             "capacitor://localhost",
             "ionic://localhost",
             EnvironmentVariables.USER_BASE_URL,
