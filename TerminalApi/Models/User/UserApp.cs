@@ -1,23 +1,18 @@
-﻿using Microsoft.AspNetCore.Identity;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
+using Microsoft.AspNetCore.Identity;
+using TerminalApi.Models.Adresse;
 
 namespace TerminalApi.Models.User
 {
     public class UserApp : IdentityUser
     {
-
         [Required]
         public string FirstName { get; set; }
-
-        // Last name of the user, marked as required
         [Required]
         public string LastName { get; set; }
-
-        // Refresh token for authentication
+        public string? ImgUrl { get; set; }
         public string? RefreshToken { get; set; }
-
-
-
+        public ICollection<Address>? Adresses { get; set; }
     }
 
     public class UserResponseDTO
@@ -26,16 +21,19 @@ namespace TerminalApi.Models.User
         public string? FirstName { get; set; }
         public string? LastName { get; set; }
         public string Email { get; set; } = null!;
-        public IEnumerable<string>? Roles { get; set; }
+        public ICollection<string>? Roles { get; set; }
     }
+
     public class UserLoginDTO
     {
         [Required]
         [EmailAddress]
         public string Email { get; set; } = null!;
+
         [Required]
         public string Password { get; set; } = null!;
     }
+
     public class ConfirmAccountInput
     {
         public string UserId { get; set; }
@@ -49,7 +47,6 @@ namespace TerminalApi.Models.User
         public string Password { get; set; }
         public string FirstName { get; set; }
         public string LastName { get; set; }
-
     }
 
     public static class UserExtension
@@ -64,7 +61,11 @@ namespace TerminalApi.Models.User
                 LastName = userDTO.LastName,
             };
         }
-        public static UserResponseDTO ToUserResponseDTO(this UserApp userDTO, IEnumerable<string>? roles = null)
+
+        public static UserResponseDTO ToUserResponseDTO(
+            this UserApp userDTO,
+            ICollection<string>? roles = null
+        )
         {
             return new UserResponseDTO
             {
@@ -105,5 +106,4 @@ namespace TerminalApi.Models.User
         [Required(ErrorMessage = "PasswordConfirmation required")]
         public string PasswordConfirmation { get; set; }
     }
-
 }

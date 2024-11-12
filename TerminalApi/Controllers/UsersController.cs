@@ -341,7 +341,7 @@ namespace TerminalApi.Controllers
             var user = CheckUser.GetUserFromClaim(HttpContext.User, _context);
 
             if (user == null)
-                return BadRequest(new ResponseDTO { Message = "Demande réfusée", Status = 401 });
+                return BadRequest(new ResponseDTO { Message = "Vous n'êtes pas connecté", Status = 401 });
 
             var result = user.ToUserResponseDTO();
             var userRoles = await _userManager.GetRolesAsync(user);
@@ -381,8 +381,8 @@ namespace TerminalApi.Controllers
 
                         //string AppURLRedirection = HardCode.CHANGE_PASSWORD + "?userId=" + user.Id + "&resetToken=" + resetToken;
                         var resetLink =
-                            EnvironmentVariables.USER_BASE_URL
-                            + "/users/password-reset?userId="
+                            EnvironmentVariables.USER_FRONT_URL
+                            + "/auth/reset-password?userId="
                             + user.Id
                             + "&resetToken="
                             + resetToken;
@@ -431,7 +431,7 @@ namespace TerminalApi.Controllers
 
         #region PasswordChange after recovery
         [AllowAnonymous]
-        [Route("password-reset")]
+        [Route("/password-reset")]
         [HttpPost]
         public async Task<ActionResult<ResponseDTO>> ChangePassword(
             [FromBody] PasswordRecoveryInput model
@@ -444,10 +444,10 @@ namespace TerminalApi.Controllers
                     return BadRequest(
                         new ResponseDTO { Message = "L'utilisateur n'existe pas", Status = 404 }
                     );
-                var decodedToken = HttpUtility.UrlDecode(model.ResetToken);
+                // var decodedToken = HttpUtility.UrlDecode(model.ResetToken);
                 IdentityResult result = await _userManager.ResetPasswordAsync(
                     user: user,
-                    token: decodedToken,
+                    token: model.ResetToken,
                     newPassword: model.Password
                 );
 
