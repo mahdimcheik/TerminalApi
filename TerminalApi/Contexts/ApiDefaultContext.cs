@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
+using TerminalApi.Models.Adresse;
 using TerminalApi.Models.Role;
 using TerminalApi.Models.User;
 
@@ -44,5 +45,7 @@ namespace TerminalApi.Contexts
         {
             optionsBuilder.EnableSensitiveDataLogging();
         }
+
+        public DbSet<Address> Addresses { get; set; }
     }
 }

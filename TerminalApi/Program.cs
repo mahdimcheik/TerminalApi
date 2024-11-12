@@ -198,6 +198,8 @@ namespace TerminalApi
         private static void ConfigureServices(IServiceCollection services)
         {
             services.AddSingleton<SendMailService>();
+            services.AddScoped<AddressService>();
+
             //Lowercase routing
             services.AddRouting(opt => opt.LowercaseUrls = true);
 

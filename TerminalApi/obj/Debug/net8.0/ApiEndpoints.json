@@ -1,5 +1,57 @@
 [
   {
+    "ContainingType": "TerminalApi.Controllers.AddressController",
+    "Method": "AddAddress",
+    "RelativePath": "address",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "addressCreate",
+        "Type": "TerminalApi.Models.Adresse.AddressCreateDTO",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": [
+      {
+        "Type": "TerminalApi.Models.ResponseDTO",
+        "MediaTypes": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "StatusCode": 200
+      }
+    ]
+  },
+  {
+    "ContainingType": "TerminalApi.Controllers.AddressController",
+    "Method": "GetAddressesByUserId",
+    "RelativePath": "address/all",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "userId",
+        "Type": "System.String",
+        "IsRequired": false
+      }
+    ],
+    "ReturnTypes": [
+      {
+        "Type": "TerminalApi.Models.ResponseDTO",
+        "MediaTypes": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "StatusCode": 200
+      }
+    ]
+  },
+  {
     "ContainingType": "TerminalApi.Controllers.UsersController",
     "Method": "ForgotPassword",
     "RelativePath": "forgot-password",
@@ -52,6 +104,32 @@
     "ReturnTypes": [
       {
         "Type": "TerminalApi.Models.Mail.Mail",
+        "MediaTypes": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "StatusCode": 200
+      }
+    ]
+  },
+  {
+    "ContainingType": "TerminalApi.Controllers.UsersController",
+    "Method": "ChangePassword",
+    "RelativePath": "password-reset",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "model",
+        "Type": "TerminalApi.Models.User.PasswordRecoveryInput",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": [
+      {
+        "Type": "TerminalApi.Models.ResponseDTO",
         "MediaTypes": [
           "text/plain",
           "application/json",
@@ -126,32 +204,6 @@
     "IsController": true,
     "Order": 0,
     "Parameters": [],
-    "ReturnTypes": [
-      {
-        "Type": "TerminalApi.Models.ResponseDTO",
-        "MediaTypes": [
-          "text/plain",
-          "application/json",
-          "text/json"
-        ],
-        "StatusCode": 200
-      }
-    ]
-  },
-  {
-    "ContainingType": "TerminalApi.Controllers.UsersController",
-    "Method": "ChangePassword",
-    "RelativePath": "users/password-reset",
-    "HttpMethod": "POST",
-    "IsController": true,
-    "Order": 0,
-    "Parameters": [
-      {
-        "Name": "model",
-        "Type": "TerminalApi.Models.User.PasswordRecoveryInput",
-        "IsRequired": true
-      }
-    ],
     "ReturnTypes": [
       {
         "Type": "TerminalApi.Models.ResponseDTO",

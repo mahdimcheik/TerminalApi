@@ -1,5 +1,7 @@
-﻿using System.Security.Claims;
+﻿using Microsoft.AspNetCore.Identity;
+using System.Security.Claims;
 using TerminalApi.Contexts;
+using TerminalApi.Models;
 using TerminalApi.Models.User;
 
 namespace TerminalApi.Utilities
@@ -13,6 +15,20 @@ namespace TerminalApi.Utilities
             var user = context.Users.FirstOrDefault(x => x.Email == userEmail);
             if (user == null) return null;
             return user;
+        }
+        public static async Task<bool> CheckUserNullByEmail(string email, UserManager<UserApp> _userManager)
+        {
+
+            var user = await _userManager.FindByEmailAsync(email);
+
+            return user is null;
+        }
+        public static async Task<bool> CheckUserNullByUserId(string id, UserManager<UserApp> _userManager)
+        {
+
+            var user = await _userManager.FindByIdAsync(id);
+
+            return user is null;
         }
     }
 }

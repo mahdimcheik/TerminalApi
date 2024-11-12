@@ -9,6 +9,8 @@ namespace TerminalApi.Models.Adresse
         [Key]
         public Guid Id { get; set; }
         [Required]
+        public int StreetNumber { get; set; }
+        [Required]
         [StringLength(100)]
         public string Street { get; set; }
 
@@ -28,15 +30,12 @@ namespace TerminalApi.Models.Adresse
 
         [Required]
         [StringLength(50)]
-        public string Country { get; set; }
-
-        [StringLength(50)]
-        public string County { get; set; }
+        public string? Country { get; set; }
 
         [ForeignKey(nameof(user))]
         public string UserId { get; set; }
         public UserApp user { get; set; }
-        public string AdressType { get; set; }
+        public string AddressType { get; set; }
     }
 
     public enum AddressTypeEnum
