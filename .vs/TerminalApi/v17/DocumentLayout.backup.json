@@ -1,62 +1,50 @@
 {
   "Version": 1,
-  "WorkspaceRootPath": "C:\\Users\\mahdi\\source\\repos\\TerminalApi\\",
+  "WorkspaceRootPath": "C:\\Users\\mahdi\\Desktop\\terminalAPI\\TerminalApi\\",
   "Documents": [
     {
-      "AbsoluteMoniker": "D:0:0:{DA4CB627-C230-4577-8B48-43A84193DC5E}|TerminalApi\\TerminalApi.csproj|c:\\users\\mahdi\\source\\repos\\terminalapi\\terminalapi\\properties\\launchsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}",
-      "RelativeMoniker": "D:0:0:{DA4CB627-C230-4577-8B48-43A84193DC5E}|TerminalApi\\TerminalApi.csproj|solutionrelative:terminalapi\\properties\\launchsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}"
+      "AbsoluteMoniker": "D:0:0:{DA4CB627-C230-4577-8B48-43A84193DC5E}|TerminalApi\\TerminalApi.csproj|c:\\users\\mahdi\\desktop\\terminalapi\\terminalapi\\terminalapi\\.gitignore||{3B902123-F8A7-4915-9F01-361F908088D0}",
+      "RelativeMoniker": "D:0:0:{DA4CB627-C230-4577-8B48-43A84193DC5E}|TerminalApi\\TerminalApi.csproj|solutionrelative:terminalapi\\.gitignore||{3B902123-F8A7-4915-9F01-361F908088D0}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{DA4CB627-C230-4577-8B48-43A84193DC5E}|TerminalApi\\TerminalApi.csproj|c:\\users\\mahdi\\source\\repos\\terminalapi\\terminalapi\\utilities\\environmentvariables.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{DA4CB627-C230-4577-8B48-43A84193DC5E}|TerminalApi\\TerminalApi.csproj|solutionrelative:terminalapi\\utilities\\environmentvariables.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{DA4CB627-C230-4577-8B48-43A84193DC5E}|TerminalApi\\TerminalApi.csproj|c:\\users\\mahdi\\source\\repos\\terminalapi\\terminalapi\\controllers\\userscontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "AbsoluteMoniker": "D:0:0:{DA4CB627-C230-4577-8B48-43A84193DC5E}|TerminalApi\\TerminalApi.csproj|c:\\users\\mahdi\\desktop\\terminalapi\\terminalapi\\terminalapi\\controllers\\userscontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{DA4CB627-C230-4577-8B48-43A84193DC5E}|TerminalApi\\TerminalApi.csproj|solutionrelative:terminalapi\\controllers\\userscontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{DA4CB627-C230-4577-8B48-43A84193DC5E}|TerminalApi\\TerminalApi.csproj|c:\\users\\mahdi\\source\\repos\\terminalapi\\terminalapi\\services\\sendmailservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{DA4CB627-C230-4577-8B48-43A84193DC5E}|TerminalApi\\TerminalApi.csproj|solutionrelative:terminalapi\\services\\sendmailservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{DA4CB627-C230-4577-8B48-43A84193DC5E}|TerminalApi\\TerminalApi.csproj|c:\\users\\mahdi\\desktop\\terminalapi\\terminalapi\\terminalapi\\controllers\\addresscontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{DA4CB627-C230-4577-8B48-43A84193DC5E}|TerminalApi\\TerminalApi.csproj|solutionrelative:terminalapi\\controllers\\addresscontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{DA4CB627-C230-4577-8B48-43A84193DC5E}|TerminalApi\\TerminalApi.csproj|c:\\users\\mahdi\\source\\repos\\terminalapi\\terminalapi\\utilities\\emailtemplates.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{DA4CB627-C230-4577-8B48-43A84193DC5E}|TerminalApi\\TerminalApi.csproj|solutionrelative:terminalapi\\utilities\\emailtemplates.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{DA4CB627-C230-4577-8B48-43A84193DC5E}|TerminalApi\\TerminalApi.csproj|c:\\users\\mahdi\\source\\repos\\terminalapi\\terminalapi\\models\\mail\\mail.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{DA4CB627-C230-4577-8B48-43A84193DC5E}|TerminalApi\\TerminalApi.csproj|solutionrelative:terminalapi\\models\\mail\\mail.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{DA4CB627-C230-4577-8B48-43A84193DC5E}|TerminalApi\\TerminalApi.csproj|c:\\users\\mahdi\\source\\repos\\terminalapi\\terminalapi\\contexts\\apidefaultcontext.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{DA4CB627-C230-4577-8B48-43A84193DC5E}|TerminalApi\\TerminalApi.csproj|solutionrelative:terminalapi\\contexts\\apidefaultcontext.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{DA4CB627-C230-4577-8B48-43A84193DC5E}|TerminalApi\\TerminalApi.csproj|c:\\users\\mahdi\\source\\repos\\terminalapi\\terminalapi\\models\\user\\userapp.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "AbsoluteMoniker": "D:0:0:{DA4CB627-C230-4577-8B48-43A84193DC5E}|TerminalApi\\TerminalApi.csproj|c:\\users\\mahdi\\desktop\\terminalapi\\terminalapi\\terminalapi\\models\\user\\userapp.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{DA4CB627-C230-4577-8B48-43A84193DC5E}|TerminalApi\\TerminalApi.csproj|solutionrelative:terminalapi\\models\\user\\userapp.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{DA4CB627-C230-4577-8B48-43A84193DC5E}|TerminalApi\\TerminalApi.csproj|c:\\users\\mahdi\\source\\repos\\terminalapi\\terminalapi\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{DA4CB627-C230-4577-8B48-43A84193DC5E}|TerminalApi\\TerminalApi.csproj|solutionrelative:terminalapi\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{DA4CB627-C230-4577-8B48-43A84193DC5E}|TerminalApi\\TerminalApi.csproj|c:\\users\\mahdi\\desktop\\terminalapi\\terminalapi\\terminalapi\\services\\addressservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{DA4CB627-C230-4577-8B48-43A84193DC5E}|TerminalApi\\TerminalApi.csproj|solutionrelative:terminalapi\\services\\addressservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{DA4CB627-C230-4577-8B48-43A84193DC5E}|TerminalApi\\TerminalApi.csproj|c:\\users\\mahdi\\source\\repos\\terminalapi\\terminalapi\\utilities\\checkuser.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "AbsoluteMoniker": "D:0:0:{DA4CB627-C230-4577-8B48-43A84193DC5E}|TerminalApi\\TerminalApi.csproj|c:\\users\\mahdi\\desktop\\terminalapi\\terminalapi\\terminalapi\\models\\adresse\\addressextension.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{DA4CB627-C230-4577-8B48-43A84193DC5E}|TerminalApi\\TerminalApi.csproj|solutionrelative:terminalapi\\models\\adresse\\addressextension.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{DA4CB627-C230-4577-8B48-43A84193DC5E}|TerminalApi\\TerminalApi.csproj|c:\\users\\mahdi\\desktop\\terminalapi\\terminalapi\\terminalapi\\models\\adresse\\addressupdatedto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{DA4CB627-C230-4577-8B48-43A84193DC5E}|TerminalApi\\TerminalApi.csproj|solutionrelative:terminalapi\\models\\adresse\\addressupdatedto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{DA4CB627-C230-4577-8B48-43A84193DC5E}|TerminalApi\\TerminalApi.csproj|c:\\users\\mahdi\\desktop\\terminalapi\\terminalapi\\terminalapi\\models\\adresse\\addresscreatedto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{DA4CB627-C230-4577-8B48-43A84193DC5E}|TerminalApi\\TerminalApi.csproj|solutionrelative:terminalapi\\models\\adresse\\addresscreatedto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{DA4CB627-C230-4577-8B48-43A84193DC5E}|TerminalApi\\TerminalApi.csproj|c:\\users\\mahdi\\desktop\\terminalapi\\terminalapi\\terminalapi\\utilities\\checkuser.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{DA4CB627-C230-4577-8B48-43A84193DC5E}|TerminalApi\\TerminalApi.csproj|solutionrelative:terminalapi\\utilities\\checkuser.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{DA4CB627-C230-4577-8B48-43A84193DC5E}|TerminalApi\\TerminalApi.csproj|c:\\users\\mahdi\\source\\repos\\terminalapi\\terminalapi\\models\\responsedto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{DA4CB627-C230-4577-8B48-43A84193DC5E}|TerminalApi\\TerminalApi.csproj|solutionrelative:terminalapi\\models\\responsedto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{DA4CB627-C230-4577-8B48-43A84193DC5E}|TerminalApi\\TerminalApi.csproj|c:\\users\\mahdi\\desktop\\terminalapi\\terminalapi\\terminalapi\\properties\\launchsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}",
+      "RelativeMoniker": "D:0:0:{DA4CB627-C230-4577-8B48-43A84193DC5E}|TerminalApi\\TerminalApi.csproj|solutionrelative:terminalapi\\properties\\launchsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{DA4CB627-C230-4577-8B48-43A84193DC5E}|TerminalApi\\TerminalApi.csproj|c:\\users\\mahdi\\source\\repos\\terminalapi\\terminalapi\\utilities\\frenchidentityerrordescriber.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{DA4CB627-C230-4577-8B48-43A84193DC5E}|TerminalApi\\TerminalApi.csproj|solutionrelative:terminalapi\\utilities\\frenchidentityerrordescriber.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{DA4CB627-C230-4577-8B48-43A84193DC5E}|TerminalApi\\TerminalApi.csproj|c:\\users\\mahdi\\source\\repos\\terminalapi\\terminalapi\\models\\role\\role.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{DA4CB627-C230-4577-8B48-43A84193DC5E}|TerminalApi\\TerminalApi.csproj|solutionrelative:terminalapi\\models\\role\\role.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{DA4CB627-C230-4577-8B48-43A84193DC5E}|TerminalApi\\TerminalApi.csproj|c:\\users\\mahdi\\source\\repos\\terminalapi\\terminalapi\\utilities\\corshelper.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{DA4CB627-C230-4577-8B48-43A84193DC5E}|TerminalApi\\TerminalApi.csproj|solutionrelative:terminalapi\\utilities\\corshelper.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{DA4CB627-C230-4577-8B48-43A84193DC5E}|TerminalApi\\TerminalApi.csproj|c:\\users\\mahdi\\desktop\\terminalapi\\terminalapi\\terminalapi\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{DA4CB627-C230-4577-8B48-43A84193DC5E}|TerminalApi\\TerminalApi.csproj|solutionrelative:terminalapi\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     }
   ],
   "DocumentGroupContainers": [
@@ -66,186 +54,151 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": 9,
+          "SelectedChildIndex": 1,
           "Children": [
             {
-              "$type": "Document",
-              "DocumentIndex": 3,
-              "Title": "SendMailService.cs",
-              "DocumentMoniker": "C:\\Users\\mahdi\\source\\repos\\TerminalApi\\TerminalApi\\Services\\SendMailService.cs",
-              "RelativeDocumentMoniker": "TerminalApi\\Services\\SendMailService.cs",
-              "ToolTip": "C:\\Users\\mahdi\\source\\repos\\TerminalApi\\TerminalApi\\Services\\SendMailService.cs",
-              "RelativeToolTip": "TerminalApi\\Services\\SendMailService.cs",
-              "ViewState": "AgIAABgAAAAAAAAAAAAuwDEAAAASAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-11-09T21:54:21.455Z",
-              "EditorCaption": ""
+              "$type": "Bookmark",
+              "Name": "ST:0:0:{aa2115a1-9712-457b-9047-dbb71ca2cdd2}"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 1,
-              "Title": "EnvironmentVariables.cs",
-              "DocumentMoniker": "C:\\Users\\mahdi\\source\\repos\\TerminalApi\\TerminalApi\\Utilities\\EnvironmentVariables.cs",
-              "RelativeDocumentMoniker": "TerminalApi\\Utilities\\EnvironmentVariables.cs",
-              "ToolTip": "C:\\Users\\mahdi\\source\\repos\\TerminalApi\\TerminalApi\\Utilities\\EnvironmentVariables.cs",
-              "RelativeToolTip": "TerminalApi\\Utilities\\EnvironmentVariables.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAA8AAAA5AAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-11-09T20:36:56.605Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 9,
-              "Title": "CheckUser.cs",
-              "DocumentMoniker": "C:\\Users\\mahdi\\source\\repos\\TerminalApi\\TerminalApi\\Utilities\\CheckUser.cs",
-              "RelativeDocumentMoniker": "TerminalApi\\Utilities\\CheckUser.cs",
-              "ToolTip": "C:\\Users\\mahdi\\source\\repos\\TerminalApi\\TerminalApi\\Utilities\\CheckUser.cs",
-              "RelativeToolTip": "TerminalApi\\Utilities\\CheckUser.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAgAAAA1AAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-11-09T20:33:26.709Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 10,
-              "Title": "ResponseDTO.cs",
-              "DocumentMoniker": "C:\\Users\\mahdi\\source\\repos\\TerminalApi\\TerminalApi\\Models\\ResponseDTO.cs",
-              "RelativeDocumentMoniker": "TerminalApi\\Models\\ResponseDTO.cs",
-              "ToolTip": "C:\\Users\\mahdi\\source\\repos\\TerminalApi\\TerminalApi\\Models\\ResponseDTO.cs",
-              "RelativeToolTip": "TerminalApi\\Models\\ResponseDTO.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAcAAAAFAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-11-09T20:32:20.224Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 2,
-              "Title": "UsersController.cs",
-              "DocumentMoniker": "C:\\Users\\mahdi\\source\\repos\\TerminalApi\\TerminalApi\\Controllers\\UsersController.cs",
-              "RelativeDocumentMoniker": "TerminalApi\\Controllers\\UsersController.cs",
-              "ToolTip": "C:\\Users\\mahdi\\source\\repos\\TerminalApi\\TerminalApi\\Controllers\\UsersController.cs*",
-              "RelativeToolTip": "TerminalApi\\Controllers\\UsersController.cs*",
-              "ViewState": "AgIAAGsBAAAAAAAAAAAYwH8BAAAwAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-11-09T20:30:45.04Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 11,
-              "Title": "FrenchIdentityErrorDescriber.cs",
-              "DocumentMoniker": "C:\\Users\\mahdi\\source\\repos\\TerminalApi\\TerminalApi\\Utilities\\FrenchIdentityErrorDescriber.cs",
-              "RelativeDocumentMoniker": "TerminalApi\\Utilities\\FrenchIdentityErrorDescriber.cs",
-              "ToolTip": "C:\\Users\\mahdi\\source\\repos\\TerminalApi\\TerminalApi\\Utilities\\FrenchIdentityErrorDescriber.cs",
-              "RelativeToolTip": "TerminalApi\\Utilities\\FrenchIdentityErrorDescriber.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAUAAAAFAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-11-09T20:16:25.557Z",
+              "DocumentIndex": 0,
+              "Title": ".gitignore",
+              "DocumentMoniker": "C:\\Users\\mahdi\\Desktop\\terminalAPI\\TerminalApi\\TerminalApi\\.gitignore",
+              "RelativeDocumentMoniker": "TerminalApi\\.gitignore",
+              "ToolTip": "C:\\Users\\mahdi\\Desktop\\terminalAPI\\TerminalApi\\TerminalApi\\.gitignore",
+              "RelativeToolTip": "TerminalApi\\.gitignore",
+              "ViewState": "AgIAAAYAAAAAAAAAAAAAAA8AAAAMAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001001|",
+              "WhenOpened": "2024-11-13T15:22:11.225Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
               "DocumentIndex": 6,
-              "Title": "ApiDefaultContext.cs",
-              "DocumentMoniker": "C:\\Users\\mahdi\\source\\repos\\TerminalApi\\TerminalApi\\Contexts\\ApiDefaultContext.cs",
-              "RelativeDocumentMoniker": "TerminalApi\\Contexts\\ApiDefaultContext.cs",
-              "ToolTip": "C:\\Users\\mahdi\\source\\repos\\TerminalApi\\TerminalApi\\Contexts\\ApiDefaultContext.cs",
-              "RelativeToolTip": "TerminalApi\\Contexts\\ApiDefaultContext.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAC4AAAAFAAAAAAAAAA==",
+              "Title": "AddressUpdateDTO.cs",
+              "DocumentMoniker": "C:\\Users\\mahdi\\Desktop\\terminalAPI\\TerminalApi\\TerminalApi\\Models\\Adresse\\AddressUpdateDTO.cs",
+              "RelativeDocumentMoniker": "TerminalApi\\Models\\Adresse\\AddressUpdateDTO.cs",
+              "ToolTip": "C:\\Users\\mahdi\\Desktop\\terminalAPI\\TerminalApi\\TerminalApi\\Models\\Adresse\\AddressUpdateDTO.cs",
+              "RelativeToolTip": "TerminalApi\\Models\\Adresse\\AddressUpdateDTO.cs",
+              "ViewState": "AgIAAAoAAAAAAAAAAAAkwBIAAAAvAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-11-09T20:15:41.686Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 12,
-              "Title": "Role.cs",
-              "DocumentMoniker": "C:\\Users\\mahdi\\source\\repos\\TerminalApi\\TerminalApi\\Models\\Role\\Role.cs",
-              "RelativeDocumentMoniker": "TerminalApi\\Models\\Role\\Role.cs",
-              "ToolTip": "C:\\Users\\mahdi\\source\\repos\\TerminalApi\\TerminalApi\\Models\\Role\\Role.cs",
-              "RelativeToolTip": "TerminalApi\\Models\\Role\\Role.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAcAAAAFAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-11-09T20:14:13.419Z",
+              "WhenOpened": "2024-11-13T13:18:17.187Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
               "DocumentIndex": 7,
+              "Title": "AddressCreateDTO.cs",
+              "DocumentMoniker": "C:\\Users\\mahdi\\Desktop\\terminalAPI\\TerminalApi\\TerminalApi\\Models\\Adresse\\AddressCreateDTO.cs",
+              "RelativeDocumentMoniker": "TerminalApi\\Models\\Adresse\\AddressCreateDTO.cs",
+              "ToolTip": "C:\\Users\\mahdi\\Desktop\\terminalAPI\\TerminalApi\\TerminalApi\\Models\\Adresse\\AddressCreateDTO.cs",
+              "RelativeToolTip": "TerminalApi\\Models\\Adresse\\AddressCreateDTO.cs",
+              "ViewState": "AgIAAAgAAAAAAAAAAAAgwBEAAAAvAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-11-13T13:15:47.28Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "UsersController.cs",
+              "DocumentMoniker": "C:\\Users\\mahdi\\Desktop\\terminalAPI\\TerminalApi\\TerminalApi\\Controllers\\UsersController.cs",
+              "RelativeDocumentMoniker": "TerminalApi\\Controllers\\UsersController.cs",
+              "ToolTip": "C:\\Users\\mahdi\\Desktop\\terminalAPI\\TerminalApi\\TerminalApi\\Controllers\\UsersController.cs",
+              "RelativeToolTip": "TerminalApi\\Controllers\\UsersController.cs",
+              "ViewState": "AgIAAFAAAAAAAAAAAAAmwFwAAAAnAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-11-13T12:04:30.728Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 3,
               "Title": "UserApp.cs",
-              "DocumentMoniker": "C:\\Users\\mahdi\\source\\repos\\TerminalApi\\TerminalApi\\Models\\User\\UserApp.cs",
+              "DocumentMoniker": "C:\\Users\\mahdi\\Desktop\\terminalAPI\\TerminalApi\\TerminalApi\\Models\\User\\UserApp.cs",
               "RelativeDocumentMoniker": "TerminalApi\\Models\\User\\UserApp.cs",
-              "ToolTip": "C:\\Users\\mahdi\\source\\repos\\TerminalApi\\TerminalApi\\Models\\User\\UserApp.cs",
+              "ToolTip": "C:\\Users\\mahdi\\Desktop\\terminalAPI\\TerminalApi\\TerminalApi\\Models\\User\\UserApp.cs",
               "RelativeToolTip": "TerminalApi\\Models\\User\\UserApp.cs",
-              "ViewState": "AgIAAFcAAAAAAAAAAAArwF0AAAARAAAAAAAAAA==",
+              "ViewState": "AgIAAAgAAAAAAAAAAAAAwIQAAAAoAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-11-09T20:13:02.548Z",
+              "WhenOpened": "2024-11-13T12:02:53.74Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 0,
+              "DocumentIndex": 9,
               "Title": "launchSettings.json",
-              "DocumentMoniker": "C:\\Users\\mahdi\\source\\repos\\TerminalApi\\TerminalApi\\Properties\\launchSettings.json",
+              "DocumentMoniker": "C:\\Users\\mahdi\\Desktop\\terminalAPI\\TerminalApi\\TerminalApi\\Properties\\launchSettings.json",
               "RelativeDocumentMoniker": "TerminalApi\\Properties\\launchSettings.json",
-              "ToolTip": "C:\\Users\\mahdi\\source\\repos\\TerminalApi\\TerminalApi\\Properties\\launchSettings.json",
+              "ToolTip": "C:\\Users\\mahdi\\Desktop\\terminalAPI\\TerminalApi\\TerminalApi\\Properties\\launchSettings.json",
               "RelativeToolTip": "TerminalApi\\Properties\\launchSettings.json",
-              "ViewState": "AgIAACYAAAAAAAAAAAAUwDEAAAArAAAAAAAAAA==",
+              "ViewState": "AgIAACQAAAAAAAAAAAAAADMAAAAaAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001642|",
-              "WhenOpened": "2024-11-09T20:10:10.629Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 4,
-              "Title": "EmailTemplates.cs",
-              "DocumentMoniker": "C:\\Users\\mahdi\\source\\repos\\TerminalApi\\TerminalApi\\Utilities\\EmailTemplates.cs",
-              "RelativeDocumentMoniker": "TerminalApi\\Utilities\\EmailTemplates.cs",
-              "ToolTip": "C:\\Users\\mahdi\\source\\repos\\TerminalApi\\TerminalApi\\Utilities\\EmailTemplates.cs",
-              "RelativeToolTip": "TerminalApi\\Utilities\\EmailTemplates.cs",
-              "ViewState": "AgIAAJIDAAAAAAAAAAAQwAUDAAAHAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-11-10T16:36:07.561Z",
+              "WhenOpened": "2024-11-13T11:15:33.804Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
               "DocumentIndex": 5,
-              "Title": "Mail.cs",
-              "DocumentMoniker": "C:\\Users\\mahdi\\source\\repos\\TerminalApi\\TerminalApi\\Models\\Mail\\Mail.cs",
-              "RelativeDocumentMoniker": "TerminalApi\\Models\\Mail\\Mail.cs",
-              "ToolTip": "C:\\Users\\mahdi\\source\\repos\\TerminalApi\\TerminalApi\\Models\\Mail\\Mail.cs",
-              "RelativeToolTip": "TerminalApi\\Models\\Mail\\Mail.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAkAAAAqAAAAAAAAAA==",
+              "Title": "AddressExtension.cs",
+              "DocumentMoniker": "C:\\Users\\mahdi\\Desktop\\terminalAPI\\TerminalApi\\TerminalApi\\Models\\Adresse\\AddressExtension.cs",
+              "RelativeDocumentMoniker": "TerminalApi\\Models\\Adresse\\AddressExtension.cs",
+              "ToolTip": "C:\\Users\\mahdi\\Desktop\\terminalAPI\\TerminalApi\\TerminalApi\\Models\\Adresse\\AddressExtension.cs",
+              "RelativeToolTip": "TerminalApi\\Models\\Adresse\\AddressExtension.cs",
+              "ViewState": "AgIAABYAAAAAAAAAAAAqwCUAAAAgAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-11-10T18:00:04.043Z",
+              "WhenOpened": "2024-11-13T10:04:51.835Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 13,
-              "Title": "CorsHelper.cs",
-              "DocumentMoniker": "C:\\Users\\mahdi\\source\\repos\\TerminalApi\\TerminalApi\\Utilities\\CorsHelper.cs",
-              "RelativeDocumentMoniker": "TerminalApi\\Utilities\\CorsHelper.cs",
-              "ToolTip": "C:\\Users\\mahdi\\source\\repos\\TerminalApi\\TerminalApi\\Utilities\\CorsHelper.cs",
-              "RelativeToolTip": "TerminalApi\\Utilities\\CorsHelper.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAACoAAAAFAAAAAAAAAA==",
+              "DocumentIndex": 2,
+              "Title": "AddressController.cs",
+              "DocumentMoniker": "C:\\Users\\mahdi\\Desktop\\terminalAPI\\TerminalApi\\TerminalApi\\Controllers\\AddressController.cs",
+              "RelativeDocumentMoniker": "TerminalApi\\Controllers\\AddressController.cs",
+              "ToolTip": "C:\\Users\\mahdi\\Desktop\\terminalAPI\\TerminalApi\\TerminalApi\\Controllers\\AddressController.cs",
+              "RelativeToolTip": "TerminalApi\\Controllers\\AddressController.cs",
+              "ViewState": "AgIAAB4AAAAAAAAAAAAQwGEAAAANAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-11-09T20:08:19.153Z",
+              "WhenOpened": "2024-11-13T09:30:43.57Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
               "DocumentIndex": 8,
+              "Title": "CheckUser.cs",
+              "DocumentMoniker": "C:\\Users\\mahdi\\Desktop\\terminalAPI\\TerminalApi\\TerminalApi\\Utilities\\CheckUser.cs",
+              "RelativeDocumentMoniker": "TerminalApi\\Utilities\\CheckUser.cs",
+              "ToolTip": "C:\\Users\\mahdi\\Desktop\\terminalAPI\\TerminalApi\\TerminalApi\\Utilities\\CheckUser.cs",
+              "RelativeToolTip": "TerminalApi\\Utilities\\CheckUser.cs",
+              "ViewState": "AgIAAAMAAAAAAAAAAAAAAAoAAAAlAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-11-13T09:29:00.585Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 4,
+              "Title": "AddressService.cs",
+              "DocumentMoniker": "C:\\Users\\mahdi\\Desktop\\terminalAPI\\TerminalApi\\TerminalApi\\Services\\AddressService.cs",
+              "RelativeDocumentMoniker": "TerminalApi\\Services\\AddressService.cs",
+              "ToolTip": "C:\\Users\\mahdi\\Desktop\\terminalAPI\\TerminalApi\\TerminalApi\\Services\\AddressService.cs",
+              "RelativeToolTip": "TerminalApi\\Services\\AddressService.cs",
+              "ViewState": "AgIAACMAAAAAAAAAAAAswC0AAAAPAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-11-13T09:26:14.39Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 10,
               "Title": "Program.cs",
-              "DocumentMoniker": "C:\\Users\\mahdi\\source\\repos\\TerminalApi\\TerminalApi\\Program.cs",
+              "DocumentMoniker": "C:\\Users\\mahdi\\Desktop\\terminalAPI\\TerminalApi\\TerminalApi\\Program.cs",
               "RelativeDocumentMoniker": "TerminalApi\\Program.cs",
-              "ToolTip": "C:\\Users\\mahdi\\source\\repos\\TerminalApi\\TerminalApi\\Program.cs",
+              "ToolTip": "C:\\Users\\mahdi\\Desktop\\terminalAPI\\TerminalApi\\TerminalApi\\Program.cs",
               "RelativeToolTip": "TerminalApi\\Program.cs",
-              "ViewState": "AgIAAI0AAAAAAAAAAAAhwKAAAAB3AAAAAAAAAA==",
+              "ViewState": "AgIAAMUAAAAAAAAAAAAuwNYAAABCAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2024-11-09T20:04:14.322Z",
               "EditorCaption": ""

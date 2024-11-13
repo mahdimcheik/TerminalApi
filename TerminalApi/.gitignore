@@ -14,9 +14,9 @@
 *.sln.docstates
 
 _ReSharper.*
-bin
-obj
-packages
+bin/
+obj/
+./packages
 
 # User-specific files (MonoDevelop/Xamarin Studio)
 *.userprefs
