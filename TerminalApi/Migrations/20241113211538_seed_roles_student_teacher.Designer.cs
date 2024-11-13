@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using TerminalApi.Contexts;
 
@@ -10,9 +11,11 @@ using TerminalApi.Contexts;
 namespace TerminalApi.Migrations
 {
     [DbContext(typeof(ApiDefaultContext))]
-    partial class ApiDefaultContextModelSnapshot : ModelSnapshot
+    [Migration("20241113211538_seed_roles_student_teacher")]
+    partial class seed_roles_student_teacher
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "8.0.10");
@@ -208,102 +211,6 @@ namespace TerminalApi.Migrations
                     b.ToTable("Addresses");
                 });
 
-            modelBuilder.Entity("TerminalApi.Models.Bookings.Booking", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("TEXT");
-
-                    b.Property<DateTime>("BookedAt")
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("BookedById")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("TEXT");
-
-                    b.Property<Guid?>("OrderId")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
-
-                    b.Property<Guid>("SlotId")
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("Status")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("BookedById");
-
-                    b.HasIndex("OrderId");
-
-                    b.HasIndex("SlotId")
-                        .IsUnique();
-
-                    b.ToTable("Bookings");
-                });
-
-            modelBuilder.Entity("TerminalApi.Models.Payments.Order", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("TEXT");
-
-                    b.Property<DateTime?>("PCreatedAt")
-                        .HasColumnType("TEXT");
-
-                    b.Property<DateTime?>("PaymentDate")
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("PaymentMethod")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("Status")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("Order");
-                });
-
-            modelBuilder.Entity("TerminalApi.Models.Slots.Slot", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("TEXT");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("CreatedById")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
-
-                    b.Property<DateTime>("EndAt")
-                        .HasColumnType("TEXT");
-
-                    b.Property<decimal>("Price")
-                        .HasColumnType("decimal(18, 6)");
-
-                    b.Property<int?>("Reduction")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<DateTime>("StartAt")
-                        .HasColumnType("TEXT");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("CreatedById");
-
-                    b.ToTable("Slots");
-                });
-
             modelBuilder.Entity("TerminalApi.Models.User.UserApp", b =>
                 {
                     b.Property<string>("Id")
@@ -496,61 +403,9 @@ namespace TerminalApi.Migrations
                     b.Navigation("user");
                 });
 
-            modelBuilder.Entity("TerminalApi.Models.Bookings.Booking", b =>
-                {
-                    b.HasOne("TerminalApi.Models.User.UserApp", "Booker")
-                        .WithMany("Bookings")
-                        .HasForeignKey("BookedById")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("TerminalApi.Models.Payments.Order", "Order")
-                        .WithMany("Bookings")
-                        .HasForeignKey("OrderId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("TerminalApi.Models.Slots.Slot", "Slot")
-                        .WithOne("Booking")
-                        .HasForeignKey("TerminalApi.Models.Bookings.Booking", "SlotId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Booker");
-
-                    b.Navigation("Order");
-
-                    b.Navigation("Slot");
-                });
-
-            modelBuilder.Entity("TerminalApi.Models.Slots.Slot", b =>
-                {
-                    b.HasOne("TerminalApi.Models.User.UserApp", "Creator")
-                        .WithMany("Slots")
-                        .HasForeignKey("CreatedById")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Creator");
-                });
-
-            modelBuilder.Entity("TerminalApi.Models.Payments.Order", b =>
-                {
-                    b.Navigation("Bookings");
-                });
-
-            modelBuilder.Entity("TerminalApi.Models.Slots.Slot", b =>
-                {
-                    b.Navigation("Booking");
-                });
-
             modelBuilder.Entity("TerminalApi.Models.User.UserApp", b =>
                 {
                     b.Navigation("Adresses");
-
-                    b.Navigation("Bookings");
-
-                    b.Navigation("Slots");
                 });
 #pragma warning restore 612, 618
         }

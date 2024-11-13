@@ -99,7 +99,7 @@ namespace TerminalApi.Controllers
             // Tenter d'ajouter l'utilisateur aux rôles spécifiés dans le modèle
             IdentityResult roleResult = await _userManager.AddToRolesAsync(
                 user: newUser,
-                roles: ["Client"]
+                roles: ["Student"]
             );
 
             // Vérifier si la création de l'utilisateur a échoué

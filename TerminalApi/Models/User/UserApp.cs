@@ -2,6 +2,9 @@
 using System.ComponentModel.DataAnnotations;
 using Microsoft.AspNetCore.Identity;
 using TerminalApi.Models.Adresse;
+using TerminalApi.Models.Bookings;
+using TerminalApi.Models.Slots;
+using TerminalApi.Utilities;
 
 namespace TerminalApi.Models.User
 {
@@ -9,11 +12,10 @@ namespace TerminalApi.Models.User
     {
         [Required]
         public string FirstName { get; set; }
-
         [Required]
         public string LastName { get; set; }
+        public string? Gender { get; set; } 
         public string? ImgUrl { get; set; }
-
         [Required]
         [DataType(DataType.DateTime)]
         public DateTime DateOfBirth { get; set; }
@@ -28,6 +30,9 @@ namespace TerminalApi.Models.User
         [DataType(DataType.DateTime)]
         public DateTime? LastLogginAt { get; set; }
         public ICollection<Address>? Adresses { get; set; }
+        // si le user est le prof. il a une liste de crenaux 
+        public ICollection<Slot>? Slots { get; set; }
+        public ICollection<Booking>? Bookings { get; set; }
     }
 
     public class UserUpdateDTO
@@ -44,6 +49,8 @@ namespace TerminalApi.Models.User
         [Required]
         [DataType(DataType.DateTime)]
         public DateTime DateOfBirth { get; set; }
+        [Required]
+        public string? Gender { get; set; }
     }
 
     public class UserResponseDTO
@@ -53,6 +60,7 @@ namespace TerminalApi.Models.User
         public string? LastName { get; set; }
         public string Email { get; set; } = null!;
         public string? ImgUrl { get; set; }
+        public string? Gender { get; set; }
         public DateTime? LastLogginAt { get; set; }
         public DateTime? DateOfBirth { get; set; }
 
@@ -89,9 +97,12 @@ namespace TerminalApi.Models.User
 
         [Required]
         public string LastName { get; set; }
+        
+        public string? Gender { get; set; } = EnumGender.Autre.ToString("G");
 
         [Required]
         [DataType(DataType.DateTime)]
+
         public DateTime DateOfBirth { get; set; }
     }
 
@@ -106,6 +117,7 @@ namespace TerminalApi.Models.User
                 FirstName = userDTO.FirstName,
                 LastName = userDTO.LastName,
                 DateOfBirth = userDTO.DateOfBirth,
+                Gender = userDTO.Gender,
             };
         }
 
@@ -113,6 +125,7 @@ namespace TerminalApi.Models.User
         {
             user.DateOfBirth = userDTO.DateOfBirth;
             user.FirstName = userDTO.FirstName;
+            user.Gender = userDTO.Gender;
             user.LastName = userDTO.LastName;
             user.LastModifiedAt = DateTime.Now;
             return user;
@@ -131,6 +144,7 @@ namespace TerminalApi.Models.User
                 DateOfBirth = userDTO.DateOfBirth,
                 LastLogginAt = userDTO.LastLogginAt,
                 ImgUrl = userDTO.ImgUrl,
+                Gender = userDTO.Gender,
                 Id = userDTO.Id,
                 Roles = roles,
             };
