@@ -16,19 +16,18 @@ namespace TerminalApi.Utilities
             if (user == null) return null;
             return user;
         }
-        public static async Task<bool> CheckUserNullByEmail(string email, UserManager<UserApp> _userManager)
+        public static async Task<(UserApp? user, bool isNull)> CheckUserNullByEmail(string email, UserManager<UserApp> _userManager)
         {
 
             var user = await _userManager.FindByEmailAsync(email);
 
-            return user is null;
+            return (user, user is null);
         }
-        public static async Task<bool> CheckUserNullByUserId(string id, UserManager<UserApp> _userManager)
+        public static async Task<(UserApp? user, bool isNull)> CheckUserNullByUserId(string id, UserManager<UserApp> _userManager)
         {
-
             var user = await _userManager.FindByIdAsync(id);
 
-            return user is null;
+            return (user, user is null);
         }
     }
 }

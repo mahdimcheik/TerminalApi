@@ -213,6 +213,7 @@ namespace TerminalApi
             services.AddDbContext<ApiDefaultContext>(options =>
             {
                 options.UseSqlite("Data Source = d:\\terminal.db;");
+                
             });
             ConfigureCors(services);
             ConfigureControllers(services);

@@ -220,6 +220,12 @@ namespace TerminalApi.Migrations
                         .IsConcurrencyToken()
                         .HasColumnType("TEXT");
 
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime>("DateOfBirth")
+                        .HasColumnType("TEXT");
+
                     b.Property<string>("Email")
                         .HasMaxLength(256)
                         .HasColumnType("TEXT");
@@ -232,6 +238,12 @@ namespace TerminalApi.Migrations
                         .HasColumnType("TEXT");
 
                     b.Property<string>("ImgUrl")
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime?>("LastLogginAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime>("LastModifiedAt")
                         .HasColumnType("TEXT");
 
                     b.Property<string>("LastName")

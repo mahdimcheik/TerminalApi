@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel;
+using System.ComponentModel.DataAnnotations;
 using Microsoft.AspNetCore.Identity;
 using TerminalApi.Models.Adresse;
 
@@ -8,11 +9,41 @@ namespace TerminalApi.Models.User
     {
         [Required]
         public string FirstName { get; set; }
+
         [Required]
         public string LastName { get; set; }
         public string? ImgUrl { get; set; }
+
+        [Required]
+        [DataType(DataType.DateTime)]
+        public DateTime DateOfBirth { get; set; }
         public string? RefreshToken { get; set; }
+
+        [DataType(DataType.DateTime)]
+        public DateTime CreatedAt { get; set; }
+
+        [DataType(DataType.DateTime)]
+        public DateTime LastModifiedAt { get; set; }
+
+        [DataType(DataType.DateTime)]
+        public DateTime? LastLogginAt { get; set; }
         public ICollection<Address>? Adresses { get; set; }
+    }
+
+    public class UserUpdateDTO
+    {
+        [Required]
+        public string Id { get; set; } = null!;
+
+        [Required]
+        public string? FirstName { get; set; }
+
+        [Required]
+        public string? LastName { get; set; }
+
+        [Required]
+        [DataType(DataType.DateTime)]
+        public DateTime DateOfBirth { get; set; }
     }
 
     public class UserResponseDTO
@@ -21,6 +52,9 @@ namespace TerminalApi.Models.User
         public string? FirstName { get; set; }
         public string? LastName { get; set; }
         public string Email { get; set; } = null!;
+        public DateTime? LastLogginAt { get; set; }
+        public DateTime? DateOfBirth { get; set; }
+
         public ICollection<string>? Roles { get; set; }
     }
 
@@ -44,9 +78,20 @@ namespace TerminalApi.Models.User
     {
         [EmailAddress]
         public string Email { get; set; }
+
+        [Required]
+        [DataType(DataType.Password)]
         public string Password { get; set; }
+
+        [Required]
         public string FirstName { get; set; }
+
+        [Required]
         public string LastName { get; set; }
+
+        [Required]
+        [DataType(DataType.DateTime)]
+        public DateTime DateOfBirth { get; set; }
     }
 
     public static class UserExtension
@@ -59,7 +104,17 @@ namespace TerminalApi.Models.User
                 UserName = userDTO.Email,
                 FirstName = userDTO.FirstName,
                 LastName = userDTO.LastName,
+                DateOfBirth = userDTO.DateOfBirth,
             };
+        }
+
+        public static UserApp ToUser(this UserUpdateDTO userDTO, UserApp user)
+        {
+            user.DateOfBirth = userDTO.DateOfBirth;
+            user.FirstName = userDTO.FirstName;
+            user.LastName = userDTO.LastName;
+            user.LastModifiedAt = DateTime.Now;
+            return user;
         }
 
         public static UserResponseDTO ToUserResponseDTO(
@@ -72,8 +127,10 @@ namespace TerminalApi.Models.User
                 Email = userDTO.Email,
                 FirstName = userDTO.FirstName,
                 LastName = userDTO.LastName,
+                DateOfBirth = userDTO.DateOfBirth,
+                LastLogginAt = userDTO.LastLogginAt,
                 Id = userDTO.Id,
-                Roles = roles
+                Roles = roles,
             };
         }
     }

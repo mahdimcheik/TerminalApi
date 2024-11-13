@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using System.Formats.Asn1;
 using TerminalApi.Contexts;
@@ -66,15 +67,15 @@ namespace TerminalApi.Controllers
             {
                 return BadRequest(new ResponseDTO { Status = 400, Message = "Demande refusée" });
             }
-            var res = await CheckUser.CheckUserNullByUserId(addressCreate.UserId, userManager);
-            if (res)
+            var user = CheckUser.GetUserFromClaim(HttpContext.User, context);
+            if (user is null)
             {
                 return BadRequest(new ResponseDTO { Status = 400, Message = "Demande refusée" });
             }
 
             try
             {
-                var result = await addressService.AddAddress(addressCreate);
+                var result = await addressService.AddAddress(addressCreate, user.Id);
                 return Ok(new ResponseDTO { Data = result, Message = "Addresse ajoutée", Status = 200 });
             }
             catch (Exception ex) { 
@@ -83,31 +84,39 @@ namespace TerminalApi.Controllers
 
         }
 
-        //[HttpPatch]
-        //public async Task<ActionResult<ResponseDTO>> UpdateAddress([FromBody] Address address)
+        [HttpPut]
+        public async Task<ActionResult<ResponseDTO>> UpdateAddress([FromBody] AddressUpdateDTO addressDTO)
 
-        //{
-        //    if (address is null)
-        //    {
-        //        return BadRequest(new ResponseDTO { Status = 400, Message = "Demande refusée" });
-        //    }
-        //    var res = await CheckUser.CheckUserNullByUserId(addressCreate.UserId, userManager);
-        //    if (res)
-        //    {
-        //        return BadRequest(new ResponseDTO { Status = 400, Message = "Demande refusée" });
-        //    }
+        {
+            if (addressDTO is null)
+            {
+                return BadRequest(new ResponseDTO { Status = 400, Message = "Demande refusée" });
+            }
+            var user = CheckUser.GetUserFromClaim(HttpContext.User, context);
 
-        //    try
-        //    {
-        //        var result = await addressService.AddAddress(addressCreate);
-        //        return Ok(new ResponseDTO { Data = result, Message = "Addresse ajoutée", Status = 200 });
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        return BadRequest(new ResponseDTO { Status = 400, Message = ex.Message });
-        //    }
+            if (user is null)
+            {
+                return BadRequest(new ResponseDTO { Status = 400, Message = "Demande refusée" });
+            }
 
-        //}
+            var AddressFromDb = await context.Addresses.FirstOrDefaultAsync(x => x.Id == Guid.Parse(addressDTO.Id) && x.UserId == user.Id );
+            
+            if (AddressFromDb is null)
+            {
+                return BadRequest(new ResponseDTO { Status = 400, Message = "Demande refusée" });
+            }
+
+            try
+            {
+                var result = await addressService.UpdateAddress(addressDTO, AddressFromDb);
+                return Ok(new ResponseDTO { Data = result, Message = "Addresse ajoutée", Status = 200 });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new ResponseDTO { Status = 400, Message = ex.Message });
+            }
+
+        }
     }
 
    

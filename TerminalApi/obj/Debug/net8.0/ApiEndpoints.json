@@ -27,6 +27,32 @@
   },
   {
     "ContainingType": "TerminalApi.Controllers.AddressController",
+    "Method": "UpdateAddress",
+    "RelativePath": "address",
+    "HttpMethod": "PUT",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "addressDTO",
+        "Type": "TerminalApi.Models.Adresse.AddressUpdateDTO",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": [
+      {
+        "Type": "TerminalApi.Models.ResponseDTO",
+        "MediaTypes": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "StatusCode": 200
+      }
+    ]
+  },
+  {
+    "ContainingType": "TerminalApi.Controllers.AddressController",
     "Method": "GetAddressesByUserId",
     "RelativePath": "address/all",
     "HttpMethod": "GET",
@@ -227,6 +253,22 @@
       {
         "Name": "model",
         "Type": "TerminalApi.Models.User.UserCreateDTO",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "TerminalApi.Controllers.UsersController",
+    "Method": "Update",
+    "RelativePath": "users/update",
+    "HttpMethod": "PATCH",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "model",
+        "Type": "TerminalApi.Models.User.UserUpdateDTO",
         "IsRequired": true
       }
     ],

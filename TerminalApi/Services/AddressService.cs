@@ -26,20 +26,11 @@ namespace TerminalApi.Services
                 .ToListAsync();
         }
 
-        public async Task<AddressResponseDTO> AddAddress(AddressCreateDTO addressCreate)
+        public async Task<AddressResponseDTO> AddAddress(AddressCreateDTO addressCreate, string userId)
         {
             try
             {
-                var result = await CheckUser.CheckUserNullByUserId(
-                    addressCreate.UserId,
-                    userManager
-                );
-                if (result)
-                {
-                    throw new Exception("l'utilisateur n'existe pas");
-                }
-
-                var adress = addressCreate.ToAddress();
+                var adress = addressCreate.ToAddress(userId);
                 context.Addresses.Add(adress);
                 await context.SaveChangesAsync();
                 return adress.ToAddressDTO();
@@ -50,20 +41,13 @@ namespace TerminalApi.Services
             }
         }
 
-        public async Task<AddressResponseDTO> UpdateAddress(Address updatedAddressData)
+        public async Task<AddressResponseDTO> UpdateAddress(AddressUpdateDTO updatedAddressData, Address address)
         {
             try
-            {
-                context.Addresses.Attach(updatedAddressData);
-                context.Entry(updatedAddressData).State = EntityState.Modified;
+            {                
+                updatedAddressData.ToAddress(address);
                 await context.SaveChangesAsync();
-                var res = await context.Addresses.FirstOrDefaultAsync(x =>
-                    x.Id == updatedAddressData.Id
-                );
-                if (res is not null)
-                    return res.ToAddressDTO();
-                else
-                    throw new Exception("Il n'y a pas d'addresse à modifier");
+                return address.ToAddressDTO();
             }
             catch (Exception ex)
             {

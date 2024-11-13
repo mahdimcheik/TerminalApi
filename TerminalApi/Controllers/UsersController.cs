@@ -1,16 +1,13 @@
-﻿using System;
-using System.IdentityModel.Tokens.Jwt;
-using System.Security.Claims;
-using System.Text;
-using System.Web;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.AspNetCore.Authorization;
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Cors;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
+using System.Text;
+using System.Web;
 using TerminalApi.Contexts;
 using TerminalApi.Models;
 using TerminalApi.Models.Role;
@@ -24,7 +21,6 @@ namespace TerminalApi.Controllers
     [Authorize]
     [ApiController]
     //[ResponseCache(Duration = 30, Location = ResponseCacheLocation.Client, NoStore = false)]
-
     public class UsersController : ControllerBase
     {
         #region Attributes
@@ -90,6 +86,8 @@ namespace TerminalApi.Controllers
 
             // Créer un nouvel utilisateur en utilisant les données du modèle et la base de données contextuelle
             UserApp newUser = model.ToUser();
+            newUser.CreatedAt = DateTime.Now;
+            newUser.LastModifiedAt = DateTime.Now;
 
             // Obtenir la date actuelle
             DateTime date = DateTime.Now;
@@ -127,8 +125,9 @@ namespace TerminalApi.Controllers
                     {
                         MailBody = confirmationLink,
                         MailSubject = "Mail de confirmation",
-                        MailTo = newUser.Email
-                    }, confirmationLink
+                        MailTo = newUser.Email,
+                    },
+                    confirmationLink
                 );
                 // Retourne une réponse avec le statut déterminé, l'identifiant de l'utilisateur, le message de réponse et le statut complet
                 return Ok(new { UserId = newUser.Id, Message = ResponseContent });
@@ -140,8 +139,46 @@ namespace TerminalApi.Controllers
                 throw new Exception("An error occurred during user creation.", e);
             }
 
-            UserAlreadyExisted:
+        UserAlreadyExisted:
             return Conflict(ResponseContent);
+        }
+
+        [EnableCors]
+        [Route("update")]
+        [HttpPatch]
+        public async Task<IActionResult> Update([FromBody] UserUpdateDTO model)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            var user = CheckUser.GetUserFromClaim(HttpContext.User, _context);
+
+            if (user is null)
+            {
+                return BadRequest(new ResponseDTO { Status = 404, Message = "Le compte n'existe pas ou ne correspond pas" });
+            }
+
+            model.ToUser(user);
+
+            try
+            {
+                await _context.SaveChangesAsync();
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new ResponseDTO { Status = 401, Message = ex.Message });
+            }
+
+            return Ok(
+                new ResponseDTO
+                {
+                    Message = "Profil mis à jour",
+                    Status = 200,
+                    Data = user.ToUserResponseDTO(),
+                }
+            );
         }
 
         private async Task<bool> IsEmailAlreadyUsedAsync(string email)
@@ -171,7 +208,7 @@ namespace TerminalApi.Controllers
                     {
                         Message = "Connexion échouée",
                         Status = 401,
-                        Data = ModelState
+                        Data = ModelState,
                     }
                 );
 
@@ -195,8 +232,10 @@ namespace TerminalApi.Controllers
             if (user.RefreshToken == null) // a new refresh token has to be saved
             {
                 user.RefreshToken = Guid.NewGuid().ToString();
-                await _context.SaveChangesAsync();
             }
+
+            user.LastLogginAt = DateTime.Now;
+            await _context.SaveChangesAsync();
 
             HttpContext.Response.Headers.Add(
                 key: "Access-Control-Allow-Credentials",
@@ -212,8 +251,8 @@ namespace TerminalApi.Controllers
                     Data = new
                     {
                         Token = await GenerateAccessTokenAsync(user),
-                        User = user.ToUserResponseDTO(userRoles)
-                    }
+                        User = user.ToUserResponseDTO(userRoles),
+                    },
                 }
             );
         }
@@ -228,7 +267,7 @@ namespace TerminalApi.Controllers
                 IssuerSigningKey = new SymmetricSecurityKey(
                     Encoding.UTF8.GetBytes(EnvironmentVariables.JWT_KEY)
                 ),
-                ValidateLifetime = false
+                ValidateLifetime = false,
             };
 
             var tokenHandler = new JwtSecurityTokenHandler();
@@ -341,7 +380,9 @@ namespace TerminalApi.Controllers
             var user = CheckUser.GetUserFromClaim(HttpContext.User, _context);
 
             if (user == null)
-                return BadRequest(new ResponseDTO { Message = "Vous n'êtes pas connecté", Status = 401 });
+                return BadRequest(
+                    new ResponseDTO { Message = "Vous n'êtes pas connecté", Status = 401 }
+                );
 
             var result = user.ToUserResponseDTO();
             var userRoles = await _userManager.GetRolesAsync(user);
@@ -354,8 +395,8 @@ namespace TerminalApi.Controllers
                     Data = new
                     {
                         Token = await GenerateAccessTokenAsync(user),
-                        User = user.ToUserResponseDTO(userRoles)
-                    }
+                        User = user.ToUserResponseDTO(userRoles),
+                    },
                 }
             );
         }
@@ -392,8 +433,9 @@ namespace TerminalApi.Controllers
                             new Models.Mail.Mail
                             {
                                 MailSubject = "Mail de réinitialisation",
-                                MailTo = user.Email
-                            }, resetLink
+                                MailTo = user.Email,
+                            },
+                            resetLink
                         );
 
                         return Ok(
@@ -402,7 +444,13 @@ namespace TerminalApi.Controllers
                                 Message =
                                     "Un email de réinitialisation vient d'être envoyé à cette adresse "
                                     + user.Email,
-                                Status = 200, Data = new { resetToken, Email = user.Email, Id = user.Id }
+                                Status = 200,
+                                Data = new
+                                {
+                                    resetToken,
+                                    Email = user.Email,
+                                    Id = user.Id,
+                                },
                             }
                         );
                     }
@@ -412,7 +460,7 @@ namespace TerminalApi.Controllers
                             new ResponseDTO
                             {
                                 Message = "Erreur de réinitialisation, réessayez plus tard ",
-                                Status = 400
+                                Status = 400,
                             }
                         );
                     }
@@ -422,7 +470,7 @@ namespace TerminalApi.Controllers
                 new ResponseDTO
                 {
                     Message = "Erreur de réinitialisation, réessayez plus tard ",
-                    Status = 400
+                    Status = 400,
                 }
             );
         }
@@ -459,7 +507,7 @@ namespace TerminalApi.Controllers
                         new ResponseDTO
                         {
                             Message = "Mot de passe vient d'être modifié",
-                            Status = 201
+                            Status = 201,
                         }
                     );
                 }
@@ -479,7 +527,7 @@ namespace TerminalApi.Controllers
                 {
                     Message = "Problème de validation, votre token est valid ?",
                     Status = 404,
-                    Data = ModelState
+                    Data = ModelState,
                 }
             );
         }
