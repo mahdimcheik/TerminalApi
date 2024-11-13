@@ -52,6 +52,7 @@ namespace TerminalApi.Models.User
         public string? FirstName { get; set; }
         public string? LastName { get; set; }
         public string Email { get; set; } = null!;
+        public string? ImgUrl { get; set; }
         public DateTime? LastLogginAt { get; set; }
         public DateTime? DateOfBirth { get; set; }
 
@@ -129,6 +130,7 @@ namespace TerminalApi.Models.User
                 LastName = userDTO.LastName,
                 DateOfBirth = userDTO.DateOfBirth,
                 LastLogginAt = userDTO.LastLogginAt,
+                ImgUrl = userDTO.ImgUrl,
                 Id = userDTO.Id,
                 Roles = roles,
             };

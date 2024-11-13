@@ -88,6 +88,7 @@ namespace TerminalApi.Controllers
             UserApp newUser = model.ToUser();
             newUser.CreatedAt = DateTime.Now;
             newUser.LastModifiedAt = DateTime.Now;
+            newUser.ImgUrl = @"https://upload.wikimedia.org/wikipedia/commons/thumb/1/12/User_icon_2.svg/1200px-User_icon_2.svg.png";
 
             // Obtenir la date actuelle
             DateTime date = DateTime.Now;
