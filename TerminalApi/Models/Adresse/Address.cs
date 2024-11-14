@@ -35,7 +35,7 @@ namespace TerminalApi.Models.Adresse
         [ForeignKey(nameof(user))]
         public string UserId { get; set; }
         public UserApp user { get; set; }
-        public string AddressType { get; set; }
+        public AddressTypeEnum AddressType { get; set; }
     }
 
     public enum AddressTypeEnum

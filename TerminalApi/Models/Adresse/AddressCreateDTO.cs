@@ -15,6 +15,6 @@
 
         public string? Country { get; set; }
 
-        public string AddressType { get; set; }
+        public AddressTypeEnum AddressType { get; set; }
     }
 }

@@ -65,6 +65,7 @@ namespace TerminalApi.Models.User
         public DateTime? LastLogginAt { get; set; }
         public DateTime? DateOfBirth { get; set; }
         public string? PhoneNumber { get; set; }
+        public bool EmailConfirmed { get; set; } = false;
 
         public ICollection<string>? Roles { get; set; }
     }
@@ -150,6 +151,7 @@ namespace TerminalApi.Models.User
                 ImgUrl = userDTO.ImgUrl,
                 Gender = userDTO.Gender,
                 Id = userDTO.Id,
+                EmailConfirmed = userDTO.EmailConfirmed,
                 Roles = roles,
             };
         }

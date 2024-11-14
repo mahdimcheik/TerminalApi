@@ -64,7 +64,7 @@ namespace TerminalApi.Controllers
             if (!ModelState.IsValid)
             {
                 // Si le modèle n'est pas valide, renvoyer une réponse BadRequest avec le modèle d'état non valide
-                return BadRequest(ModelState);
+                return BadRequest(new ResponseDTO { Status = 404, Message = "problème de validation" });
             }
 
             // Initialiser la chaîne de réponse
@@ -78,7 +78,7 @@ namespace TerminalApi.Controllers
             {
                 // Si l'adresse e-mail est déjà utilisée, mettre à jour la réponse et sauter vers l'étiquette UserAlreadyExisted
                 ResponseContent = "L'adresse email est déjà utilisée";
-                goto UserAlreadyExisted;
+                return  Conflict(new ResponseDTO { Status = 404, Message = "\"L'email est déjà utilisé\"" }); 
             }
 
             // Utiliser le mot de passe fourni ou générer un mot de passe aléatoire
@@ -112,7 +112,12 @@ namespace TerminalApi.Controllers
                 }
 
                 // Retourner une réponse BadRequest avec le modèle d'état contenant les erreurs
-                return BadRequest(ModelState);
+                return BadRequest(new ResponseDTO
+                {
+                    Message = "Création échouée",
+                    Status = 401,
+                    Data = ModelState,
+                });
             }
 
             // Si tout s'est bien déroulé, enregistrer les changements dans le contexte de base de données
@@ -131,17 +136,23 @@ namespace TerminalApi.Controllers
                     confirmationLink
                 );
                 // Retourne une réponse avec le statut déterminé, l'identifiant de l'utilisateur, le message de réponse et le statut complet
-                return Ok(new { UserId = newUser.Id, Message = ResponseContent });
+                return     Ok(
+                new ResponseDTO
+                {
+                    Message = "Profil mis à jour",
+                    Status = 200,
+                    Data = newUser.ToUserResponseDTO(),
+                }
+            ); ;
             }
             catch (Exception e)
             {
                 // En cas d'exception, afficher la trace et retourner une réponse avec le statut approprié
                 Console.WriteLine(e);
-                throw new Exception("An error occurred during user creation.", e);
+                return BadRequest(new ResponseDTO { Status = 404, Message = "Le compte n'est pas créé" });
             }
 
-        UserAlreadyExisted:
-            return Conflict(ResponseContent);
+            return Conflict(new ResponseDTO { Status = 404, Message = "Le compte n'est pas créé" }); 
         }
 
         [EnableCors]
