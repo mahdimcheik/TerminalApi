@@ -2,21 +2,21 @@
 {
     public enum EnumGender
     {
-        Homme,
-        Femme,
-        NonBinaire,
-        Autre,
+        Homme = 0,
+        Femme = 1,
+        NonBinaire = 2,
+        Autre = 3,
     }
 
     public enum EnumSlotType
     {
-        Presentiel,
+        Presentiel = 0,
     }
 
     public enum EnumBookingStatus
     {
-        Pending,
-        Paid,
-        Cancelled,
+        Pending = 0,
+        Paid = 1,
+        Cancelled = 2,
     }
 }

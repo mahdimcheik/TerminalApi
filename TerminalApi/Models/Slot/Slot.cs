@@ -2,6 +2,7 @@
 using System.ComponentModel.DataAnnotations.Schema;
 using TerminalApi.Models.Bookings;
 using TerminalApi.Models.User;
+using TerminalApi.Utilities;
 
 namespace TerminalApi.Models.Slots
 {
@@ -28,5 +29,6 @@ namespace TerminalApi.Models.Slots
         [Column(TypeName = "decimal(18, 6)")]
         public decimal Price { get; set; }
         public int? Reduction { get; set; }
+        public EnumSlotType Type { get; set; }
     }
 }

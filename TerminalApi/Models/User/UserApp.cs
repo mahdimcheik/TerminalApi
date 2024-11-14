@@ -14,7 +14,7 @@ namespace TerminalApi.Models.User
         public string FirstName { get; set; }
         [Required]
         public string LastName { get; set; }
-        public string? Gender { get; set; } 
+        public EnumGender Gender { get; set; } 
         public string? ImgUrl { get; set; }
         [Required]
         [DataType(DataType.DateTime)]
@@ -45,12 +45,13 @@ namespace TerminalApi.Models.User
 
         [Required]
         public string? LastName { get; set; }
+        public string? PhoneNumber { get;set; }
 
         [Required]
         [DataType(DataType.DateTime)]
         public DateTime DateOfBirth { get; set; }
         [Required]
-        public string? Gender { get; set; }
+        public EnumGender Gender { get; set; }
     }
 
     public class UserResponseDTO
@@ -60,9 +61,10 @@ namespace TerminalApi.Models.User
         public string? LastName { get; set; }
         public string Email { get; set; } = null!;
         public string? ImgUrl { get; set; }
-        public string? Gender { get; set; }
+        public EnumGender Gender { get; set; }
         public DateTime? LastLogginAt { get; set; }
         public DateTime? DateOfBirth { get; set; }
+        public string? PhoneNumber { get; set; }
 
         public ICollection<string>? Roles { get; set; }
     }
@@ -97,8 +99,9 @@ namespace TerminalApi.Models.User
 
         [Required]
         public string LastName { get; set; }
-        
-        public string? Gender { get; set; } = EnumGender.Autre.ToString("G");
+        public string? PhoneNumber { get; set; }
+
+        public EnumGender Gender { get; set; } = EnumGender.Autre;
 
         [Required]
         [DataType(DataType.DateTime)]
@@ -118,6 +121,7 @@ namespace TerminalApi.Models.User
                 LastName = userDTO.LastName,
                 DateOfBirth = userDTO.DateOfBirth,
                 Gender = userDTO.Gender,
+                PhoneNumber = userDTO.PhoneNumber,
             };
         }
 
