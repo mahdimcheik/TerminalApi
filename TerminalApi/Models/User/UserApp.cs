@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 using Microsoft.AspNetCore.Identity;
 using TerminalApi.Models.Adresse;
 using TerminalApi.Models.Bookings;
@@ -17,6 +18,10 @@ namespace TerminalApi.Models.User
         public string LastName { get; set; }
         public EnumGender Gender { get; set; } 
         public string? ImgUrl { get; set; }
+        [Column(TypeName = "Text")]
+        public string? Description { get; set; }
+        public string? Title { get; set; }
+
         [Required]
         [DataType(DataType.DateTime)]
         public DateTime DateOfBirth { get; set; }
@@ -48,6 +53,9 @@ namespace TerminalApi.Models.User
         [Required]
         public string? LastName { get; set; }
         public string? PhoneNumber { get;set; }
+        [Column(TypeName = "Text")]
+        public string? Description { get; set; }
+        public string? Title { get; set; }
 
         [Required]
         [DataType(DataType.DateTime)]
@@ -63,6 +71,9 @@ namespace TerminalApi.Models.User
         public string? LastName { get; set; }
         public string Email { get; set; } = null!;
         public string? ImgUrl { get; set; }
+        public string? Description { get; set; }
+        public string? Title { get; set; }
+
         public EnumGender Gender { get; set; }
         public DateTime? LastLogginAt { get; set; }
         public DateTime? DateOfBirth { get; set; }
@@ -104,7 +115,10 @@ namespace TerminalApi.Models.User
         [Required]
         public string LastName { get; set; }
         public string? PhoneNumber { get; set; }
-
+        [Column(TypeName = "Text")]
+        public string? Description { get; set; }
+        public string? Title { get; set; }
+        [Required]
         public EnumGender Gender { get; set; } = EnumGender.Autre;
 
         [Required]
@@ -126,6 +140,8 @@ namespace TerminalApi.Models.User
                 DateOfBirth = userDTO.DateOfBirth,
                 Gender = userDTO.Gender,
                 PhoneNumber = userDTO.PhoneNumber,
+                Description = userDTO.Description,
+                Title = userDTO.Title,
             };
         }
 
@@ -136,25 +152,29 @@ namespace TerminalApi.Models.User
             user.Gender = userDTO.Gender;
             user.LastName = userDTO.LastName;
             user.LastModifiedAt = DateTime.Now;
+            user.Description = userDTO.Description;
+            user.Title = userDTO.Title;
             return user;
         }
 
         public static UserResponseDTO ToUserResponseDTO(
-            this UserApp userDTO,
+            this UserApp user,
             ICollection<string>? roles = null
         )
         {
             return new UserResponseDTO
             {
-                Email = userDTO.Email,
-                FirstName = userDTO.FirstName,
-                LastName = userDTO.LastName,
-                DateOfBirth = userDTO.DateOfBirth,
-                LastLogginAt = userDTO.LastLogginAt,
-                ImgUrl = userDTO.ImgUrl,
-                Gender = userDTO.Gender,
-                Id = userDTO.Id,
-                EmailConfirmed = userDTO.EmailConfirmed,
+                Email = user.Email,
+                FirstName = user.FirstName,
+                LastName = user.LastName,
+                DateOfBirth = user.DateOfBirth,
+                LastLogginAt = user.LastLogginAt,
+                ImgUrl = user.ImgUrl,
+                Description = user.Description,
+                Title= user.Title,
+                Gender = user.Gender,
+                Id = user.Id,
+                EmailConfirmed = user.EmailConfirmed,
                 Roles = roles,
             };
         }
