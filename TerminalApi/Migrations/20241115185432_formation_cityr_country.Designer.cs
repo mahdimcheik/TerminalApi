@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using TerminalApi.Contexts;
 
@@ -10,9 +11,11 @@ using TerminalApi.Contexts;
 namespace TerminalApi.Migrations
 {
     [DbContext(typeof(ApiDefaultContext))]
-    partial class ApiDefaultContextModelSnapshot : ModelSnapshot
+    [Migration("20241115185432_formation_cityr_country")]
+    partial class formation_cityr_country
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "8.0.10");
@@ -260,6 +263,10 @@ namespace TerminalApi.Migrations
                         .HasColumnType("TEXT");
 
                     b.Property<string>("Country")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
                         .HasColumnType("TEXT");
 
                     b.Property<DateTime>("EndAt")

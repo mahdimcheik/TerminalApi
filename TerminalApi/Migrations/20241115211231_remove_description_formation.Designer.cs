@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using TerminalApi.Contexts;
 
@@ -10,9 +11,11 @@ using TerminalApi.Contexts;
 namespace TerminalApi.Migrations
 {
     [DbContext(typeof(ApiDefaultContext))]
-    partial class ApiDefaultContextModelSnapshot : ModelSnapshot
+    [Migration("20241115211231_remove_description_formation")]
+    partial class remove_description_formation
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "8.0.10");

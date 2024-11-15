@@ -3,6 +3,7 @@ using System.ComponentModel.DataAnnotations;
 using Microsoft.AspNetCore.Identity;
 using TerminalApi.Models.Adresse;
 using TerminalApi.Models.Bookings;
+using TerminalApi.Models.Formations;
 using TerminalApi.Models.Slots;
 using TerminalApi.Utilities;
 
@@ -33,6 +34,7 @@ namespace TerminalApi.Models.User
         // si le user est le prof. il a une liste de crenaux 
         public ICollection<Slot>? Slots { get; set; }
         public ICollection<Booking>? Bookings { get; set; }
+        public ICollection<Formation>? Formations { get; set; }
     }
 
     public class UserUpdateDTO
@@ -66,8 +68,9 @@ namespace TerminalApi.Models.User
         public DateTime? DateOfBirth { get; set; }
         public string? PhoneNumber { get; set; }
         public bool EmailConfirmed { get; set; } = false;
-
         public ICollection<string>? Roles { get; set; }
+
+
     }
 
     public class UserLoginDTO

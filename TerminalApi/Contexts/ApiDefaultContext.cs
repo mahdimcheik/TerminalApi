@@ -2,6 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using TerminalApi.Models.Adresse;
 using TerminalApi.Models.Bookings;
+using TerminalApi.Models.Formations;
 using TerminalApi.Models.Payments;
 using TerminalApi.Models.Role;
 using TerminalApi.Models.Slots;
@@ -61,6 +62,7 @@ namespace TerminalApi.Contexts
         public DbSet<UserApp> Users { get; set; }
         public DbSet<Slot> Slots { get; set; }
         public DbSet<Order> Orders { get; set; }
+        public DbSet<Formation> Formations { get; set; }
 
     }
 }

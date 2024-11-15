@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using TerminalApi.Contexts;
 
@@ -10,9 +11,11 @@ using TerminalApi.Contexts;
 namespace TerminalApi.Migrations
 {
     [DbContext(typeof(ApiDefaultContext))]
-    partial class ApiDefaultContextModelSnapshot : ModelSnapshot
+    [Migration("20241115134415_formation")]
+    partial class formation
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "8.0.10");
@@ -252,14 +255,12 @@ namespace TerminalApi.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("TEXT");
 
-                    b.Property<string>("City")
-                        .HasColumnType("TEXT");
-
                     b.Property<string>("Company")
                         .IsRequired()
                         .HasColumnType("TEXT");
 
-                    b.Property<string>("Country")
+                    b.Property<string>("Description")
+                        .IsRequired()
                         .HasColumnType("TEXT");
 
                     b.Property<DateTime>("EndAt")
