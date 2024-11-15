@@ -119,6 +119,27 @@ namespace TerminalApi.Controllers
             }
 
         }
+        [HttpDelete]
+        public async Task<ActionResult<ResponseDTO>> DeleteAddress([FromQuery] string addressId)
+        {
+            try
+            {
+                if (addressId.IsNullOrEmpty())
+                {
+                    return BadRequest(new ResponseDTO { Status = 400, Message = "Demande refusée" });
+                }
+                var user = CheckUser.GetUserFromClaim(HttpContext.User, context);
+                if (user is null)
+                {
+                    return BadRequest(new ResponseDTO { Status = 400, Message = "Demande refusée" });
+                }
+                var resultDelete = await  addressService.DeleteAddress(user.Id,addressId);
+                return Ok(new ResponseDTO { Message = "l'addresse est supprimée", Status = 204 });
+            }catch(Exception ex)
+            {
+                return BadRequest(new ResponseDTO { Status = 400, Message = ex.Message });
+            }
+        }
     }
 
    

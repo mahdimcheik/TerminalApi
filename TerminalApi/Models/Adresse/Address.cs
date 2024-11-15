@@ -30,7 +30,7 @@ namespace TerminalApi.Models.Adresse
 
         [Required]
         [StringLength(50)]
-        public string? Country { get; set; }
+        public string? Country { get; set; } = "France";
 
         [ForeignKey(nameof(user))]
         public string UserId { get; set; }
