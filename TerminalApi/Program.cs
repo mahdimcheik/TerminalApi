@@ -87,6 +87,7 @@ namespace TerminalApi
                 options.AddDefaultPolicy(builder =>
                 {
                     builder
+                        //.AllowAnyOrigin()
                         .SetIsOriginAllowed(CorsHelper.IsOriginAllowed)
                         .AllowAnyMethod()
                         .AllowAnyHeader()
@@ -233,7 +234,7 @@ namespace TerminalApi
                     .AddSupportedUICultures(supportedCultures)
                     .SetDefaultCulture("fr-FR")
             );
-
+            app.UseStaticFiles();
             // Enable authentication.
             app.UseAuthentication();
 

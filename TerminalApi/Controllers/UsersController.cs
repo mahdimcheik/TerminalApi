@@ -1,13 +1,14 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using System.IdentityModel.Tokens.Jwt;
+using System.Linq;
+using System.Security.Claims;
+using System.Text;
+using System.Web;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
-using System.IdentityModel.Tokens.Jwt;
-using System.Security.Claims;
-using System.Text;
-using System.Web;
 using TerminalApi.Contexts;
 using TerminalApi.Models;
 using TerminalApi.Models.Role;
@@ -29,18 +30,21 @@ namespace TerminalApi.Controllers
         private readonly UserManager<UserApp> _userManager;
         private readonly RoleManager<Role> _roleManager;
         private readonly SendMailService mailService;
+        private readonly IWebHostEnvironment _env;
 
         public UsersController(
             ApiDefaultContext context,
             UserManager<UserApp> userManager,
             RoleManager<Role> roleManager,
-            SendMailService mailService
+            SendMailService mailService,
+            IWebHostEnvironment env
         )
         {
             this._context = context;
             this._userManager = userManager;
             this._roleManager = roleManager;
             this.mailService = mailService;
+            this._env = env;
         }
 
         #endregion
@@ -64,7 +68,9 @@ namespace TerminalApi.Controllers
             if (!ModelState.IsValid)
             {
                 // Si le modèle n'est pas valide, renvoyer une réponse BadRequest avec le modèle d'état non valide
-                return BadRequest(new ResponseDTO { Status = 404, Message = "problème de validation" });
+                return BadRequest(
+                    new ResponseDTO { Status = 404, Message = "problème de validation" }
+                );
             }
 
             // Initialiser la chaîne de réponse
@@ -78,7 +84,9 @@ namespace TerminalApi.Controllers
             {
                 // Si l'adresse e-mail est déjà utilisée, mettre à jour la réponse et sauter vers l'étiquette UserAlreadyExisted
                 ResponseContent = "L'adresse email est déjà utilisée";
-                return  Conflict(new ResponseDTO { Status = 404, Message = "\"L'email est déjà utilisé\"" }); 
+                return Conflict(
+                    new ResponseDTO { Status = 404, Message = "\"L'email est déjà utilisé\"" }
+                );
             }
 
             // Utiliser le mot de passe fourni ou générer un mot de passe aléatoire
@@ -88,7 +96,8 @@ namespace TerminalApi.Controllers
             UserApp newUser = model.ToUser();
             newUser.CreatedAt = DateTime.Now;
             newUser.LastModifiedAt = DateTime.Now;
-            newUser.ImgUrl = @"https://upload.wikimedia.org/wikipedia/commons/thumb/1/12/User_icon_2.svg/1200px-User_icon_2.svg.png";
+            newUser.ImgUrl =
+                @"https://upload.wikimedia.org/wikipedia/commons/thumb/1/12/User_icon_2.svg/1200px-User_icon_2.svg.png";
 
             // Obtenir la date actuelle
             DateTime date = DateTime.Now;
@@ -112,12 +121,14 @@ namespace TerminalApi.Controllers
                 }
 
                 // Retourner une réponse BadRequest avec le modèle d'état contenant les erreurs
-                return BadRequest(new ResponseDTO
-                {
-                    Message = "Création échouée",
-                    Status = 401,
-                    Data = ModelState,
-                });
+                return BadRequest(
+                    new ResponseDTO
+                    {
+                        Message = "Création échouée",
+                        Status = 401,
+                        Data = ModelState,
+                    }
+                );
             }
 
             // Si tout s'est bien déroulé, enregistrer les changements dans le contexte de base de données
@@ -136,23 +147,26 @@ namespace TerminalApi.Controllers
                     confirmationLink
                 );
                 // Retourne une réponse avec le statut déterminé, l'identifiant de l'utilisateur, le message de réponse et le statut complet
-                return     Ok(
-                new ResponseDTO
-                {
-                    Message = "Profil mis à jour",
-                    Status = 200,
-                    Data = newUser.ToUserResponseDTO(),
-                }
-            ); ;
+                return Ok(
+                    new ResponseDTO
+                    {
+                        Message = "Profil mis à jour",
+                        Status = 200,
+                        Data = newUser.ToUserResponseDTO(),
+                    }
+                );
+                ;
             }
             catch (Exception e)
             {
                 // En cas d'exception, afficher la trace et retourner une réponse avec le statut approprié
                 Console.WriteLine(e);
-                return BadRequest(new ResponseDTO { Status = 404, Message = "Le compte n'est pas créé" });
+                return BadRequest(
+                    new ResponseDTO { Status = 404, Message = "Le compte n'est pas créé" }
+                );
             }
 
-            return Conflict(new ResponseDTO { Status = 404, Message = "Le compte n'est pas créé" }); 
+            return Conflict(new ResponseDTO { Status = 404, Message = "Le compte n'est pas créé" });
         }
 
         [EnableCors]
@@ -169,7 +183,13 @@ namespace TerminalApi.Controllers
 
             if (user is null)
             {
-                return BadRequest(new ResponseDTO { Status = 404, Message = "Le compte n'existe pas ou ne correspond pas" });
+                return BadRequest(
+                    new ResponseDTO
+                    {
+                        Status = 404,
+                        Message = "Le compte n'existe pas ou ne correspond pas",
+                    }
+                );
             }
 
             model.ToUser(user);
@@ -575,5 +595,60 @@ namespace TerminalApi.Controllers
         }
         #endregion
         */
+        [HttpPost("upload-avatar")]
+        [Authorize]
+        public async Task<IActionResult> OnPostUploadAsync(IFormFile file)
+        {
+            if (file == null  )
+            {
+
+                return BadRequest("No file uploaded.");
+            }
+            var user = CheckUser.GetUserFromClaim(HttpContext.User, _context);
+            if (user is null)
+            {
+                return BadRequest(new ResponseDTO { Status = 400, Message = "Demande refusée" });
+            }
+            //verifier si le type est image 
+            var allowedMimeTypes = new[] { "image/jpeg", "image/png", "image/gif", "image/bmp" };
+            var allowedExtensions = new[] { ".jpg", ".jpeg", ".png", ".gif", ".bmp" };
+
+            var fileExtension = Path.GetExtension(file.FileName).ToLowerInvariant();
+            if (!allowedMimeTypes.Contains(file.ContentType) || !allowedExtensions.Contains(fileExtension))
+            {
+                return BadRequest(new ResponseDTO { Status = 404, Message = "le type du ficheir n'est pas autorisé'"});
+            }
+
+            // supprimer l' ancien fichier s' il existe
+            var oldFilenameFromDB = Path.GetFileName(user.ImgUrl);
+            if(user.ImgUrl is not null && !oldFilenameFromDB.IsNullOrEmpty())
+            {
+                var uploadFolder = Path.Combine(_env.WebRootPath, "images");
+
+                // Define the file name using the user's Guid
+
+                var fullFileName = Path.Combine(uploadFolder, oldFilenameFromDB);
+                if (System.IO.File.Exists(fullFileName))
+                {
+                    System.IO.File.Delete(fullFileName);
+                }
+            }
+            // 
+            
+
+            string fileName = Guid.NewGuid() + "_avatar" + Path.GetExtension(file.FileName);
+            var filePath = Path.Combine(_env.WebRootPath, "images", fileName); // wwwroot + images + filename ???
+
+            using (var stream = System.IO.File.Create(filePath))
+            {
+                await file.CopyToAsync(stream);
+            }
+
+            var url = $"{Request.Scheme}://{Request.Host}/images/{fileName}";
+            user.ImgUrl = url;
+            await _context.SaveChangesAsync();
+
+            return Ok(new { fileName, url });
+        }
     }
 }
