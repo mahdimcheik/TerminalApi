@@ -23,7 +23,7 @@ namespace TerminalApi.Models.Slots
         [Required]
         [ForeignKey(nameof(Creator))]
         public string CreatedById { get; set; }
-        public UserApp Creator { get; set; }
+        public UserApp? Creator { get; set; }
         public Booking? Booking { get; set; }
         [Required]
         [Column(TypeName = "decimal(18, 6)")]

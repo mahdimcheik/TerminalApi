@@ -201,6 +201,8 @@ namespace TerminalApi
             services.AddSingleton<SendMailService>();
             services.AddScoped<AddressService>();
             services.AddScoped<FormationService>();
+            services.AddScoped<SlotService>();
+
 
             //Lowercase routing
             services.AddRouting(opt => opt.LowercaseUrls = true);
