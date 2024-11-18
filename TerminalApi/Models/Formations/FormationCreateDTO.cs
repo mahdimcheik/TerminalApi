@@ -14,9 +14,9 @@ namespace TerminalApi.Models.Formations
         public string? Country { get; set; }
         [Required]
         [DataType(DataType.DateTime)]
-        public DateTime StartAt { get; set; }
+        public DateTimeOffset StartAt { get; set; }
         [Required]
         [DataType(DataType.DateTime)]
-        public DateTime EndAt { get; set; }
+        public DateTimeOffset EndAt { get; set; }
     }
 }

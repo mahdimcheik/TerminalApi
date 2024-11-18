@@ -11,7 +11,7 @@ namespace TerminalApi.Models.Formations
         public string Title { get; set; } = string.Empty;
         public string? City { get; set; }
         public string? Country { get; set; }
-        public DateTime StartAt { get; set; }
-        public DateTime EndAt { get; set; }
+        public DateTimeOffset StartAt { get; set; }
+        public DateTimeOffset EndAt { get; set; }
     }
 }

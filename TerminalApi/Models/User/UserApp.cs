@@ -24,17 +24,17 @@ namespace TerminalApi.Models.User
 
         [Required]
         [DataType(DataType.DateTime)]
-        public DateTime DateOfBirth { get; set; }
+        public DateTimeOffset DateOfBirth { get; set; }
         public string? RefreshToken { get; set; }
 
         [DataType(DataType.DateTime)]
-        public DateTime CreatedAt { get; set; }
+        public DateTimeOffset CreatedAt { get; set; }
 
         [DataType(DataType.DateTime)]
-        public DateTime LastModifiedAt { get; set; }
+        public DateTimeOffset LastModifiedAt { get; set; }
 
         [DataType(DataType.DateTime)]
-        public DateTime? LastLogginAt { get; set; }
+        public DateTimeOffset? LastLogginAt { get; set; }
         public ICollection<Address>? Adresses { get; set; }
         // si le user est le prof. il a une liste de crenaux 
         public ICollection<Slot>? Slots { get; set; }
@@ -59,7 +59,7 @@ namespace TerminalApi.Models.User
 
         [Required]
         [DataType(DataType.DateTime)]
-        public DateTime DateOfBirth { get; set; }
+        public DateTimeOffset DateOfBirth { get; set; }
         [Required]
         public EnumGender Gender { get; set; }
     }
@@ -75,8 +75,8 @@ namespace TerminalApi.Models.User
         public string? Title { get; set; }
 
         public EnumGender Gender { get; set; }
-        public DateTime? LastLogginAt { get; set; }
-        public DateTime? DateOfBirth { get; set; }
+        public DateTimeOffset? LastLogginAt { get; set; }
+        public DateTimeOffset? DateOfBirth { get; set; }
         public string? PhoneNumber { get; set; }
         public bool EmailConfirmed { get; set; } = false;
         public ICollection<string>? Roles { get; set; }
@@ -124,7 +124,7 @@ namespace TerminalApi.Models.User
         [Required]
         [DataType(DataType.DateTime)]
 
-        public DateTime DateOfBirth { get; set; }
+        public DateTimeOffset DateOfBirth { get; set; }
     }
 
     public static class UserExtension

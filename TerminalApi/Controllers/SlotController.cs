@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.IdentityModel.Tokens;
 using TerminalApi.Contexts;
 using TerminalApi.Models;
 using TerminalApi.Models.Slots;
@@ -19,6 +20,32 @@ namespace TerminalApi.Controllers
         {
             this.slotService = slotService;
             this.context = context;
+        }
+        [HttpGet]
+        public async Task<ActionResult<ResponseDTO>> GetSlotsByCreatorId([FromQuery] string userId)
+        {
+            if (userId.IsNullOrEmpty())
+            {
+                return BadRequest(
+                    new ResponseDTO { Status = 404, Message = "L'utilisateur n'existe pas" }
+                );
+            }
+            try
+            {
+                var result = await slotService.GetSlotsByCreator(userId);
+                return Ok(
+                    new ResponseDTO
+                    {
+                        Status = 200,
+                        Message = "Liste de créneaux envoyée",
+                        Data = result,
+                    }
+                );
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new ResponseDTO { Status = 400, Message = ex.Message });
+            }
         }
 
         [HttpPost]

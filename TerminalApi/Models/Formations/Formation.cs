@@ -11,8 +11,8 @@ namespace TerminalApi.Models.Formations
 
         [Column(TypeName = "nvarchar(125)")]
         public string Title { get; set; } = string.Empty;
-        public DateTime StartAt { get; set; }
-        public DateTime EndAt { get; set; }
+        public DateTimeOffset StartAt { get; set; }
+        public DateTimeOffset EndAt { get; set; }
         public string UserId { get; set; }
         public string?  City { get; set; }
         public string? Country { get; set; }

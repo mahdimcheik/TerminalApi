@@ -12,13 +12,13 @@ namespace TerminalApi.Models.Slots
         public Guid Id { get; set; }
 
         [Required]
-        public DateTime StartAt { get; set; }
+        public DateTimeOffset StartAt { get; set; }
 
         [Required]
-        public DateTime EndAt { get; set; }
+        public DateTimeOffset EndAt { get; set; }
 
         [Required]
-        public DateTime CreatedAt { get; set; }
+        public DateTimeOffset CreatedAt { get; set; }
 
         [Required]
         [ForeignKey(nameof(Creator))]

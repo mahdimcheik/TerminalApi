@@ -100,7 +100,7 @@ namespace TerminalApi.Controllers
                 @"https://upload.wikimedia.org/wikipedia/commons/thumb/1/12/User_icon_2.svg/1200px-User_icon_2.svg.png";
 
             // Obtenir la date actuelle
-            DateTime date = DateTime.Now;
+            DateTimeOffset date = DateTimeOffset.Now;
 
             // Tenter de créer un nouvel utilisateur avec le gestionnaire d'utilisateurs
             IdentityResult result = await _userManager.CreateAsync(newUser, model.Password);
@@ -136,6 +136,7 @@ namespace TerminalApi.Controllers
 
             try
             {
+                // à corriger 
                 var confirmationLink = await GenerateAccountConfirmationLink(newUser);
                 await mailService.SendConfirmationEmail(
                     new Models.Mail.Mail
@@ -146,6 +147,7 @@ namespace TerminalApi.Controllers
                     },
                     confirmationLink
                 );
+
                 // Retourne une réponse avec le statut déterminé, l'identifiant de l'utilisateur, le message de réponse et le statut complet
                 return Ok(
                     new ResponseDTO

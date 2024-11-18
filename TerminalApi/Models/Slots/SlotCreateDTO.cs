@@ -9,13 +9,13 @@ namespace TerminalApi.Models.Slots
     public class SlotCreateDTO
     {
         [Required]
-        public DateTime StartAt { get; set; }
+        public DateTimeOffset StartAt { get; set; }
 
         [Required]
-        public DateTime EndAt { get; set; }
+        public DateTimeOffset EndAt { get; set; }
 
         [Required]
-        public DateTime CreatedAt { get; set; }
+        public DateTimeOffset CreatedAt { get; set; }
 
         [Required]
         [Column(TypeName = "decimal(18, 6)")]

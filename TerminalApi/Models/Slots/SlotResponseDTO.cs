@@ -7,11 +7,11 @@ namespace TerminalApi.Models.Slots
     public class SlotResponseDTO
     {
         public Guid Id { get; set; }
-        public DateTime StartAt { get; set; }
+        public DateTimeOffset StartAt { get; set; }
 
-        public DateTime EndAt { get; set; }
+        public DateTimeOffset EndAt { get; set; }
 
-        public DateTime CreatedAt { get; set; }
+        public DateTimeOffset CreatedAt { get; set; }
 
         public string CreatedById { get; set; }
         public decimal Price { get; set; }

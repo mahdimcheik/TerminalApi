@@ -13,7 +13,7 @@ namespace TerminalApi.Models.Bookings
         public string Status { get; set; }
 
         [Required]
-        public DateTime BookedAt { get; set; }
+        public DateTimeOffset BookedAt { get; set; }
         [Required]
         [ForeignKey(nameof(Slot))]
         [InverseProperty("Slots")]
@@ -26,7 +26,7 @@ namespace TerminalApi.Models.Bookings
         public string BookedById { get; set; }
         public UserApp Booker { get; set; }
         [Required]
-        public DateTime CreatedAt { get; set; }
+        public DateTimeOffset CreatedAt { get; set; }
         [Required]
         [ForeignKey(nameof (Order))]
         public Guid? OrderId { get; set; }

@@ -31,7 +31,7 @@ namespace TerminalApi.Services
 
         }
 
-        public async Task<List<SlotResponseDTO>?> GetSlotsForTeacher(string teacherId)
+        public async Task<List<SlotResponseDTO>?> GetSlotsByCreator(string teacherId)
         {
             return await context
                 .Slots.Where(ad => ad.CreatedById == teacherId)
