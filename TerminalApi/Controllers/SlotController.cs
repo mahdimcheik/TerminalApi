@@ -51,7 +51,7 @@ namespace TerminalApi.Controllers
         [HttpPost]
         public async Task<ActionResult<ResponseDTO>> AddSlot([FromBody] SlotCreateDTO slotCreateDTO)
         {
-            if(slotCreateDTO is null) return BadRequest(new ResponseDTO { Status = 400, Message = "Demande refusée" });
+            if (slotCreateDTO is null) return BadRequest(new ResponseDTO { Status = 400, Message = "Demande refusée" });
             var user = CheckUser.GetUserFromClaim(HttpContext.User, context);
             if (user is null)
             {
@@ -61,6 +61,27 @@ namespace TerminalApi.Controllers
             try
             {
                 var result = await slotService.AddSlot(slotCreateDTO, user.Id);
+                return Ok(new ResponseDTO { Data = result, Message = "Créneau ajoutée", Status = 200 });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new ResponseDTO { Status = 400, Message = ex.Message });
+            }
+        }
+
+        [HttpPut]
+        public async Task<ActionResult<ResponseDTO>> UpdateSlot([FromBody] SlotUpdateDTO slotUpdateDTO)
+        {
+            if (slotUpdateDTO is null) return BadRequest(new ResponseDTO { Status = 400, Message = "Demande refusée" });
+            var user = CheckUser.GetUserFromClaim(HttpContext.User, context);
+            if (user is null)
+            {
+                return BadRequest(new ResponseDTO { Status = 400, Message = "Demande refusée" });
+            }
+
+            try
+            {
+                var result = await slotService.UpdateSlot(slotUpdateDTO, user.Id);
                 return Ok(new ResponseDTO { Data = result, Message = "Créneau ajoutée", Status = 200 });
             }
             catch (Exception ex)
