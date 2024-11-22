@@ -1163,8 +1163,7 @@
                                                 line-height: 30px;
                                               ""
                                               ><strong
-                                                >Réinitialisez votre Mot de
-                                                passe</strong
+                                                >Confirmez votre compte</strong
                                               ></span
                                             ></span
                                           ></span

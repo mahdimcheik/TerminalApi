@@ -434,6 +434,27 @@ namespace TerminalApi.Controllers
                 }
             );
         }
+
+        [AllowAnonymous]
+        [HttpGet("public-informations")]
+        public async Task<ActionResult<ResponseDTO>> GetPublicInformations([FromQuery] string userId)
+        {
+            var user = await _context.Users.FirstOrDefaultAsync(x => x.Id == userId);
+
+            if (user == null)
+                return BadRequest(
+                    new ResponseDTO { Message = "Vous n'êtes pas connecté", Status = 401 }
+                );
+
+            return Ok(
+                new ResponseDTO
+                {
+                    Message = "Demande acceptée",
+                    Status = 200,
+                    Data = user.ToUserResponseDTO()
+                }
+            );
+        }
         #endregion
 
         #region POST AskForPasswordRecoveryMail
