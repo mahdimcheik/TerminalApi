@@ -4,6 +4,5 @@ namespace TerminalApi.Models.Role
 {
     public class Role : IdentityRole
     {
-
     }
 }

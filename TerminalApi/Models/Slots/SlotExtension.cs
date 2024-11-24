@@ -20,7 +20,8 @@ namespace TerminalApi.Models.Slots
 
         public static SlotResponseDTO ToResponseDTO(this Slot slot)
         {
-            return new SlotResponseDTO {
+            return new SlotResponseDTO
+            {
                 Id = slot.Id,
                 StartAt = slot.StartAt,
                 EndAt = slot.EndAt,
@@ -29,6 +30,9 @@ namespace TerminalApi.Models.Slots
                 Price = slot.Price,
                 Reduction = slot.Reduction,
                 Type = slot.Type,
+                StudentFirstName = slot.Booking?.Booker.FirstName ?? "",
+                StudentLastName = slot.Booking?.Booker.LastName ?? "",
+                StudentImgUrl = slot.Booking?.Booker.ImgUrl,
             };
         }
     }

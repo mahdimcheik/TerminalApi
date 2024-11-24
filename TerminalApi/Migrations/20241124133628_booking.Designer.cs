@@ -12,8 +12,8 @@ using TerminalApi.Contexts;
 namespace TerminalApi.Migrations
 {
     [DbContext(typeof(ApiDefaultContext))]
-    [Migration("20241123222242_postgress_validation")]
-    partial class postgress_validation
+    [Migration("20241124133628_booking")]
+    partial class booking
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -225,14 +225,11 @@ namespace TerminalApi.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
-                    b.Property<DateTimeOffset>("BookedAt")
-                        .HasColumnType("timestamp with time zone");
-
                     b.Property<string>("BookedById")
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<DateTimeOffset>("CreatedAt")
+                    b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<Guid?>("OrderId")
@@ -241,10 +238,6 @@ namespace TerminalApi.Migrations
 
                     b.Property<Guid>("SlotId")
                         .HasColumnType("uuid");
-
-                    b.Property<string>("Status")
-                        .IsRequired()
-                        .HasColumnType("text");
 
                     b.HasKey("Id");
 
@@ -276,10 +269,10 @@ namespace TerminalApi.Migrations
                         .HasMaxLength(255)
                         .HasColumnType("character varying(255)");
 
-                    b.Property<DateTimeOffset>("EndAt")
+                    b.Property<DateTime>("EndAt")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<DateTimeOffset>("StartAt")
+                    b.Property<DateTime>("StartAt")
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("Title")
@@ -304,10 +297,10 @@ namespace TerminalApi.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
-                    b.Property<DateTimeOffset?>("PCreatedAt")
+                    b.Property<DateTime?>("PCreatedAt")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<DateTimeOffset?>("PaymentDate")
+                    b.Property<DateTime?>("PaymentDate")
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("PaymentMethod")
@@ -328,14 +321,14 @@ namespace TerminalApi.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
-                    b.Property<DateTimeOffset>("CreatedAt")
+                    b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("CreatedById")
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<DateTimeOffset>("EndAt")
+                    b.Property<DateTime>("EndAt")
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<decimal>("Price")
@@ -345,7 +338,7 @@ namespace TerminalApi.Migrations
                     b.Property<int?>("Reduction")
                         .HasColumnType("integer");
 
-                    b.Property<DateTimeOffset>("StartAt")
+                    b.Property<DateTime>("StartAt")
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<int>("Type")
@@ -370,10 +363,10 @@ namespace TerminalApi.Migrations
                         .IsConcurrencyToken()
                         .HasColumnType("text");
 
-                    b.Property<DateTimeOffset>("CreatedAt")
+                    b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<DateTimeOffset>("DateOfBirth")
+                    b.Property<DateTime>("DateOfBirth")
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("Description")
@@ -396,10 +389,10 @@ namespace TerminalApi.Migrations
                     b.Property<string>("ImgUrl")
                         .HasColumnType("text");
 
-                    b.Property<DateTimeOffset?>("LastLogginAt")
+                    b.Property<DateTime?>("LastLogginAt")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<DateTimeOffset>("LastModifiedAt")
+                    b.Property<DateTime>("LastModifiedAt")
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("LastName")
@@ -409,7 +402,7 @@ namespace TerminalApi.Migrations
                     b.Property<bool>("LockoutEnabled")
                         .HasColumnType("boolean");
 
-                    b.Property<DateTimeOffset?>("LockoutEnd")
+                    b.Property<DateTime?>("LockoutEnd")
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("NormalizedEmail")

@@ -9,7 +9,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace TerminalApi.Migrations
 {
     /// <inheritdoc />
-    public partial class postgress_validation : Migration
+    public partial class booking : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -40,11 +40,11 @@ namespace TerminalApi.Migrations
                     ImgUrl = table.Column<string>(type: "text", nullable: true),
                     Description = table.Column<string>(type: "Text", nullable: true),
                     Title = table.Column<string>(type: "text", nullable: true),
-                    DateOfBirth = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
+                    DateOfBirth = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     RefreshToken = table.Column<string>(type: "text", nullable: true),
-                    CreatedAt = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
-                    LastModifiedAt = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
-                    LastLogginAt = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: true),
+                    CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    LastModifiedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    LastLogginAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
                     UserName = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: true),
                     NormalizedUserName = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: true),
                     Email = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: true),
@@ -56,7 +56,7 @@ namespace TerminalApi.Migrations
                     PhoneNumber = table.Column<string>(type: "text", nullable: true),
                     PhoneNumberConfirmed = table.Column<bool>(type: "boolean", nullable: false),
                     TwoFactorEnabled = table.Column<bool>(type: "boolean", nullable: false),
-                    LockoutEnd = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: true),
+                    LockoutEnd = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
                     LockoutEnabled = table.Column<bool>(type: "boolean", nullable: false),
                     AccessFailedCount = table.Column<int>(type: "integer", nullable: false)
                 },
@@ -70,8 +70,8 @@ namespace TerminalApi.Migrations
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
-                    PaymentDate = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: true),
-                    PCreatedAt = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: true),
+                    PaymentDate = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    PCreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
                     Status = table.Column<int>(type: "integer", nullable: false),
                     PaymentMethod = table.Column<string>(type: "text", nullable: false)
                 },
@@ -219,8 +219,8 @@ namespace TerminalApi.Migrations
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
                     Company = table.Column<string>(type: "text", nullable: false),
                     Title = table.Column<string>(type: "character varying(255)", maxLength: 255, nullable: false),
-                    StartAt = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
-                    EndAt = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
+                    StartAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    EndAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     UserId = table.Column<string>(type: "text", nullable: false),
                     City = table.Column<string>(type: "character varying(255)", maxLength: 255, nullable: true),
                     Country = table.Column<string>(type: "character varying(255)", maxLength: 255, nullable: true)
@@ -241,9 +241,9 @@ namespace TerminalApi.Migrations
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
-                    StartAt = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
-                    EndAt = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
-                    CreatedAt = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
+                    StartAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    EndAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     CreatedById = table.Column<string>(type: "text", nullable: false),
                     Price = table.Column<decimal>(type: "numeric(18,2)", precision: 18, scale: 2, nullable: false),
                     Reduction = table.Column<int>(type: "integer", nullable: true),
@@ -265,11 +265,9 @@ namespace TerminalApi.Migrations
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
-                    Status = table.Column<string>(type: "text", nullable: false),
-                    BookedAt = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
                     SlotId = table.Column<Guid>(type: "uuid", nullable: false),
                     BookedById = table.Column<string>(type: "text", nullable: false),
-                    CreatedAt = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     OrderId = table.Column<Guid>(type: "uuid", nullable: false)
                 },
                 constraints: table =>

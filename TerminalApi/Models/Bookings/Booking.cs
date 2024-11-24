@@ -3,6 +3,7 @@ using System.ComponentModel.DataAnnotations;
 using TerminalApi.Models.User;
 using TerminalApi.Models.Slots;
 using TerminalApi.Models.Payments;
+using TerminalApi.Utilities;
 
 namespace TerminalApi.Models.Bookings
 {
@@ -10,11 +11,6 @@ namespace TerminalApi.Models.Bookings
     {
         [Key]
         public Guid Id { get; set; }
-        public string Status { get; set; }
-
-        [Required]
-        [Column(TypeName = "timestamp with time zone")]
-        public DateTimeOffset BookedAt { get; set; }
         [Required]
         [ForeignKey(nameof(Slot))]
         [InverseProperty("Slots")]
@@ -29,7 +25,7 @@ namespace TerminalApi.Models.Bookings
         [Required]
         [Column(TypeName = "timestamp with time zone")]
         public DateTimeOffset CreatedAt { get; set; }
-        [Required]
+        
         [ForeignKey(nameof (Order))]
         public Guid? OrderId { get; set; }
         public Order?  Order { get; set; }

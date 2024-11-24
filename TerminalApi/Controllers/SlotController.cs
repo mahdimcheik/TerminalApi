@@ -1,9 +1,11 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
 using TerminalApi.Contexts;
 using TerminalApi.Models;
+using TerminalApi.Models.Bookings;
 using TerminalApi.Models.Slots;
 using TerminalApi.Services;
 using TerminalApi.Utilities;
@@ -85,6 +87,79 @@ namespace TerminalApi.Controllers
             {
                 var result = await slotService.UpdateSlot(slotUpdateDTO, user.Id);
                 return Ok(new ResponseDTO { Data = result, Message = "Créneau ajoutée", Status = 200 });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new ResponseDTO { Status = 400, Message = ex.Message });
+            }
+        }
+        [HttpDelete]
+        public async Task<ActionResult<ResponseDTO>> DeleteSlot([FromQuery] string slotId)
+        {
+            try
+            {
+                if (slotId.IsNullOrEmpty())
+                {
+                    return BadRequest(new ResponseDTO { Status = 400, Message = "Demande refusée" });
+                }
+                var user = CheckUser.GetUserFromClaim(HttpContext.User, context);
+                if (user is null)
+                {
+                    return BadRequest(new ResponseDTO { Status = 400, Message = "Demande refusée" });
+                }
+                var resultDelete = await slotService.DeleteSlot(user.Id, slotId);
+                return Ok(new ResponseDTO { Message = "l'addresse est supprimée", Status = 204 });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new ResponseDTO { Status = 400, Message = ex.Message });
+            }
+        }
+
+        [HttpPost("book")]
+        public async Task<ActionResult<ResponseDTO>> BookSlot([FromBody] BookingCreateDTO bookingCreateDTO)
+        {
+            try
+            {
+                if (bookingCreateDTO.SlotId.IsNullOrEmpty())
+                {
+                    return BadRequest(new ResponseDTO { Status = 400, Message = "Demande refusée" });
+                }
+                var user = CheckUser.GetUserFromClaim(HttpContext.User, context);
+                if (user is null)
+                {
+                    return BadRequest(new ResponseDTO { Status = 400, Message = "Demande refusée" });
+                }
+                var resultBooking = await slotService.BookSlot(bookingCreateDTO.SlotId, user.Id);
+                if(resultBooking)
+                {
+
+                return Ok(new ResponseDTO { Message = "La résérvation est enregistrée", Status = 204 });
+                }
+                return BadRequest(new ResponseDTO { Status = 400, Message = "Demande refusée, créneau déjà résérvé ?" });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new ResponseDTO { Status = 400, Message = ex.Message });
+            }
+        }
+
+        [HttpDelete("unbook")]
+        [Authorize(Roles ="Admin")]
+        public async Task<ActionResult<ResponseDTO>> RemoveReservationByTeacher([FromQuery] string slotId )
+        {
+            try
+            {
+                if (slotId.IsNullOrEmpty())
+                {
+                    return BadRequest(new ResponseDTO { Status = 400, Message = "Demande refusée" });
+                }
+                var resultBooking = await slotService.RemoveReservationByTeacher(slotId);
+                if (resultBooking)
+                {
+                    return Ok(new ResponseDTO { Message = "La résérvation est annulée", Status = 204 });
+                }
+                return BadRequest(new ResponseDTO { Status = 400, Message = "Demande refusée ?" });
             }
             catch (Exception ex)
             {
