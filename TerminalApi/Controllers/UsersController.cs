@@ -673,5 +673,17 @@ namespace TerminalApi.Controllers
 
             return Ok(new { fileName, url });
         }
+
+        [HttpGet("all")]
+        //[Authorize(Roles="Admin")]
+        public async Task<ActionResult<ResponseDTO>> getAllUsers([FromQuery] int first, [FromQuery] int rows)
+        {
+            var users = await _context.Users
+                .Skip(first)
+                .Take(rows)
+                .ToListAsync();
+            var totalCount = await _context.Users.CountAsync();
+            return Ok(new ResponseDTO { Message = "Les utilisateurs", Data = new { users , totalCount} , Status = 200 });
+        }
     }
 }
