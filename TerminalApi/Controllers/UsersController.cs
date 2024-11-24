@@ -31,13 +31,15 @@ namespace TerminalApi.Controllers
         private readonly RoleManager<Role> _roleManager;
         private readonly SendMailService mailService;
         private readonly IWebHostEnvironment _env;
+        private readonly FakerService fakerService;
 
         public UsersController(
             ApiDefaultContext context,
             UserManager<UserApp> userManager,
             RoleManager<Role> roleManager,
             SendMailService mailService,
-            IWebHostEnvironment env
+            IWebHostEnvironment env,
+            FakerService fakerService
         )
         {
             this._context = context;
@@ -45,6 +47,7 @@ namespace TerminalApi.Controllers
             this._roleManager = roleManager;
             this.mailService = mailService;
             this._env = env;
+            this.fakerService = fakerService;
         }
 
         #endregion
@@ -136,7 +139,7 @@ namespace TerminalApi.Controllers
 
             try
             {
-                // à corriger 
+                // à corriger
                 var confirmationLink = await GenerateAccountConfirmationLink(newUser);
                 await mailService.SendConfirmationEmail(
                     new Models.Mail.Mail
@@ -437,7 +440,9 @@ namespace TerminalApi.Controllers
 
         [AllowAnonymous]
         [HttpGet("public-informations")]
-        public async Task<ActionResult<ResponseDTO>> GetPublicInformations([FromQuery] string userId)
+        public async Task<ActionResult<ResponseDTO>> GetPublicInformations(
+            [FromQuery] string userId
+        )
         {
             var user = await _context.Users.FirstOrDefaultAsync(x => x.Id == userId);
 
@@ -622,9 +627,8 @@ namespace TerminalApi.Controllers
         [Authorize]
         public async Task<IActionResult> OnPostUploadAsync(IFormFile file)
         {
-            if (file == null  )
+            if (file == null)
             {
-
                 return BadRequest("No file uploaded.");
             }
             var user = CheckUser.GetUserFromClaim(HttpContext.User, _context);
@@ -632,19 +636,28 @@ namespace TerminalApi.Controllers
             {
                 return BadRequest(new ResponseDTO { Status = 400, Message = "Demande refusée" });
             }
-            //verifier si le type est image 
+            //verifier si le type est image
             var allowedMimeTypes = new[] { "image/jpeg", "image/png", "image/gif", "image/bmp" };
             var allowedExtensions = new[] { ".jpg", ".jpeg", ".png", ".gif", ".bmp" };
 
             var fileExtension = Path.GetExtension(file.FileName).ToLowerInvariant();
-            if (!allowedMimeTypes.Contains(file.ContentType) || !allowedExtensions.Contains(fileExtension))
+            if (
+                !allowedMimeTypes.Contains(file.ContentType)
+                || !allowedExtensions.Contains(fileExtension)
+            )
             {
-                return BadRequest(new ResponseDTO { Status = 404, Message = "le type du ficheir n'est pas autorisé'"});
+                return BadRequest(
+                    new ResponseDTO
+                    {
+                        Status = 404,
+                        Message = "le type du ficheir n'est pas autorisé'"
+                    }
+                );
             }
 
             // supprimer l' ancien fichier s' il existe
             var oldFilenameFromDB = Path.GetFileName(user.ImgUrl);
-            if(user.ImgUrl is not null && !oldFilenameFromDB.IsNullOrEmpty())
+            if (user.ImgUrl is not null && !oldFilenameFromDB.IsNullOrEmpty())
             {
                 var uploadFolder = Path.Combine(_env.WebRootPath, "images");
 
@@ -656,8 +669,8 @@ namespace TerminalApi.Controllers
                     System.IO.File.Delete(fullFileName);
                 }
             }
-            // 
-            
+            //
+
 
             string fileName = Guid.NewGuid() + "_avatar" + Path.GetExtension(file.FileName);
             var filePath = Path.Combine(_env.WebRootPath, "images", fileName); // wwwroot + images + filename ???
@@ -676,14 +689,32 @@ namespace TerminalApi.Controllers
 
         [HttpGet("all")]
         //[Authorize(Roles="Admin")]
-        public async Task<ActionResult<ResponseDTO>> getAllUsers([FromQuery] int first, [FromQuery] int rows)
+        public async Task<ActionResult<ResponseDTO>> getAllUsers(
+            [FromQuery] int first,
+            [FromQuery] int rows
+        )
         {
-            var users = await _context.Users
-                .Skip(first)
-                .Take(rows)
-                .ToListAsync();
+            var users = await _context.Users.Skip(first).Take(rows).ToListAsync();
             var totalCount = await _context.Users.CountAsync();
-            return Ok(new ResponseDTO { Message = "Les utilisateurs", Data = new { users , totalCount} , Status = 200 });
+            return Ok(
+                new ResponseDTO
+                {
+                    Message = "Les utilisateurs",
+                    Data = new { users, totalCount },
+                    Status = 200
+                }
+            );
+        }
+
+        [HttpGet("seed")]
+        [AllowAnonymous]
+
+        public ActionResult SeedUsers()
+        {
+            var users = fakerService.GenerateUserCreateDTO().Generate(500).Select(x => x.ToUser()).ToList();
+            _context.Users.AddRange(users);
+            _context.SaveChanges();
+            return Ok(users.Take(10));
         }
     }
 }

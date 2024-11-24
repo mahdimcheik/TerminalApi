@@ -202,6 +202,7 @@ namespace TerminalApi
             services.AddScoped<AddressService>();
             services.AddScoped<FormationService>();
             services.AddScoped<SlotService>();
+            services.AddScoped<FakerService>();
 
 
             //Lowercase routing
