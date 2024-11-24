@@ -1,12 +1,9 @@
 ﻿using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using TerminalApi.Contexts;
-using TerminalApi.Migrations;
 using TerminalApi.Models;
-using TerminalApi.Models.Adresse;
 using TerminalApi.Models.Formations;
 using TerminalApi.Services;
 using TerminalApi.Utilities;

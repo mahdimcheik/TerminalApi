@@ -13,6 +13,7 @@ namespace TerminalApi.Models.Bookings
         public string Status { get; set; }
 
         [Required]
+        [Column(TypeName = "timestamp with time zone")]
         public DateTimeOffset BookedAt { get; set; }
         [Required]
         [ForeignKey(nameof(Slot))]
@@ -26,6 +27,7 @@ namespace TerminalApi.Models.Bookings
         public string BookedById { get; set; }
         public UserApp Booker { get; set; }
         [Required]
+        [Column(TypeName = "timestamp with time zone")]
         public DateTimeOffset CreatedAt { get; set; }
         [Required]
         [ForeignKey(nameof (Order))]

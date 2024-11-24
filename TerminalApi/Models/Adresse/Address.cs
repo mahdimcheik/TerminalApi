@@ -14,14 +14,14 @@ namespace TerminalApi.Models.Adresse
         [StringLength(100)]
         public string Street { get; set; }
 
-        [StringLength(100)]
+        [StringLength(150)]
         public string StreetLine2 { get; set; }
 
         [Required]
         [StringLength(50)]
         public string City { get; set; }
 
-        [StringLength(50)]
+        [StringLength(150)]
         public string State { get; set; }
 
         [Required]

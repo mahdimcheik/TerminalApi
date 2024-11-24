@@ -9,7 +9,9 @@ namespace TerminalApi.Models.Payments
     {
         [Key]
         public Guid Id { get; set; }
+        [Column(TypeName = "timestamp with time zone")]
         public DateTimeOffset? PaymentDate { get; set; }
+        [Column(TypeName = "timestamp with time zone")]
         public DateTimeOffset? PCreatedAt { get; set; }
         public EnumBookingStatus Status { get; set; }  
         public string PaymentMethod { get; set; }

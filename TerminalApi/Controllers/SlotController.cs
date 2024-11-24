@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
 using TerminalApi.Contexts;
@@ -22,7 +23,7 @@ namespace TerminalApi.Controllers
             this.context = context;
         }
         [HttpGet]
-        public async Task<ActionResult<ResponseDTO>> GetSlotsByCreatorId([FromQuery] string userId)
+        public async Task<ActionResult<ResponseDTO>> GetSlotsByCreatorId([FromQuery] string userId, [FromQuery] DateTimeOffset fromDate, [FromQuery] DateTimeOffset toDate)
         {
             if (userId.IsNullOrEmpty())
             {
@@ -30,9 +31,10 @@ namespace TerminalApi.Controllers
                     new ResponseDTO { Status = 404, Message = "L'utilisateur n'existe pas" }
                 );
             }
+
             try
             {
-                var result = await slotService.GetSlotsByCreator(userId);
+                var result = await slotService.GetSlotsByCreator(userId, fromDate, toDate);
                 return Ok(
                     new ResponseDTO
                     {

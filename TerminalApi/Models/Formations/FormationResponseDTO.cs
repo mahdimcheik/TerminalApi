@@ -11,7 +11,9 @@ namespace TerminalApi.Models.Formations
         public string Title { get; set; } = string.Empty;
         public string? City { get; set; }
         public string? Country { get; set; }
+        [Column(TypeName = "timestamp with time zone")]
         public DateTimeOffset StartAt { get; set; }
+        [Column(TypeName = "timestamp with time zone")]
         public DateTimeOffset EndAt { get; set; }
     }
 }

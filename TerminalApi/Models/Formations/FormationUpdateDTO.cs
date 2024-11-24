@@ -10,15 +10,15 @@ namespace TerminalApi.Models.Formations
         [Required]
         public string Company { get; set; } = string.Empty;
         [Required]
-        [Column(TypeName = "nvarchar(125)")]
+        [MaxLength(255)]
         public string Title { get; set; } = string.Empty;
         public string? City { get; set; }
         public string? Country { get; set; }
         [Required]
-        [DataType(DataType.DateTime)]
+        [Column(TypeName = "timestamp with time zone")]
         public DateTimeOffset StartAt { get; set; }
         [Required]
-        [DataType(DataType.DateTime)]
+        [Column(TypeName = "timestamp with time zone")]
         public DateTimeOffset EndAt { get; set; }
     }
 }

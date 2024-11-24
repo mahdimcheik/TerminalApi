@@ -152,7 +152,7 @@ namespace TerminalApi.Controllers
                 return Ok(
                     new ResponseDTO
                     {
-                        Message = "Profil mis à jour",
+                        Message = "Profil créé",
                         Status = 200,
                         Data = newUser.ToUserResponseDTO(),
                     }
@@ -164,7 +164,7 @@ namespace TerminalApi.Controllers
                 // En cas d'exception, afficher la trace et retourner une réponse avec le statut approprié
                 Console.WriteLine(e);
                 return BadRequest(
-                    new ResponseDTO { Status = 404, Message = "Le compte n'est pas créé" }
+                    new ResponseDTO { Status = 400, Message = "Le compte n'est pas créé!!!" }
                 );
             }
 

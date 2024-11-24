@@ -57,10 +57,10 @@ namespace TerminalApi.Services
             }
         }
 
-        public async Task<List<SlotResponseDTO>?> GetSlotsByCreator(string teacherId)
+        public async Task<List<SlotResponseDTO>?> GetSlotsByCreator(string teacherId, DateTimeOffset fromDate, DateTimeOffset toDate)
         {
             return await context
-                .Slots.Where(ad => ad.CreatedById == teacherId)
+                .Slots.Where(ad => ad.CreatedById == teacherId && ad.StartAt >= fromDate && ad.EndAt <= toDate)
                 .Select(ad => ad.ToResponseDTO())
                 .ToListAsync();
         }

@@ -216,8 +216,14 @@ namespace TerminalApi
 
             services.AddDbContext<ApiDefaultContext>(options =>
             {
-                options.UseSqlite("Data Source = d:\\terminal.db;");
-                
+
+                //options.UseSqlite("Data Source = d:\\terminal.db;");
+                string POSTGRES_CONNECTION_STRING = "Server={0};Port=8081;Database={1};User Id={2};Password={3}";
+                options.UseNpgsql("Host=localhost;Port=8081;Database=base;Username=postgres;Password=mahdimcheik;");
+
+                //options.UseNpgsql(
+                //            string.Format(POSTGRES_CONNECTION_STRING, EnvironmentVariables.DB_HOST, EnvironmentVariables.DB_NAME, EnvironmentVariables.DB_USER, EnvironmentVariables.DB_PASSWORD));
+
             });
             ConfigureCors(services);
             ConfigureControllers(services);

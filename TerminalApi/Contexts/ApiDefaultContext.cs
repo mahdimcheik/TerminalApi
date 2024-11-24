@@ -7,6 +7,7 @@ using TerminalApi.Models.Payments;
 using TerminalApi.Models.Role;
 using TerminalApi.Models.Slots;
 using TerminalApi.Models.User;
+using TerminalApi.Utilities;
 
 namespace TerminalApi.Contexts
 {
@@ -55,6 +56,12 @@ namespace TerminalApi.Contexts
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
             optionsBuilder.EnableSensitiveDataLogging();
+        }
+
+        protected override void ConfigureConventions(ModelConfigurationBuilder configurationBuilder)
+        {
+           configurationBuilder.Properties<DateTimeOffset>().HaveConversion<CustomDateTimeConversion>();
+            base.ConfigureConventions(configurationBuilder);
         }
 
         public DbSet<Address> Addresses { get; set; }

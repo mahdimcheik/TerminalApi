@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using Microsoft.EntityFrameworkCore;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using TerminalApi.Models.Bookings;
 using TerminalApi.Models.User;
@@ -12,12 +13,15 @@ namespace TerminalApi.Models.Slots
         public Guid Id { get; set; }
 
         [Required]
+        [Column(TypeName = "timestamp with time zone")]
         public DateTimeOffset StartAt { get; set; }
 
         [Required]
+        [Column(TypeName = "timestamp with time zone")]
         public DateTimeOffset EndAt { get; set; }
 
         [Required]
+        [Column(TypeName = "timestamp with time zone")]
         public DateTimeOffset CreatedAt { get; set; }
 
         [Required]
@@ -26,7 +30,7 @@ namespace TerminalApi.Models.Slots
         public UserApp? Creator { get; set; }
         public Booking? Booking { get; set; }
         [Required]
-        [Column(TypeName = "decimal(18, 6)")]
+        [Precision(18, 2)]
         public decimal Price { get; set; }
         public int? Reduction { get; set; }
         public EnumSlotType Type { get; set; }
