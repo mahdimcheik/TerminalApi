@@ -288,6 +288,7 @@ namespace TerminalApi.Controllers
                     Data = new
                     {
                         Token = await GenerateAccessTokenAsync(user),
+                        refreshToken = user.RefreshToken,
                         User = user.ToUserResponseDTO(userRoles),
                     },
                 }
@@ -351,7 +352,7 @@ namespace TerminalApi.Controllers
                 issuer: EnvironmentVariables.API_BASE_URL,
                 audience: EnvironmentVariables.USER_BASE_URL,
                 claims: authClaims,
-                expires: DateTime.Now.AddDays(3),
+                expires: DateTime.Now.AddMinutes(1),
                 signingCredentials: credentials
             );
 
@@ -412,8 +413,10 @@ namespace TerminalApi.Controllers
 
         #region CurrentUser informations
         [HttpGet("my-informations")]
+        [Authorize]
         public async Task<ActionResult<ResponseDTO>> GetMyInformations()
         {
+            Console.WriteLine("Called my infos");
             var user = CheckUser.GetUserFromClaim(HttpContext.User, _context);
 
             if (user == null)
@@ -431,7 +434,7 @@ namespace TerminalApi.Controllers
                     Status = 200,
                     Data = new
                     {
-                        Token = await GenerateAccessTokenAsync(user),
+                        //Token = await GenerateAccessTokenAsync(user),
                         User = user.ToUserResponseDTO(userRoles),
                     },
                 }
@@ -687,8 +690,51 @@ namespace TerminalApi.Controllers
             return Ok(new { fileName, url });
         }
 
+        [Route("refresh-token")]
+        [AllowAnonymous]
+        [HttpPost]
+        public async Task<ActionResult<RefreshTokenOutput>> UpdateRefreshToken([FromBody] RefreshTokenBodyInput values)
+        {
+            Console.WriteLine("refresh token ");
+
+            if (!ModelState.IsValid) return BadRequest(ModelState);
+
+            string? userEmail = HttpContext.User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.Email)?.Value?.ToLower();
+            if (userEmail == null)
+            {
+                var principal = GetPrincipalFromExpiredToken(values.Token);
+                userEmail = principal?.Claims.FirstOrDefault(x => x.Type == ClaimTypes.Email)?.Value?.ToLower();
+            }
+
+            if (userEmail == null) return Unauthorized();
+
+            UserApp? user = _context.Users
+                .FirstOrDefault(x => x.Email.ToLower() == userEmail);
+
+            if (user == null)
+                return NotFound();
+
+            if (values.RefreshToken == user.RefreshToken)
+            {
+                HttpContext.Response.Headers.Add(key: "Access-Control-Allow-Credentials", value: "true");
+                //HttpContext.Response.Headers.Add(key: "Authorization", value: accessToken);
+
+                return Ok(
+                new ResponseDTO
+                {
+                    Message = "Les utilisateurs",
+                    Data = new RefreshTokenOutput(user, await GenerateAccessTokenAsync(user)),
+                    Status = 200
+                });
+            }
+
+            return Redirect("/login");
+        }
+
+
+
         [HttpGet("all")]
-        //[Authorize(Roles="Admin")]
+        [Authorize(Roles="Admin")]
         public async Task<ActionResult<ResponseDTO>> getAllUsers(
             [FromQuery] int first,
             [FromQuery] int rows
@@ -714,7 +760,9 @@ namespace TerminalApi.Controllers
             var users = fakerService.GenerateUserCreateDTO().Generate(500).Select(x => x.ToUser()).ToList();
             _context.Users.AddRange(users);
             _context.SaveChanges();
-            return Ok(users.Take(10));
+            return Ok(users.Take(10)); 
         }
+
+
     }
 }

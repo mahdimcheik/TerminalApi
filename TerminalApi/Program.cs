@@ -203,7 +203,7 @@ namespace TerminalApi
             services.AddScoped<FormationService>();
             services.AddScoped<SlotService>();
             services.AddScoped<FakerService>();
-
+            services.AddScoped<SseConnectionManager>();
 
             //Lowercase routing
             services.AddRouting(opt => opt.LowercaseUrls = true);

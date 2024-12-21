@@ -1,33 +1,21 @@
-﻿{
-  "$schema": "http://json.schemastore.org/launchsettings.json",
-  "iisSettings": {
-    "windowsAuthentication": false,
-    "anonymousAuthentication": true,
-    "iisExpress": {
-      "applicationUrl": "http://localhost:27657",
-      "sslPort": 44362
-    }
-  },
+{
   "profiles": {
-    "http": {
+    "TerminalApi": {
       "commandName": "Project",
-      "dotnetRunMessages": true,
       "launchBrowser": true,
-      "launchUrl": "swagger",
-      "applicationUrl": "http://localhost:5298",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development"
       }
     },
     "https": {
       "commandName": "Project",
-      "dotnetRunMessages": true,
       "launchBrowser": true,
       "launchUrl": "swagger",
-      "applicationUrl": "https://localhost:7036;http://localhost:5298",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development"
-      }
+      },
+      "dotnetRunMessages": true,
+      "applicationUrl": "https://localhost:7036;http://localhost:5298"
     },
     "IIS Express": {
       "commandName": "IISExpress",
@@ -39,16 +27,14 @@
     },
     "base": {
       "commandName": "Project",
-      "dotnetRunMessages": true,
       "launchBrowser": true,
       "launchUrl": "swagger",
-      "applicationUrl": "https://localhost:7113;http://localhost:5113;http://0.0.0.0:5113",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development",
-        "APP_SUFFIX_URL": "",
+        "APP_SUFFIX_URL": "localhost:7113",
         "USER_PREFIX_URL": "localhost:7113",
         "USER_FRONT_URL": "localhost:4200",
-        "API_PREFIX_URL": "localhost:5113",
+        "API_PREFIX_URL": "localhost:7113",
         "DB_NAME": "base",
         "DB_USER": "postgres",
         "DB_PASSWORD": "mahdimcheik",
@@ -59,8 +45,21 @@
         "SMTP_BREVO_KEY": "xsmtpsib-988eea00b63b04f3271c9971b7b933d5087e02797f8ca6f926af734e68f3d19e-1pc86jJAtzxKsCS5",
         "SMTP_BREVO_SERVER": "smtp-relay.brevo.com",
         "SMTP_BREVO_PORT": "587",
-        "SMTP_BROVO_LOGIN": "avrilwithmahdi@gmail.com"
-      }
+        "SMTP_BROVO_LOGIN": "avrilwithmahdi@gmail.com",
+        "applicationUrl": "https://localhost:61106;http://localhost:61107",
+        "ID_CLIENT_GOOGLE": "1089566591438-hholj14t3t76fujjm7j60a7ndqs2e074.apps.googleusercontent.com",
+        "SECRET_CLIENT_GOOGLE": "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"
+      },
+      "dotnetRunMessages": true,
+      "applicationUrl": "https://localhost:7113;http://localhost:5113;http://0.0.0.0:5113"
+    }
+  },
+  "iisSettings": {
+    "windowsAuthentication": false,
+    "anonymousAuthentication": true,
+    "iisExpress": {
+      "applicationUrl": "http://localhost:51703/",
+      "sslPort": 44307
     }
   }
 }

@@ -1,6 +1,7 @@
 ﻿using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Text.Json.Serialization;
 using Microsoft.AspNetCore.Identity;
 using TerminalApi.Models.Adresse;
 using TerminalApi.Models.Bookings;
@@ -41,7 +42,24 @@ namespace TerminalApi.Models.User
         public ICollection<Booking>? Bookings { get; set; }
         public ICollection<Formation>? Formations { get; set; }
     }
+    public class RefreshTokenOutput
+    {
+        [JsonIgnore] protected UserApp MyUser { get; private set; }
+        [JsonIgnore] protected string MyAccessToken { get; private set; }
+        public string AccessToken => MyAccessToken;
 
+        public RefreshTokenOutput(UserApp User, string AccessToken)
+        {
+            this.MyUser = User;
+            this.MyAccessToken = AccessToken;
+        }
+    }
+
+    public class RefreshTokenBodyInput
+    {
+        public string Token { get; set; }
+        public string RefreshToken { get; set; }
+    }
     public class UserUpdateDTO
     {
         [Required]
