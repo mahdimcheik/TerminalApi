@@ -2,27 +2,14 @@
 {
     public static class EnvironmentVariables
     {
-        public static string? APP_SUFFIX_URL =>
-            Environment.GetEnvironmentVariable("APP_SUFFIX_URL");
         public static string JWT_KEY =>
             Environment.GetEnvironmentVariable("JWT_KEY")
             ?? "7e89MVHPO-W-LXh1oQHbrfP0agnN5xqaJ_q5RsH2AgCAP9tyKShZF8Mtpyad2hcc5l4hdyX_2eMw6L0LfllO06ifUEGqAaFlASiVArgYQhxwPuaKCtlqydQ484_eaE6kh5tjWGCH2QeypkJSGTJTw4FyY5p01hiza1HgjQyzcGs";
 
-        public static string? USER_PREFIX_URL =>
-            Environment.GetEnvironmentVariable("USER_PREFIX_URL");
-        public static string? USER_BASE_URL =>
-            string.Format("https://{0}{1}", USER_PREFIX_URL, APP_SUFFIX_URL);
-        public static string? USER_FRONT_URL =>
-    Environment.GetEnvironmentVariable("USER_FRONT_URL");
-
-
-        public static string? API_PREFIX_URL =>
-            Environment.GetEnvironmentVariable("API_PREFIX_URL");
-        public static string? API_BASE_URL =>
-            string.Format("http://{0}{1}", API_PREFIX_URL, APP_SUFFIX_URL);
-
-        public static string API_HERE_KEY { get; set; } =
-            Environment.GetEnvironmentVariable("API_HERE_KEY") ?? "";
+        public static string? API_BACK_URL =>
+            Environment.GetEnvironmentVariable("API_BACK_URL");
+        public static string? API_FRONT_URL =>
+            Environment.GetEnvironmentVariable("API_FRONT_URL");
         public static string GOOGLE_API_KEY { get; set; } =
             Environment.GetEnvironmentVariable("GOOGLE_API_KEY") ?? "";
 
@@ -58,7 +45,8 @@
         public static int SMTP_Port =>
             Int32.Parse(Environment.GetEnvironmentVariable("SMTP_BREVO_PORT"));
         // google oauth
-        public static string ID_CLIENT => Environment.GetEnvironmentVariable("ID_CLIENT_GOOGLE");
-        public static string SECRET_CLIENT_GOOGLE => Environment.GetEnvironmentVariable("SECRET_CLIENT_GOOGLE");
+        public static string ID_CLIENT_GOOGLE => Environment.GetEnvironmentVariable("ID_CLIENT_GOOGLE");
+        public static string? SECRET_CLIENT_GOOGLE => Environment.GetEnvironmentVariable("SECRET_CLIENT_GOOGLE");
+        public static string? GOOGLE_REDIRECT_URL => Environment.GetEnvironmentVariable("GOOGLE_REDIRECT_URL");
     }
 }

@@ -31,10 +31,14 @@
             "http://localhost:8100",
             "http://localhost:8082",
             "http://192.168.1.39:8082",
+            "http://localhost:7113",
+            "https://localhost:7113",
+            "https://accounts.google.com",
+            "https://accounts.google.com/o/oauth2/v2/auth",
             "capacitor://localhost",
             "ionic://localhost",
-            EnvironmentVariables.USER_BASE_URL,
-            EnvironmentVariables.API_BASE_URL,
+            EnvironmentVariables.API_BACK_URL,
+            EnvironmentVariables.API_FRONT_URL,
             "https://recette-tpeweb.e-transactions.fr"
         };
 

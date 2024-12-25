@@ -1,14 +1,14 @@
-﻿using System.IdentityModel.Tokens.Jwt;
-using System.Linq;
-using System.Security.Claims;
-using System.Text;
-using System.Web;
+﻿using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
+using System.Text;
+using System.Web;
 using TerminalApi.Contexts;
 using TerminalApi.Models;
 using TerminalApi.Models.Role;
@@ -32,6 +32,7 @@ namespace TerminalApi.Controllers
         private readonly SendMailService mailService;
         private readonly IWebHostEnvironment _env;
         private readonly FakerService fakerService;
+        private readonly SignInManager<UserApp> signInManager;
 
         public UsersController(
             ApiDefaultContext context,
@@ -39,7 +40,7 @@ namespace TerminalApi.Controllers
             RoleManager<Role> roleManager,
             SendMailService mailService,
             IWebHostEnvironment env,
-            FakerService fakerService
+            FakerService fakerService, SignInManager<UserApp> signInManager
         )
         {
             this._context = context;
@@ -48,6 +49,7 @@ namespace TerminalApi.Controllers
             this.mailService = mailService;
             this._env = env;
             this.fakerService = fakerService;
+            this.signInManager = signInManager;
         }
 
         #endregion
@@ -349,8 +351,8 @@ namespace TerminalApi.Controllers
             }
 
             var token = new JwtSecurityToken(
-                issuer: EnvironmentVariables.API_BASE_URL,
-                audience: EnvironmentVariables.USER_BASE_URL,
+                issuer: EnvironmentVariables.API_BACK_URL,
+                audience: EnvironmentVariables.API_BACK_URL,
                 claims: authClaims,
                 expires: DateTime.Now.AddMinutes(1),
                 signingCredentials: credentials
@@ -389,7 +391,7 @@ namespace TerminalApi.Controllers
             if (result.Succeeded)
             {
                 //return Ok(new ResponseDTO { Message = "Validation réussite", Status = 200 });
-                return Redirect($"{EnvironmentVariables.API_BASE_URL}/email-confirmation-success");
+                return Redirect($"{EnvironmentVariables.API_FRONT_URL}/email-confirmation-success");
             }
 
             return BadRequest(new ResponseDTO { Message = "Validation échouée", Status = 400 });
@@ -402,7 +404,7 @@ namespace TerminalApi.Controllers
             confirmationToken = HttpUtility.UrlEncode(confirmationToken);
 
             var confirmationLink =
-                EnvironmentVariables.USER_BASE_URL
+                EnvironmentVariables.API_BACK_URL
                 + "/users/email-confirmation?userId="
                 + user.Id
                 + "&confirmationToken="
@@ -485,7 +487,7 @@ namespace TerminalApi.Controllers
 
                         //string AppURLRedirection = HardCode.CHANGE_PASSWORD + "?userId=" + user.Id + "&resetToken=" + resetToken;
                         var resetLink =
-                            EnvironmentVariables.USER_FRONT_URL
+                            EnvironmentVariables.API_BACK_URL
                             + "/auth/reset-password?userId="
                             + user.Id
                             + "&resetToken="
@@ -731,10 +733,8 @@ namespace TerminalApi.Controllers
             return Redirect("/login");
         }
 
-
-
         [HttpGet("all")]
-        [Authorize(Roles="Admin")]
+        [Authorize(Roles = "Admin")]
         public async Task<ActionResult<ResponseDTO>> getAllUsers(
             [FromQuery] int first,
             [FromQuery] int rows
@@ -760,9 +760,67 @@ namespace TerminalApi.Controllers
             var users = fakerService.GenerateUserCreateDTO().Generate(500).Select(x => x.ToUser()).ToList();
             _context.Users.AddRange(users);
             _context.SaveChanges();
-            return Ok(users.Take(10)); 
+            return Ok(users.Take(10));
         }
+        //[AllowAnonymous]
+        //[HttpGet("google")]
+        //public async Task<IActionResult> GoogleCallback()
+        //{
+        //    Console.WriteLine("triggered");
+        //    var info = await signInManager.GetExternalLoginInfoAsync();
+        //    if (info == null)
+        //    {
+        //        return Unauthorized("Failed to authenticate.");
+        //    }
 
+        //    var email = info.Principal.FindFirstValue(ClaimTypes.Email);
+
+        //    // Check if the user exists in the database
+        //    var user = await _userManager.FindByEmailAsync(email);
+        //    if (user == null)
+        //    {
+        //        // Optionally register the user if not exists
+        //        user = new UserApp { UserName = email, Email = email };
+        //        await _userManager.CreateAsync(user);
+        //        await _userManager.AddLoginAsync(user, info);
+        //    }
+
+        //    // Generate JWT token
+        //    var token = await GenerateAccessTokenAsync(user);
+        //    return Ok(new { Token = token });
+        //    return Ok();
+        //}
+
+        //[AllowAnonymous]
+        //[HttpGet("google-login")]
+        //public IActionResult GoogleLogin()
+        //{
+        //    // Redirect to Google for authentication
+        //    //var redirectUrl = Url.Action("GoogleCallback", "Auth"); // Callback endpoint
+        //    var redirectUrl = "https://localhost:7113/users/google-callback";//EnvironmentVariables.API_BASE_URL + "/users/google-callback";
+        //    var properties = new AuthenticationProperties { RedirectUri = redirectUrl };
+        //    var toto = Challenge(properties, "Google");
+        //    return Challenge(properties, "Google");
+        //}
+
+        //[AllowAnonymous]
+        //[HttpGet("google-login-v1")]
+        //public IActionResult GoogleLoginV2()
+        //{
+        //    string clientId = EnvironmentVariables.ID_CLIENT_GOOGLE;
+        //    string redirectUri = "https://localhost:7113/users/google-callback";
+        //    string scope = "openid profile email";
+        //    string state = Guid.NewGuid().ToString(); // Use for CSRF protection
+
+        //    string url = $"https://accounts.google.com/o/oauth2/v2/auth" +
+        //                 $"?client_id={clientId}" +
+        //                 $"&redirect_uri={Uri.EscapeDataString(redirectUri)}" +
+        //                 $"&response_type=code" +
+        //                 $"&scope={Uri.EscapeDataString(scope)}" +
+        //                 $"&state={state}";
+
+        //    return Redirect(url);
+        //}
 
     }
 }

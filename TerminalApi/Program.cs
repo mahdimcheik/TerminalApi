@@ -111,7 +111,7 @@ namespace TerminalApi
                 .AddRoleManager<RoleManager<Role>>()
                 .AddUserManager<UserManager<UserApp>>()
                 .AddSignInManager<SignInManager<UserApp>>()
-                .AddErrorDescriber<FrenchIdentityErrorDescriber>()
+                .AddErrorDescriber<FrenchIdentityErrorDescriber>()                
                 .AddDefaultTokenProviders();
 
             services.Configure<IdentityOptions>(options =>
@@ -159,13 +159,19 @@ namespace TerminalApi
                         ValidateAudience = true,
                         ValidateLifetime = true,
                         ValidateIssuerSigningKey = true,
-                        ValidIssuer = EnvironmentVariables.API_BASE_URL,
-                        ValidAudience = EnvironmentVariables.USER_BASE_URL,
+                        ValidIssuer = EnvironmentVariables.API_BACK_URL,
+                        ValidAudience = EnvironmentVariables.API_BACK_URL,
                         IssuerSigningKey = new SymmetricSecurityKey(
                             Encoding.UTF8.GetBytes(EnvironmentVariables.JWT_KEY)
                         ),
                     };
                 });
+                //.AddGoogle("Google",(options) =>
+                //{
+                //    options.ClientId = EnvironmentVariables.ID_CLIENT_GOOGLE;
+                //    options.ClientSecret = EnvironmentVariables.SECRET_CLIENT_GOOGLE;
+                //    options.CallbackPath = EnvironmentVariables.GOOGLE_REDIRECT_URL;
+                //});
             /*.AddCookie(options =>
             {
                 options.Cookie.Name = CookieName;
@@ -204,6 +210,7 @@ namespace TerminalApi
             services.AddScoped<SlotService>();
             services.AddScoped<FakerService>();
             services.AddScoped<SseConnectionManager>();
+            services.AddSingleton<PdfService>();
 
             //Lowercase routing
             services.AddRouting(opt => opt.LowercaseUrls = true);
