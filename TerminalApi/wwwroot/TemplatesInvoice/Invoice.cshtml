@@ -1,0 +1,74 @@
+﻿@model TerminalApi.Services.Templates.InvoiceViewModel
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title>Invoice</title>
+    <style>
+        /* Include your styles here */
+    </style>
+</head>
+<body>
+    <div class="invoice-box">
+        <table cellpadding="0" cellspacing="0">
+            <tr class="top">
+                <td colspan="2">
+                    <table>
+                        <tr>
+                            <td class="title">
+                                <img src="https://your-logo-url.com/logo.png" style="width:100%; max-width:300px;" />
+                            </td>
+                            <td>
+                                Facture #: Model.Order.Id<br />
+                                Date: Model.InvoiceDate:dd/MM/yyyy<br />
+                            </td>
+                        </tr>
+                    </table>
+                </td>
+            </tr>
+            <tr class="information">
+                <td colspan="2">
+                    <table>
+                        <tr>
+                            <td>
+                                Model.Address?.StreetNumber Model.Address?.Street<br />
+                                Model.Address?.StreetLine2<br />
+                                Model.Address?.PostalCode Model.Address?.City
+                            </td>
+                            <td>
+                                Model.User.FirstName Model.User.LastName<br />
+                                Model.User.Email<br />
+                            </td>
+                        </tr>
+                    </table>
+                </td>
+            </tr>
+            <tr class="heading">
+                <td>Article</td>
+                <td>Prix</td>
+            </tr>
+            
+                <tr class="item">
+                    <td>
+                        booking.Slot.StartAt:dd/MM/yyyy HH:mm - booking.Slot.EndAt:dd/MM/yyyy HH:mm
+                    </td>
+                    <td>
+                        booking.Slot.Price:C
+                    </td>
+                </tr>
+            
+            <tr class="total">
+                <td></td>
+                <td>Total payé: @Model.Total:C</td>
+            </tr>
+        </table>
+        <div class="date-signature">
+            <p>Fait le: Model.InvoiceDate:dd/MM/yyyy à Bordeaux</p>
+            <img src="https://cdn.prod.website-files.com/61d7de73eec437f52da6d699/62161cf7328ad280841f653f_esignature-signature.png" style="width: 40mm; height: 30mm;" />
+        </div>
+        <footer>
+            <strong>Model.InspireMessage</strong>
+        </footer>
+    </div>
+</body>
+</html>

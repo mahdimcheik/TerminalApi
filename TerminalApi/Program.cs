@@ -4,6 +4,7 @@ using System.Reflection;
 using System.Text;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc.Razor;
 using Microsoft.AspNetCore.ResponseCompression;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -211,6 +212,11 @@ namespace TerminalApi
             services.AddScoped<FakerService>();
             services.AddScoped<SseConnectionManager>();
             services.AddSingleton<PdfService>();
+            services.Configure<RazorViewEngineOptions>(options =>
+            {
+                options.ViewLocationFormats.Add("/TemplatesInvoice/{0}" + RazorViewEngine.ViewExtension);
+            });
+            services.AddTransient<PdfService>();
 
             //Lowercase routing
             services.AddRouting(opt => opt.LowercaseUrls = true);
