@@ -6,9 +6,9 @@ namespace TerminalApi.Services
 {
     public class PdfService
     {
-        public PdfService()
+        public PdfService(IWebHostEnvironment env)
         {
-
+            _env = env;
         }
 
         public async Task GeneratePdfAsync(Order order)
@@ -16,10 +16,14 @@ namespace TerminalApi.Services
             await new BrowserFetcher().DownloadAsync();
             using var browser = await Puppeteer.LaunchAsync(new LaunchOptions { Headless = true });
             using var page = await browser.NewPageAsync();
-            //template = string.Format(template, "first");
-			template = template.Substring(1, template.Length - 1);
-            await page.SetContentAsync(template);
-            await page.PdfAsync("customContent.pdf");
+            string path = Path.Combine(_env.WebRootPath, "TemplatesInvoice", "Invoice.html");
+
+            if (File.Exists(path))
+            {
+                var tmp = string.Join("\n", File.ReadAllLines(path));tmp = string.Format(tmp,"lol");
+                await page.SetContentAsync(tmp);
+                await page.PdfAsync("customContent.pdf");
+            }
         }
         private string ArticleDetails(Booking article)
         {
@@ -220,5 +224,6 @@ namespace TerminalApi.Services
   </body>
 </html>
 ";
+        private readonly IWebHostEnvironment _env;
     }
 }

@@ -27,7 +27,12 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Folder Include="Services\Templates\" />
     <Folder Include="wwwroot\images\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="wwwroot\TemplatesInvoice\Invoice.html" />
   </ItemGroup>
 
 </Project>
