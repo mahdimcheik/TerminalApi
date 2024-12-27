@@ -16,10 +16,10 @@
                     <table>
                         <tr>
                             <td class="title">
-                                <img src="https://your-logo-url.com/logo.png" style="width:100%; max-width:300px;" />
+                                <img src="@Model.BookerImgUrl" style="width:100%; max-width:300px;" />
                             </td>
                             <td>
-                                Facture #: Model.Order.Id<br />
+                                Facture #: @Model.Total $<br />
                                 Date: Model.InvoiceDate:dd/MM/yyyy<br />
                             </td>
                         </tr>

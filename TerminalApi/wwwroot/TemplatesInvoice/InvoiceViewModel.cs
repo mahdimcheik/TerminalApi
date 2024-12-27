@@ -7,11 +7,15 @@ namespace TerminalApi.Services.Templates
 {
     public class InvoiceViewModel
     {
+        public string BookerImgUrl { get; set; }
         public decimal Total { get; set; }
+        public List<BookingDetailsDto> Bookings { get; set; }
 
-        public InvoiceViewModel()
+        public InvoiceViewModel(OrderDetailsDto orderDetails)
         {
-            Total = 105;
+            Total = 15;
+            BookerImgUrl = orderDetails.BookerImgUrl;
+            Bookings = orderDetails.Bookings;
         }
     }
 }

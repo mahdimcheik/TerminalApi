@@ -83,20 +83,23 @@ namespace TerminalApi.Contexts
         }
         private async Task<long> GenerateUniqueOrderNumberAsync()
         {
-            long orderNumber;
-            bool exists;
+            long orderNumber = 1;
+            if (!Orders.Any())
+            {
+                return orderNumber;
+            }
+                bool exists = false;
+                var max = Orders.Max(o => o.OrderNumber);
             int i = 1;
             do
-            {
-                var max = Orders.Max(o => o.OrderNumber);
+            {    
                 orderNumber = max + i;
-
-                exists = await Orders.AnyAsync(o => o.OrderNumber == orderNumber);
-                i++;
+                exists = await Orders.AnyAsync(o => o.OrderNumber == orderNumber);// ca ne sert à rien mais voila
+                i++;                
             }
             while (exists);
 
-            return orderNumber;
+            return 0;
         }
 
         public DbSet<Address> Addresses { get; set; }

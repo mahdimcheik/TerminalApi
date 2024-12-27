@@ -211,7 +211,7 @@ namespace TerminalApi
             services.AddScoped<SlotService>();
             services.AddScoped<FakerService>();
             services.AddScoped<SseConnectionManager>();
-            services.AddSingleton<PdfService>();
+            services.AddScoped<PdfService>();
             services.Configure<RazorViewEngineOptions>(options =>
             {
                 options.ViewLocationFormats.Add("/TemplatesInvoice/{0}" + RazorViewEngine.ViewExtension);

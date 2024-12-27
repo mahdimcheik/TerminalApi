@@ -11,7 +11,6 @@ namespace TerminalApi.Models.Payments
     {
         [Key]
         public Guid Id { get; set; }
-        [Required]
         public long OrderNumber { get; set; }
         [Column(TypeName = "timestamp with time zone")]
         public DateTimeOffset? PaymentDate { get; set; }

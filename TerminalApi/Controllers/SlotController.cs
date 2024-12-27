@@ -2,10 +2,12 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using TerminalApi.Contexts;
 using TerminalApi.Models;
 using TerminalApi.Models.Bookings;
+using TerminalApi.Models.Payments;
 using TerminalApi.Models.Slots;
 using TerminalApi.Services;
 using TerminalApi.Utilities;
@@ -163,6 +165,68 @@ namespace TerminalApi.Controllers
             }
             catch (Exception ex)
             {
+                return BadRequest(new ResponseDTO { Status = 400, Message = ex.Message });
+            }
+        }
+        [Authorize]
+        [HttpPost("book-paid")]
+        public async Task<ActionResult<ResponseDTO>> BookingPaid([FromBody] List<string> slotIds)
+        {
+            using var transaction = context.Database.BeginTransaction();
+            try
+            {
+                if (slotIds is null || !slotIds.Any())
+                {
+                    return BadRequest(new ResponseDTO { Status = 400, Message = "Demande refusée" });
+                }
+                var user = CheckUser.GetUserFromClaim(HttpContext.User, context);
+                if (user is null)
+                {
+                    return BadRequest(new ResponseDTO { Status = 400, Message = "Demande refusée ?" });
+                }
+
+                var checkAvailability = await context.Slots
+                    .Where(x => slotIds.Contains(x.Id.ToString()) && x.Booking == null)
+                    .ToListAsync();
+                if (checkAvailability.Count != slotIds.Count)
+                {
+                    return BadRequest(new ResponseDTO { Status = 400, Message = "Demande refusée ?" });
+                }
+                else
+                {
+                    var bookings = new List<Booking>();
+                    foreach (var slotId in slotIds)
+                    {
+                        bookings.Add(new Booking
+                        {
+                            SlotId = Guid.Parse(slotId),
+                            BookedById = user.Id,
+                            CreatedAt = DateTimeOffset.Now
+                        });
+                    }
+                    await context.Bookings.AddRangeAsync(bookings);
+                    await context.SaveChangesAsync();
+                    Order order = new Order
+                    {
+                        BookerId = user.Id,
+                        CreatedAt = DateTimeOffset.Now,
+
+                        //OrderNumber = DateTimeOffset.Now.ToUnixTimeMilliseconds(),
+                        PaymentDate = DateTimeOffset.Now,
+                        Status = EnumBookingStatus.Paid,
+                        PaymentMethod = "Stripe"
+                    };
+                    await context.Orders.AddAsync(order);
+                    await context.SaveChangesAsync();
+
+                    transaction.Commit();
+                    return Ok(new ResponseDTO { Message = "La résérvation est enregistrée", Status = 204 });
+                }
+
+            }
+            catch (Exception ex)
+            {
+                await transaction.RollbackAsync();
                 return BadRequest(new ResponseDTO { Status = 400, Message = ex.Message });
             }
         }

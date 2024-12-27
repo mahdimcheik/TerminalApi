@@ -17,9 +17,9 @@ namespace TerminalApi.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> Get()
+        public async Task<IActionResult> Get([FromQuery] string orderId)
         {
-            await pdfService.GeneratePdfAsync(null);
+            await pdfService.GeneratePdfAsync(orderId);
             return Ok();
         }
     }
