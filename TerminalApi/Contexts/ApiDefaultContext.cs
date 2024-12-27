@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
+using System.Security.Cryptography;
 using TerminalApi.Models.Adresse;
 using TerminalApi.Models.Bookings;
 using TerminalApi.Models.Formations;
@@ -63,6 +64,40 @@ namespace TerminalApi.Contexts
            configurationBuilder.Properties<DateTimeOffset>().HaveConversion<CustomDateTimeConversion>();
             base.ConfigureConventions(configurationBuilder);
         }
+        // Override SaveChangesAsync
+        public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
+        {
+            // Get entries that are being Added
+            var orders = ChangeTracker
+                .Entries<Order>()
+                .Where(e => e.State == EntityState.Added)
+                .Select(e => e.Entity);
+
+            foreach (var order in orders)
+            {
+                // Generate and set the OrderNumber
+                order.OrderNumber = await GenerateUniqueOrderNumberAsync();
+            }
+
+            return await base.SaveChangesAsync(cancellationToken);
+        }
+        private async Task<long> GenerateUniqueOrderNumberAsync()
+        {
+            long orderNumber;
+            bool exists;
+            int i = 1;
+            do
+            {
+                var max = Orders.Max(o => o.OrderNumber);
+                orderNumber = max + i;
+
+                exists = await Orders.AnyAsync(o => o.OrderNumber == orderNumber);
+                i++;
+            }
+            while (exists);
+
+            return orderNumber;
+        }
 
         public DbSet<Address> Addresses { get; set; }
         public DbSet<Booking> Bookings { get; set; }
@@ -72,4 +107,5 @@ namespace TerminalApi.Contexts
         public DbSet<Formation> Formations { get; set; }
 
     }
+
 }

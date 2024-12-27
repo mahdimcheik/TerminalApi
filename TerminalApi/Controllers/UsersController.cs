@@ -354,7 +354,7 @@ namespace TerminalApi.Controllers
                 issuer: EnvironmentVariables.API_BACK_URL,
                 audience: EnvironmentVariables.API_BACK_URL,
                 claims: authClaims,
-                expires: DateTime.Now.AddMinutes(1),
+                expires: DateTime.Now.AddDays(1),
                 signingCredentials: credentials
             );
 
