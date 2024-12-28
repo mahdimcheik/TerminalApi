@@ -18,8 +18,8 @@ bin/
 obj/
 ./packages
 
-./Properties/launchSettings.json
-/Properties/launchSettings.json
+# Ignore launchSettings.json
+**/Properties/launchSettings.json
 
 # User-specific files (MonoDevelop/Xamarin Studio)
 *.userprefs
