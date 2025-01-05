@@ -34,7 +34,29 @@ namespace TerminalApi.Services
             //    .Include(x => x.Booker)
             //    .Include(x => x.Bookings)
             //        .ThenInclude(b => b.Slot)
-            //    .FirstOrDefaultAsync(x => x.Id == guid);
+            //    //.FirstOrDefaultAsync(x => x.Id == guid)
+            //                    .Select(x => new OrderDetailsDto
+            //                    {
+            //                        BookerImgUrl = x.Booker.ImgUrl ?? "",
+            //                        Bookings = x.Bookings.Select(b => new BookingDetailsDto
+            //                        {
+            //                            BookingCreatedAt = b.CreatedAt,
+            //                            SlotStartAt = b.Slot.StartAt,
+            //                            SlotEndAt = b.Slot.EndAt
+            //                        }).ToList()
+            //                    })
+            //    .FirstOrDefaultAsync();
+
+            //var orderDetails = order.Select(x => new OrderDetailsDto
+            //{
+            //    BookerImgUrl = x.Booker.ImgUrl ?? "",
+            //    Bookings = x.Bookings.Select(b => new BookingDetailsDto
+            //    {
+            //        BookingCreatedAt = b.CreatedAt,
+            //        SlotStartAt = b.Slot.StartAt,
+            //        SlotEndAt = b.Slot.EndAt
+            //    }).ToList()
+            //})
             var orderDetails = await context.Orders
                 .Where(x => x.Id == guid)
                 .Select(x => new OrderDetailsDto

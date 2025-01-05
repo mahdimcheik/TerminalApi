@@ -8,6 +8,8 @@ using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 using System.Web;
 using TerminalApi.Contexts;
 using TerminalApi.Models;
@@ -762,65 +764,134 @@ namespace TerminalApi.Controllers
             _context.SaveChanges();
             return Ok(users.Take(10));
         }
-        //[AllowAnonymous]
-        //[HttpGet("google")]
-        //public async Task<IActionResult> GoogleCallback()
-        //{
-        //    Console.WriteLine("triggered");
-        //    var info = await signInManager.GetExternalLoginInfoAsync();
-        //    if (info == null)
-        //    {
-        //        return Unauthorized("Failed to authenticate.");
-        //    }
 
-        //    var email = info.Principal.FindFirstValue(ClaimTypes.Email);
+        [AllowAnonymous]
+        [HttpGet("/google-callback")]
+        public async Task<IActionResult> GoogleCallback([FromQuery] string code, [FromQuery] string state)
+        {
+            if (string.IsNullOrEmpty(code))
+            {
+                return BadRequest("Invalid Google authentication response.");
+            }
 
-        //    // Check if the user exists in the database
-        //    var user = await _userManager.FindByEmailAsync(email);
-        //    if (user == null)
-        //    {
-        //        // Optionally register the user if not exists
-        //        user = new UserApp { UserName = email, Email = email };
-        //        await _userManager.CreateAsync(user);
-        //        await _userManager.AddLoginAsync(user, info);
-        //    }
+            var tokenResponse = await ExchangeCodeForTokenAsync(code);
+            if (tokenResponse == null)
+            {
+                return BadRequest("Failed to exchange code for token.");
+            }
 
-        //    // Generate JWT token
-        //    var token = await GenerateAccessTokenAsync(user);
-        //    return Ok(new { Token = token });
-        //    return Ok();
-        //}
+            var userInfo = await GetUserInfoAsync(tokenResponse.AccessToken);
+            if (userInfo == null)
+            {
+                return BadRequest("Failed to retrieve user information.");
+            }
 
-        //[AllowAnonymous]
-        //[HttpGet("google-login")]
-        //public IActionResult GoogleLogin()
-        //{
-        //    // Redirect to Google for authentication
-        //    //var redirectUrl = Url.Action("GoogleCallback", "Auth"); // Callback endpoint
-        //    var redirectUrl = "https://localhost:7113/users/google-callback";//EnvironmentVariables.API_BASE_URL + "/users/google-callback";
-        //    var properties = new AuthenticationProperties { RedirectUri = redirectUrl };
-        //    var toto = Challenge(properties, "Google");
-        //    return Challenge(properties, "Google");
-        //}
+            var user = await _userManager.FindByEmailAsync(userInfo.Email);
+            if (user == null)
+            {
+                user = new UserApp { UserName = userInfo.Email, Email = userInfo.Email };
+                await _userManager.CreateAsync(user);
+                await _userManager.AddLoginAsync(user, new UserLoginInfo("Google", userInfo.Id, "Google"));
+            }
 
-        //[AllowAnonymous]
-        //[HttpGet("google-login-v1")]
-        //public IActionResult GoogleLoginV2()
-        //{
-        //    string clientId = EnvironmentVariables.ID_CLIENT_GOOGLE;
-        //    string redirectUri = "https://localhost:7113/users/google-callback";
-        //    string scope = "openid profile email";
-        //    string state = Guid.NewGuid().ToString(); // Use for CSRF protection
+            var token = await GenerateAccessTokenAsync(user);
+            return Ok(new { Token = token });
+        }
 
-        //    string url = $"https://accounts.google.com/o/oauth2/v2/auth" +
-        //                 $"?client_id={clientId}" +
-        //                 $"&redirect_uri={Uri.EscapeDataString(redirectUri)}" +
-        //                 $"&response_type=code" +
-        //                 $"&scope={Uri.EscapeDataString(scope)}" +
-        //                 $"&state={state}";
+        private async Task<TokenResponse> ExchangeCodeForTokenAsync(string code)
+        {
+            var client = new HttpClient();
+            var request = new HttpRequestMessage(HttpMethod.Post, "https://oauth2.googleapis.com/token")
+            {
+                Content = new FormUrlEncodedContent(new Dictionary<string, string>
+        {
+            { "code", code },
+            { "client_id", EnvironmentVariables.ID_CLIENT_GOOGLE },
+            { "client_secret", EnvironmentVariables.SECRET_CLIENT_GOOGLE },
+            { "redirect_uri", $"{Request.Scheme}://{Request.Host}/google-callback" },
+            { "grant_type", "authorization_code" }
+        })
+            };
 
-        //    return Redirect(url);
-        //}
+            var response = await client.SendAsync(request);
+            if (!response.IsSuccessStatusCode)
+            {
+                return null;
+            }
 
+            var responseContent = await response.Content.ReadAsStringAsync();
+            return JsonSerializer.Deserialize<TokenResponse>(responseContent);
+        }
+
+        private async Task<UserInfo> GetUserInfoAsync(string accessToken)
+        {
+            var client = new HttpClient();
+            var response = await client.GetAsync($"https://www.googleapis.com/oauth2/v2/userinfo?access_token={accessToken}");
+            if (!response.IsSuccessStatusCode)
+            {
+                return null;
+            }
+
+            var responseContent = await response.Content.ReadAsStringAsync();
+            return JsonSerializer.Deserialize<UserInfo>(responseContent);
+        }
+
+        [AllowAnonymous]
+        [HttpGet("google-login")]
+        public IActionResult GoogleLogin()
+        {
+            var redirectUrl = Url.Action("GoogleCallback", "Users");
+            var properties = new AuthenticationProperties { RedirectUri = redirectUrl };
+            return Challenge(properties, "Google");
+        }
+
+    }
+
+    public class TokenResponse
+    {
+        [JsonPropertyName("access_token")]
+        public string AccessToken { get; set; }
+
+        [JsonPropertyName("expires_in")]
+        public int ExpiresIn { get; set; }
+
+        [JsonPropertyName("refresh_token")]
+        public string RefreshToken { get; set; }
+
+        [JsonPropertyName("scope")]
+        public string Scope { get; set; }
+
+        [JsonPropertyName("token_type")]
+        public string TokenType { get; set; }
+
+        [JsonPropertyName("id_token")]
+        public string IdToken { get; set; }
+    }
+
+    public class UserInfo
+    {
+        [JsonPropertyName("id")]
+        public string Id { get; set; }
+
+        [JsonPropertyName("email")]
+        public string Email { get; set; }
+
+        [JsonPropertyName("verified_email")]
+        public bool VerifiedEmail { get; set; }
+
+        [JsonPropertyName("name")]
+        public string Name { get; set; }
+
+        [JsonPropertyName("given_name")]
+        public string GivenName { get; set; }
+
+        [JsonPropertyName("family_name")]
+        public string FamilyName { get; set; }
+
+        [JsonPropertyName("picture")]
+        public string Picture { get; set; }
+
+        [JsonPropertyName("locale")]
+        public string Locale { get; set; }
     }
 }

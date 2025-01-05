@@ -1,6 +1,8 @@
 using System.Data;
+using System.IdentityModel.Tokens.Jwt;
 using System.IO.Compression;
 using System.Reflection;
+using System.Security.Claims;
 using System.Text;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
@@ -147,7 +149,6 @@ namespace TerminalApi
             services
                 .AddAuthentication(options =>
                 {
-                    options.DefaultSignInScheme = JwtBearerDefaults.AuthenticationScheme;
                     options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
                     options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
                 })
@@ -166,41 +167,13 @@ namespace TerminalApi
                             Encoding.UTF8.GetBytes(EnvironmentVariables.JWT_KEY)
                         ),
                     };
+                })
+                .AddGoogle(options =>
+                {
+                    options.ClientId = EnvironmentVariables.ID_CLIENT_GOOGLE;
+                    options.ClientSecret = EnvironmentVariables.SECRET_CLIENT_GOOGLE;
+                    options.CallbackPath = new PathString("/google-callback");
                 });
-                //.AddGoogle("Google",(options) =>
-                //{
-                //    options.ClientId = EnvironmentVariables.ID_CLIENT_GOOGLE;
-                //    options.ClientSecret = EnvironmentVariables.SECRET_CLIENT_GOOGLE;
-                //    options.CallbackPath = EnvironmentVariables.GOOGLE_REDIRECT_URL;
-                //});
-            /*.AddCookie(options =>
-            {
-                options.Cookie.Name = CookieName;
-                options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
-                options.Cookie.HttpOnly = true;
-                options.Cookie.SameSite = SameSiteMode.None;
-                options.Cookie.MaxAge = TimeSpan.FromDays(365);
-                options.Cookie.IsEssential = true;
-
-                options.Events.OnRedirectToAccessDenied = (ctx) =>
-                {
-                    if (ctx.Response.StatusCode == 200)
-                    {
-                        ctx.Response.StatusCode = 403;
-                    }
-
-                    return Task.CompletedTask;
-                };
-                options.Events.OnRedirectToLogin = (ctx) =>
-                {
-                    if (ctx.Response.StatusCode == 200)
-                    {
-                        ctx.Response.StatusCode = 401;
-                    }
-
-                    return Task.CompletedTask;
-                };
-            });*/
         }
 
         private static void ConfigureServices(IServiceCollection services)
@@ -246,7 +219,7 @@ namespace TerminalApi
             ConfigureAuthentication(services);
         }
 
-        private static void ConfigureMiddlewarePipeline(WebApplication app)
+        private static void ConfigureMiddlewarePipeline_backup(WebApplication app)
         {
             // Configure localization for supported cultures.
             var supportedCultures = new string[] { "fr-FR" };
@@ -281,7 +254,7 @@ namespace TerminalApi
             app.UseCors();
 
             // Enable HTTPS redirection (if needed).
-            // _webApplication.UseHttpsRedirection();
+            app.UseHttpsRedirection();
 
             // Enable authorization.
             app.UseAuthorization();
@@ -303,6 +276,93 @@ namespace TerminalApi
                     await next.Invoke();
                 }
             );
+        }
+
+        private static void ConfigureMiddlewarePipeline(WebApplication app)
+        {
+            // Configure localization for supported cultures.
+            var supportedCultures = new string[] { "fr-FR" };
+            app.UseRequestLocalization(options =>
+                options
+                    .AddSupportedCultures(supportedCultures)
+                    .AddSupportedUICultures(supportedCultures)
+                    .SetDefaultCulture("fr-FR")
+            );
+
+            app.UseStaticFiles();
+
+            // Enable authentication.
+            app.UseAuthentication();
+
+            // Enable developer exception page if in development environment.
+            if (app.Environment.IsDevelopment())
+            {
+                app.UseDeveloperExceptionPage();
+            }
+
+            // Enable Swagger and Swagger UI.
+            app.UseSwagger();
+            app.UseSwaggerUI(c =>
+            {
+                c.SwaggerEndpoint("/swagger/v1/swagger.json", "data_lib v1");
+                c.RoutePrefix = "swagger";
+            });
+
+
+            // Enable routing.
+            app.UseRouting();
+
+            // Enable Cross-Origin Resource Sharing (CORS).
+            app.UseCors();
+
+            // Enable HTTPS redirection (if needed).
+            // app.UseHttpsRedirection();
+
+            // Enable authorization.
+            app.UseAuthorization();
+
+            // Map controllers.
+            app.MapControllers();
+            app.Use(
+async (context, next) =>
+{
+if (context.Request.ContentLength > 200_000_000)
+{
+context.Response.StatusCode = StatusCodes.Status413PayloadTooLarge;
+await context.Response.WriteAsync("Payload Too Large");
+return;
+}
+
+await next.Invoke();
+}
+);
+
+        }
+        private static async Task<string> GenerateAccessTokenAsync(string email)
+        {
+            var securityKey = new SymmetricSecurityKey(
+                Encoding.UTF8.GetBytes(EnvironmentVariables.JWT_KEY)
+            );
+            var credentials = new SigningCredentials(
+                key: securityKey,
+                algorithm: SecurityAlgorithms.HmacSha256
+            );
+
+            var authClaims = new List<Claim>
+            {
+                new Claim(type: ClaimTypes.Email, value: email),
+            };
+
+            var token = new JwtSecurityToken(
+                issuer: EnvironmentVariables.API_BACK_URL,
+                audience: EnvironmentVariables.API_BACK_URL,
+                claims: authClaims,
+                expires: DateTime.Now.AddDays(1),
+                signingCredentials: credentials
+            );
+
+
+            return new JwtSecurityTokenHandler().WriteToken(token);
         }
     }
 }
