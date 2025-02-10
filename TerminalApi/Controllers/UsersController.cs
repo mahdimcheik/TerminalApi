@@ -1,16 +1,16 @@
-﻿using Microsoft.AspNetCore.Authentication;
+﻿using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
+using System.Text;
+using System.Text.Json;
+using System.Text.Json.Serialization;
+using System.Web;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
-using System.IdentityModel.Tokens.Jwt;
-using System.Security.Claims;
-using System.Text;
-using System.Text.Json;
-using System.Text.Json.Serialization;
-using System.Web;
 using TerminalApi.Contexts;
 using TerminalApi.Models;
 using TerminalApi.Models.Role;
@@ -42,7 +42,8 @@ namespace TerminalApi.Controllers
             RoleManager<Role> roleManager,
             SendMailService mailService,
             IWebHostEnvironment env,
-            FakerService fakerService, SignInManager<UserApp> signInManager
+            FakerService fakerService,
+            SignInManager<UserApp> signInManager
         )
         {
             this._context = context;
@@ -378,22 +379,23 @@ namespace TerminalApi.Controllers
         [Route("email-confirmation")]
         [HttpGet]
         public async Task<ActionResult<ResponseDTO>> EmailConfirmation(
-            [FromQuery] string UserId,
+            [FromQuery] string userId,
             [FromQuery] string confirmationToken
         )
         {
-            UserApp user = await _userManager.FindByIdAsync(UserId);
+            UserApp user = await _userManager.FindByIdAsync(userId);
             if (user is null)
+            {
                 return BadRequest(new ResponseDTO { Message = "Validation échouée", Status = 400 });
-
-            // var decodedToken = HttpUtility.UrlDecode(confirmationToken); // si le token est envoyer dans le body
+            }
 
             IdentityResult result = await _userManager.ConfirmEmailAsync(user, confirmationToken);
 
             if (result.Succeeded)
             {
-                //return Ok(new ResponseDTO { Message = "Validation réussite", Status = 200 });
-                return Redirect($"{EnvironmentVariables.API_FRONT_URL}/email-confirmation-success");
+                return Redirect(
+                    $"{EnvironmentVariables.API_FRONT_URL}/auth/email-confirmation-success"
+                );
             }
 
             return BadRequest(new ResponseDTO { Message = "Validation échouée", Status = 400 });
@@ -697,39 +699,50 @@ namespace TerminalApi.Controllers
         [Route("refresh-token")]
         [AllowAnonymous]
         [HttpPost]
-        public async Task<ActionResult<RefreshTokenOutput>> UpdateRefreshToken([FromBody] RefreshTokenBodyInput values)
+        public async Task<ActionResult<RefreshTokenOutput>> UpdateRefreshToken(
+            [FromBody] RefreshTokenBodyInput values
+        )
         {
             Console.WriteLine("refresh token ");
 
-            if (!ModelState.IsValid) return BadRequest(ModelState);
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
 
-            string? userEmail = HttpContext.User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.Email)?.Value?.ToLower();
+            string? userEmail = HttpContext
+                .User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.Email)
+                ?.Value?.ToLower();
             if (userEmail == null)
             {
                 var principal = GetPrincipalFromExpiredToken(values.Token);
-                userEmail = principal?.Claims.FirstOrDefault(x => x.Type == ClaimTypes.Email)?.Value?.ToLower();
+                userEmail = principal
+                    ?.Claims.FirstOrDefault(x => x.Type == ClaimTypes.Email)
+                    ?.Value?.ToLower();
             }
 
-            if (userEmail == null) return Unauthorized();
+            if (userEmail == null)
+                return Unauthorized();
 
-            UserApp? user = _context.Users
-                .FirstOrDefault(x => x.Email.ToLower() == userEmail);
+            UserApp? user = _context.Users.FirstOrDefault(x => x.Email.ToLower() == userEmail);
 
             if (user == null)
                 return NotFound();
 
             if (values.RefreshToken == user.RefreshToken)
             {
-                HttpContext.Response.Headers.Add(key: "Access-Control-Allow-Credentials", value: "true");
+                HttpContext.Response.Headers.Add(
+                    key: "Access-Control-Allow-Credentials",
+                    value: "true"
+                );
                 //HttpContext.Response.Headers.Add(key: "Authorization", value: accessToken);
 
                 return Ok(
-                new ResponseDTO
-                {
-                    Message = "Les utilisateurs",
-                    Data = new RefreshTokenOutput(user, await GenerateAccessTokenAsync(user)),
-                    Status = 200
-                });
+                    new ResponseDTO
+                    {
+                        Message = "Les utilisateurs",
+                        Data = new RefreshTokenOutput(user, await GenerateAccessTokenAsync(user)),
+                        Status = 200
+                    }
+                );
             }
 
             return Redirect("/login");
@@ -756,10 +769,13 @@ namespace TerminalApi.Controllers
 
         [HttpGet("seed")]
         [AllowAnonymous]
-
         public ActionResult SeedUsers()
         {
-            var users = fakerService.GenerateUserCreateDTO().Generate(500).Select(x => x.ToUser()).ToList();
+            var users = fakerService
+                .GenerateUserCreateDTO()
+                .Generate(500)
+                .Select(x => x.ToUser())
+                .ToList();
             _context.Users.AddRange(users);
             _context.SaveChanges();
             return Ok(users.Take(10));
@@ -767,7 +783,10 @@ namespace TerminalApi.Controllers
 
         [AllowAnonymous]
         [HttpGet("/google-callback")]
-        public async Task<IActionResult> GoogleCallback([FromQuery] string code, [FromQuery] string state)
+        public async Task<IActionResult> GoogleCallback(
+            [FromQuery] string code,
+            [FromQuery] string state
+        )
         {
             if (string.IsNullOrEmpty(code))
             {
@@ -791,7 +810,10 @@ namespace TerminalApi.Controllers
             {
                 user = new UserApp { UserName = userInfo.Email, Email = userInfo.Email };
                 await _userManager.CreateAsync(user);
-                await _userManager.AddLoginAsync(user, new UserLoginInfo("Google", userInfo.Id, "Google"));
+                await _userManager.AddLoginAsync(
+                    user,
+                    new UserLoginInfo("Google", userInfo.Id, "Google")
+                );
             }
 
             var token = await GenerateAccessTokenAsync(user);
@@ -801,16 +823,21 @@ namespace TerminalApi.Controllers
         private async Task<TokenResponse> ExchangeCodeForTokenAsync(string code)
         {
             var client = new HttpClient();
-            var request = new HttpRequestMessage(HttpMethod.Post, "https://oauth2.googleapis.com/token")
+            var request = new HttpRequestMessage(
+                HttpMethod.Post,
+                "https://oauth2.googleapis.com/token"
+            )
             {
-                Content = new FormUrlEncodedContent(new Dictionary<string, string>
-        {
-            { "code", code },
-            { "client_id", EnvironmentVariables.ID_CLIENT_GOOGLE },
-            { "client_secret", EnvironmentVariables.SECRET_CLIENT_GOOGLE },
-            { "redirect_uri", $"{Request.Scheme}://{Request.Host}/google-callback" },
-            { "grant_type", "authorization_code" }
-        })
+                Content = new FormUrlEncodedContent(
+                    new Dictionary<string, string>
+                    {
+                        { "code", code },
+                        { "client_id", EnvironmentVariables.ID_CLIENT_GOOGLE },
+                        { "client_secret", EnvironmentVariables.SECRET_CLIENT_GOOGLE },
+                        { "redirect_uri", $"{Request.Scheme}://{Request.Host}/google-callback" },
+                        { "grant_type", "authorization_code" }
+                    }
+                )
             };
 
             var response = await client.SendAsync(request);
@@ -826,7 +853,9 @@ namespace TerminalApi.Controllers
         private async Task<UserInfo> GetUserInfoAsync(string accessToken)
         {
             var client = new HttpClient();
-            var response = await client.GetAsync($"https://www.googleapis.com/oauth2/v2/userinfo?access_token={accessToken}");
+            var response = await client.GetAsync(
+                $"https://www.googleapis.com/oauth2/v2/userinfo?access_token={accessToken}"
+            );
             if (!response.IsSuccessStatusCode)
             {
                 return null;
@@ -844,7 +873,6 @@ namespace TerminalApi.Controllers
             var properties = new AuthenticationProperties { RedirectUri = redirectUrl };
             return Challenge(properties, "Google");
         }
-
     }
 
     public class TokenResponse
