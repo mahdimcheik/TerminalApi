@@ -473,7 +473,7 @@ namespace TerminalApi.Controllers
 
         #region POST AskForPasswordRecoveryMail
         [AllowAnonymous]
-        [Route("/forgot-password")]
+        [Route("forgot-password")]
         [HttpPost]
         public async Task<ActionResult<ResponseDTO>> ForgotPassword(
             [FromBody] ForgotPasswordInput model
@@ -491,7 +491,7 @@ namespace TerminalApi.Controllers
 
                         //string AppURLRedirection = HardCode.CHANGE_PASSWORD + "?userId=" + user.Id + "&resetToken=" + resetToken;
                         var resetLink =
-                            EnvironmentVariables.API_BACK_URL
+                            EnvironmentVariables.API_FRONT_URL
                             + "/auth/reset-password?userId="
                             + user.Id
                             + "&resetToken="
@@ -548,7 +548,7 @@ namespace TerminalApi.Controllers
 
         #region PasswordChange after recovery
         [AllowAnonymous]
-        [Route("/password-reset")]
+        [Route("reset-password")]
         [HttpPost]
         public async Task<ActionResult<ResponseDTO>> ChangePassword(
             [FromBody] PasswordRecoveryInput model
