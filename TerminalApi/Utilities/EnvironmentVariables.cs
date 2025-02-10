@@ -14,6 +14,7 @@
             Environment.GetEnvironmentVariable("GOOGLE_API_KEY") ?? "";
 
         //DATABASE
+        public static string? DB_PORT => Environment.GetEnvironmentVariable("DB_PORT");
         public static string? DB_HOST => Environment.GetEnvironmentVariable("DB_HOST");
         public static string? DB_NAME => Environment.GetEnvironmentVariable("DB_NAME");
         public static string? DB_USER => Environment.GetEnvironmentVariable("DB_USER");

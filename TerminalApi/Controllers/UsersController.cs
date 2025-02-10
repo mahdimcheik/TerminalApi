@@ -489,7 +489,6 @@ namespace TerminalApi.Controllers
                         var resetToken = await _userManager.GeneratePasswordResetTokenAsync(user);
                         resetToken = HttpUtility.UrlEncode(resetToken);
 
-                        //string AppURLRedirection = HardCode.CHANGE_PASSWORD + "?userId=" + user.Id + "&resetToken=" + resetToken;
                         var resetLink =
                             EnvironmentVariables.API_FRONT_URL
                             + "/auth/reset-password?userId="
