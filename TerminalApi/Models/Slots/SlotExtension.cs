@@ -33,6 +33,9 @@ namespace TerminalApi.Models.Slots
                 StudentFirstName = slot.Booking?.Booker.FirstName ?? "",
                 StudentLastName = slot.Booking?.Booker.LastName ?? "",
                 StudentImgUrl = slot.Booking?.Booker.ImgUrl,
+                TypeHelp = slot.Booking.TypeHelp,
+                Subject = slot.Booking.Subject,
+                Description = slot.Booking.Description
             };
         }
     }

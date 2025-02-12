@@ -20,5 +20,8 @@ namespace TerminalApi.Models.Slots
         public string? StudentFirstName { get; set; }
         public string? StudentLastName { get; set; }
         public string? StudentImgUrl { get; set; }
+        public string? Subject { get; set; }
+        public string? Description { get; set; }
+        public EnumTypeHelp TypeHelp { get; set; }
     }
 }
