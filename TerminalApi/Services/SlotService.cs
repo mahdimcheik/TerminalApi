@@ -73,6 +73,8 @@ namespace TerminalApi.Services
                     Id = ad.Id,
                     StartAt = ad.StartAt,
                     EndAt = ad.EndAt,
+                    Price = ad.Price,
+                    Reduction = ad.Reduction,
                     StudentFirstName = ad.Booking.Booker.FirstName ,
                     StudentLastName = ad.Booking.Booker.LastName,
                     StudentImgUrl = ad.Booking.Booker.ImgUrl,
@@ -89,14 +91,17 @@ namespace TerminalApi.Services
         {
             return await context
                 .Slots.AsSplitQuery().Where(ad =>
-                    (ad.CreatedById == HardCode.TeacherId && ad.StartAt >= fromDate && ad.EndAt <= toDate && ad.StartAt >=DateTimeOffset.UtcNow && ad.Booking  ==  null)  
-                    || (ad.CreatedById ==  HardCode.TeacherId && ad.StartAt >= fromDate && ad.EndAt <= toDate && ad.Booking != null && ad.Booking.BookedById == userId)
+                    (ad.CreatedById == EnvironmentVariables.TEACHER_ID && ad.StartAt >= fromDate && ad.EndAt <= toDate && ad.StartAt >=DateTimeOffset.UtcNow && ad.Booking  ==  null)  
+                    || (ad.CreatedById ==  EnvironmentVariables.TEACHER_ID && ad.StartAt >= fromDate && ad.EndAt <= toDate && ad.Booking != null && ad.Booking.BookedById == userId)
                 )
                 .Select(ad => new SlotResponseDTO
                 {
                     Id = ad.Id,
                     StartAt = ad.StartAt,
                     EndAt = ad.EndAt,
+                    Price = ad.Price,
+                    DiscountedPrice = ad.DiscountedPrice,
+                    Reduction = ad.Reduction,
                     StudentFirstName = ad.Booking.Booker.FirstName,
                     StudentLastName = ad.Booking.Booker.LastName,
                     StudentImgUrl = ad.Booking.Booker.ImgUrl,

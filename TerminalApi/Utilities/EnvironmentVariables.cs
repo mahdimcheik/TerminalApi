@@ -49,5 +49,6 @@
         public static string ID_CLIENT_GOOGLE => Environment.GetEnvironmentVariable("ID_CLIENT_GOOGLE");
         public static string? SECRET_CLIENT_GOOGLE => Environment.GetEnvironmentVariable("SECRET_CLIENT_GOOGLE");
         public static string? GOOGLE_REDIRECT_URL => Environment.GetEnvironmentVariable("GOOGLE_REDIRECT_URL");
+        public static string? TEACHER_ID => Environment.GetEnvironmentVariable("TEACHER_ID");
     }
 }

@@ -39,6 +39,6 @@ namespace TerminalApi.Utilities
                 ConcurrencyStamp = "12ccaa16-0d50-491e-8157-ec1b133cf120",
             };
 
-        public static string TeacherId = "4ad4509a-04fe-4d6f-9e98-769c64c8ae82";
+        //public static string TeacherId = "4ad4509a-04fe-4d6f-9e98-769c64c8ae82";
     }
 }
