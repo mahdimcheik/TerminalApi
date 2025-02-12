@@ -29,5 +29,8 @@ namespace TerminalApi.Models.Bookings
         [ForeignKey(nameof (Order))]
         public Guid? OrderId { get; set; }
         public Order?  Order { get; set; }
+        public string? Subject { get; set; }
+        public string? Description { get; set; }
+        public EnumTypeHelp TypeHelp { get; set; } = 0;
     }
 }

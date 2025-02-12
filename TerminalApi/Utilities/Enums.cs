@@ -19,4 +19,10 @@
         Paid = 1,
         Cancelled = 2,
     }
+    public enum EnumTypeHelp
+    {
+        other = 0,
+        Exams = 1,
+        Homework = 2
+    }
 }

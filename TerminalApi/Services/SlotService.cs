@@ -64,15 +64,6 @@ namespace TerminalApi.Services
             DateTimeOffset toDate
         )
         {
-            //return await context
-            //    .Slots.Include(s => s.Booking)
-            //    .ThenInclude(b => b.Booker)
-            //    .Include(s => s.Creator)
-            //    .Where(ad =>
-            //        ad.CreatedById == teacherId && ad.StartAt >= fromDate && ad.EndAt <= toDate
-            //    )
-            //    .Select(ad => ad.ToResponseDTO())
-            //    .ToListAsync();
             return await context
                 .Slots.Where(ad =>
                     ad.CreatedById == teacherId && ad.StartAt >= fromDate && ad.EndAt <= toDate
@@ -96,11 +87,10 @@ namespace TerminalApi.Services
            DateTimeOffset toDate
        )
         {
-            //var res = context.Slots.Include(x => x.Booking).Where(ad =>
-            //        ad.CreatedById == HardCode.TeacherId && ad.StartAt >= fromDate && ad.EndAt <= toDate);
             return await context
-                .Slots.Include(x => x.Booking).Where(ad =>
-                    ad.CreatedById == HardCode.TeacherId && ad.StartAt >= fromDate && ad.EndAt <= toDate && (ad.Booking  ==  null || ad.Booking.BookedById == userId)
+                .Slots.AsSplitQuery().Where(ad =>
+                    (ad.CreatedById == HardCode.TeacherId && ad.StartAt >= fromDate && ad.EndAt <= toDate && ad.StartAt >=DateTimeOffset.UtcNow && ad.Booking  ==  null)  
+                    || (ad.CreatedById ==  HardCode.TeacherId && ad.StartAt >= fromDate && ad.EndAt <= toDate && ad.Booking != null && ad.Booking.BookedById == userId)
                 )
                 .Select(ad => new SlotResponseDTO
                 {
@@ -184,8 +174,34 @@ namespace TerminalApi.Services
         {
             var slot = await context
                 .Slots
+                .AsSplitQuery()
                 .Include(x => x.Booking)
                 .Where(x => x.Id == Guid.Parse(slotId))
+                .FirstOrDefaultAsync();
+
+            if (slot.Booking is null)
+            {
+                return false;
+            }
+            try
+            {
+                var res = context.Bookings.Remove(slot.Booking);
+                await context.SaveChangesAsync();
+                return true;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Résérvation non supprimée ou non existante");
+            }
+        }
+
+        public async Task<bool> RemoveReservationByStudent(string slotId, string studentId)
+        {
+            var slot = await context
+                .Slots
+                .AsSplitQuery()
+                .Include(x => x.Booking)
+                .Where(x => x.Id == Guid.Parse(slotId) && x.Booking.BookedById == studentId)
                 .FirstOrDefaultAsync();
 
             if (slot.Booking is null)

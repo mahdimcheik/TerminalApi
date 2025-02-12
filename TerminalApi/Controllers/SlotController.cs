@@ -16,6 +16,7 @@ namespace TerminalApi.Controllers
 {
     [Route("[controller]")]
     [ApiController]
+    [Authorize]
     public class SlotController : ControllerBase
     {
         private readonly SlotService slotService;
@@ -27,6 +28,7 @@ namespace TerminalApi.Controllers
             this.context = context;
         }
         [HttpGet]
+        [Authorize(Roles = "Admin")]
         public async Task<ActionResult<ResponseDTO>> GetSlotsByCreatorId([FromQuery] string userId, [FromQuery] DateTimeOffset fromDate, [FromQuery] DateTimeOffset toDate)
         {
             if (userId.IsNullOrEmpty())
@@ -181,6 +183,35 @@ namespace TerminalApi.Controllers
                 }
                 var resultBooking = await slotService.RemoveReservationByTeacher(slotId);
                 if (resultBooking)
+                {
+                    return Ok(new ResponseDTO { Message = "La résérvation est annulée", Status = 204 });
+                }
+                return BadRequest(new ResponseDTO { Status = 400, Message = "Demande refusée ?" });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new ResponseDTO { Status = 400, Message = ex.Message });
+            }
+        }
+
+        [HttpDelete("student/unbook")]
+        public async Task<ActionResult<ResponseDTO>> RemoveReservationByStudent([FromQuery] string slotId)
+        {
+            try
+            {
+                var user = CheckUser.GetUserFromClaim(HttpContext.User, context);
+                if (user is null)
+                {
+                    return BadRequest(new ResponseDTO { Status = 400, Message = "Demande refusée" });
+                }
+
+                if (slotId.IsNullOrEmpty())
+                {
+                    return BadRequest(new ResponseDTO { Status = 400, Message = "Demande refusée" });
+                }
+
+                var resultRemove = await slotService.RemoveReservationByStudent(slotId, user.Id);
+                if (resultRemove)
                 {
                     return Ok(new ResponseDTO { Message = "La résérvation est annulée", Status = 204 });
                 }
