@@ -74,6 +74,7 @@ namespace TerminalApi.Services
                     StartAt = ad.StartAt,
                     EndAt = ad.EndAt,
                     Price = ad.Price,
+                    DiscountedPrice = ad.DiscountedPrice,
                     Reduction = ad.Reduction,
                     StudentFirstName = ad.Booking.Booker.FirstName ,
                     StudentLastName = ad.Booking.Booker.LastName,
