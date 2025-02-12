@@ -3,6 +3,7 @@ using TerminalApi.Contexts;
 using TerminalApi.Models.Adresse;
 using TerminalApi.Models.Bookings;
 using TerminalApi.Models.Slots;
+using TerminalApi.Utilities;
 
 namespace TerminalApi.Services
 {
@@ -82,6 +83,31 @@ namespace TerminalApi.Services
                     StartAt = ad.StartAt,
                     EndAt = ad.EndAt,
                     StudentFirstName = ad.Booking.Booker.FirstName ,
+                    StudentLastName = ad.Booking.Booker.LastName,
+                    StudentImgUrl = ad.Booking.Booker.ImgUrl,
+                    StudentId = ad.Booking.BookedById
+                })
+                .ToListAsync();
+        }
+
+        public async Task<List<SlotResponseDTO>?> GetSlotsByStudent(
+            string userId,
+           DateTimeOffset fromDate,
+           DateTimeOffset toDate
+       )
+        {
+            //var res = context.Slots.Include(x => x.Booking).Where(ad =>
+            //        ad.CreatedById == HardCode.TeacherId && ad.StartAt >= fromDate && ad.EndAt <= toDate);
+            return await context
+                .Slots.Include(x => x.Booking).Where(ad =>
+                    ad.CreatedById == HardCode.TeacherId && ad.StartAt >= fromDate && ad.EndAt <= toDate && (ad.Booking  ==  null || ad.Booking.BookedById == userId)
+                )
+                .Select(ad => new SlotResponseDTO
+                {
+                    Id = ad.Id,
+                    StartAt = ad.StartAt,
+                    EndAt = ad.EndAt,
+                    StudentFirstName = ad.Booking.Booker.FirstName,
                     StudentLastName = ad.Booking.Booker.LastName,
                     StudentImgUrl = ad.Booking.Booker.ImgUrl,
                     StudentId = ad.Booking.BookedById

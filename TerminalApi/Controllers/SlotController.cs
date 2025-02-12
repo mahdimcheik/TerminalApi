@@ -54,6 +54,29 @@ namespace TerminalApi.Controllers
             }
         }
 
+        [HttpGet("student")]
+        public async Task<ActionResult<ResponseDTO>> GetSlotsForStudent( [FromQuery] DateTimeOffset fromDate, [FromQuery] DateTimeOffset toDate)
+        {
+            var user = CheckUser.GetUserFromClaim(HttpContext.User, context);
+            if(user is null) return BadRequest(new ResponseDTO { Status = 400, Message = "Quelque chose ne va pas !!!" });
+            try
+            {
+                var result = await slotService.GetSlotsByStudent(user.Id, fromDate, toDate);
+                return Ok(
+                    new ResponseDTO
+                    {
+                        Status = 200,
+                        Message = "Liste de créneaux envoyée",
+                        Data = result,
+                    }
+                );
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new ResponseDTO { Status = 400, Message = ex.Message });
+            }
+        }
+
         [HttpPost]
         public async Task<ActionResult<ResponseDTO>> AddSlot([FromBody] SlotCreateDTO slotCreateDTO)
         {
