@@ -1,4 +1,5 @@
-﻿using TerminalApi.Models.Slots;
+﻿using TerminalApi.Migrations;
+using TerminalApi.Models.Slots;
 
 namespace TerminalApi.Models.Slots
 {
@@ -20,8 +21,7 @@ namespace TerminalApi.Models.Slots
 
         public static SlotResponseDTO ToResponseDTO(this Slot slot)
         {
-            //if(slot.Booking is not null)
-            //{
+
                 return new SlotResponseDTO
                 {
                     Id = slot.Id,
@@ -33,34 +33,16 @@ namespace TerminalApi.Models.Slots
                     Reduction = slot.Reduction,
                     DiscountedPrice = slot.DiscountedPrice,
                     Type = slot.Type,
+                    StudentId = slot.Booking?.BookedById,
                     StudentFirstName = slot.Booking?.Booker.FirstName ?? "",
-                    StudentLastName = slot.Booking?.Booker.LastName ?? "",
-                    StudentImgUrl = slot.Booking?.Booker.ImgUrl,
-                    TypeHelp = slot.Booking?.TypeHelp,
-                    Subject = slot.Booking?.Subject,
-                    Description = slot.Booking?.Description
+                    StudentLastName = slot.Booking?.Booker?.LastName ?? "",
+                    StudentImgUrl = slot.Booking?.Booker?.ImgUrl,
+                    TypeHelp = slot.Booking?.TypeHelp ?? 0,
+                    Subject = slot.Booking?.Subject ?? "",
+                    Description = slot.Booking?.Description ?? ""
                 };
-            //}
-            //else
-            //{
-            //    return new SlotResponseDTO
-            //    {
-            //        Id = slot.Id,
-            //        StartAt = slot.StartAt,
-            //        EndAt = slot.EndAt,
-            //        CreatedAt = slot.CreatedAt,
-            //        CreatedById = slot.CreatedById,
-            //        Price = slot.Price,
-            //        Reduction = slot.Reduction,
-            //        Type = slot.Type,
-            //        StudentFirstName = null,
-            //        StudentLastName = null,
-            //        StudentImgUrl = null,
-            //        TypeHelp = null,
-            //        Subject = null,
-            //        Description = null
-            //    };
-            //}           
+         
         }
+               
     }
 }

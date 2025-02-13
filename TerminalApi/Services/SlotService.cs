@@ -76,7 +76,7 @@ namespace TerminalApi.Services
                     Price = ad.Price,
                     DiscountedPrice = ad.DiscountedPrice,
                     Reduction = ad.Reduction,
-                    StudentFirstName = ad.Booking.Booker.FirstName ,
+                    StudentFirstName = ad.Booking.Booker.FirstName,
                     StudentLastName = ad.Booking.Booker.LastName,
                     StudentImgUrl = ad.Booking.Booker.ImgUrl,
                     StudentId = ad.Booking.BookedById
@@ -86,28 +86,47 @@ namespace TerminalApi.Services
 
         public async Task<List<SlotResponseDTO>?> GetSlotsByStudent(
             string userId,
-           DateTimeOffset fromDate,
-           DateTimeOffset toDate
-       )
+            DateTimeOffset fromDate,
+            DateTimeOffset toDate
+        )
         {
             return await context
-                .Slots.AsSplitQuery().Where(ad =>
-                    (ad.CreatedById == EnvironmentVariables.TEACHER_ID && ad.StartAt >= fromDate && ad.EndAt <= toDate && ad.StartAt >=DateTimeOffset.UtcNow && ad.Booking  ==  null)  
-                    || (ad.CreatedById ==  EnvironmentVariables.TEACHER_ID && ad.StartAt >= fromDate && ad.EndAt <= toDate && ad.Booking != null && ad.Booking.BookedById == userId)
+                .Slots.Include(x => x.Booking)
+                .ThenInclude(y => y.Booker)
+                .AsSplitQuery()
+                .Where(ad =>
+                    (
+                        ad.CreatedById == EnvironmentVariables.TEACHER_ID
+                        && ad.StartAt >= fromDate
+                        && ad.EndAt <= toDate
+                        && ad.StartAt >= DateTimeOffset.UtcNow
+                        && ad.Booking == null
+                    )
+                    || (
+                        ad.CreatedById == EnvironmentVariables.TEACHER_ID
+                        && ad.StartAt >= fromDate
+                        && ad.EndAt <= toDate
+                        && ad.Booking != null
+                        && ad.Booking.BookedById == userId
+                    )
                 )
-                .Select(ad => new SlotResponseDTO
-                {
-                    Id = ad.Id,
-                    StartAt = ad.StartAt,
-                    EndAt = ad.EndAt,
-                    Price = ad.Price,
-                    DiscountedPrice = ad.DiscountedPrice,
-                    Reduction = ad.Reduction,
-                    StudentFirstName = ad.Booking.Booker.FirstName,
-                    StudentLastName = ad.Booking.Booker.LastName,
-                    StudentImgUrl = ad.Booking.Booker.ImgUrl,
-                    StudentId = ad.Booking.BookedById
-                })
+                .Select(ad => ad.ToResponseDTO())
+                //new SlotResponseDTO()
+                //{
+                //    Id = ad.Id,
+                //    StartAt = ad.StartAt,
+                //    EndAt = ad.EndAt,
+                //    Price = ad.Price,
+                //    DiscountedPrice = ad.DiscountedPrice,
+                //    Reduction = ad.Reduction,
+                //    StudentFirstName = ad.Booking.Booker.FirstName ,
+                //    StudentLastName = ad.Booking.Booker.LastName,
+                //    StudentImgUrl = ad.Booking.Booker.ImgUrl,
+                //    StudentId = ad.Booking.BookedById,
+                //    Subject = ad.Booking.Subject,
+                //    Description = ad.Booking.Description,
+                //    TypeHelp = ad.Booking.TypeHelp
+                //})
                 .ToListAsync();
         }
 
@@ -130,9 +149,11 @@ namespace TerminalApi.Services
         {
             try
             {
-                var slot = await context.Slots.Include(x => x.Booking).FirstOrDefaultAsync(x =>
-                    x.Id == Guid.Parse(slotId) && x.CreatedById == userId
-                );
+                var slot = await context
+                    .Slots.Include(x => x.Booking)
+                    .FirstOrDefaultAsync(x =>
+                        x.Id == Guid.Parse(slotId) && x.CreatedById == userId
+                    );
                 if (slot is null)
                     throw new Exception("Le créneau n'existe pas");
                 if (slot.Booking is not null)
@@ -152,7 +173,10 @@ namespace TerminalApi.Services
         public async Task<bool> BookSlot(BookingCreateDTO newBookingCreateDTO, string bookerId)
         {
             var slot = await context
-                .Slots.Where(x => x.Id == Guid.Parse(newBookingCreateDTO.SlotId) && x.StartAt > DateTimeOffset.UtcNow)
+                .Slots.Where(x =>
+                    x.Id == Guid.Parse(newBookingCreateDTO.SlotId)
+                    && x.StartAt > DateTimeOffset.UtcNow
+                )
                 .Include(x => x.Booking)
                 .FirstOrDefaultAsync();
             if (slot is null || slot.Booking is not null)
@@ -176,8 +200,7 @@ namespace TerminalApi.Services
         public async Task<bool> RemoveReservationByTeacher(string slotId)
         {
             var slot = await context
-                .Slots
-                .AsSplitQuery()
+                .Slots.AsSplitQuery()
                 .Include(x => x.Booking)
                 .Where(x => x.Id == Guid.Parse(slotId))
                 .FirstOrDefaultAsync();
@@ -201,8 +224,7 @@ namespace TerminalApi.Services
         public async Task<bool> RemoveReservationByStudent(string slotId, string studentId)
         {
             var slot = await context
-                .Slots
-                .AsSplitQuery()
+                .Slots.AsSplitQuery()
                 .Include(x => x.Booking)
                 .Where(x => x.Id == Guid.Parse(slotId) && x.Booking.BookedById == studentId)
                 .FirstOrDefaultAsync();
