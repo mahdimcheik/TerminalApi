@@ -130,11 +130,13 @@ namespace TerminalApi.Services
         {
             try
             {
-                var slot = await context.Slots.FirstOrDefaultAsync(x =>
+                var slot = await context.Slots.Include(x => x.Booking).FirstOrDefaultAsync(x =>
                     x.Id == Guid.Parse(slotId) && x.CreatedById == userId
                 );
                 if (slot is null)
                     throw new Exception("Le créneau n'existe pas");
+                if (slot.Booking is not null)
+                    throw new Exception("Le créneau est réservé, rafraichir ?");
                 if (slot.StartAt < DateTimeOffset.UtcNow)
                     throw new Exception("Le créneau ne peut être supprimé");
                 context.Slots.Remove(slot);
@@ -210,7 +212,7 @@ namespace TerminalApi.Services
                 .Where(x => x.Id == Guid.Parse(slotId) && x.Booking.BookedById == studentId)
                 .FirstOrDefaultAsync();
 
-            if (slot.Booking is null)
+            if (slot is null || slot.Booking is null)
             {
                 return false;
             }

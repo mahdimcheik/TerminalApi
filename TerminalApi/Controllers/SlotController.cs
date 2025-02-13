@@ -121,6 +121,7 @@ namespace TerminalApi.Controllers
             }
         }
         [HttpDelete]
+        [Authorize(Roles = "Admin")]
         public async Task<ActionResult<ResponseDTO>> DeleteSlot([FromQuery] string slotId)
         {
             try
@@ -179,7 +180,7 @@ namespace TerminalApi.Controllers
             {
                 if (slotId.IsNullOrEmpty())
                 {
-                    return BadRequest(new ResponseDTO { Status = 400, Message = "Demande refusée" });
+                    return BadRequest(new ResponseDTO { Status = 400, Message = "Demande refusée, la réservation n'existe pas!!!" });
                 }
                 var resultBooking = await slotService.RemoveReservationByTeacher(slotId);
                 if (resultBooking)
