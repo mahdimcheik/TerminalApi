@@ -149,10 +149,10 @@ namespace TerminalApi.Services
             }
         }
 
-        public async Task<bool> BookSlot(string slotId, string bookerId)
+        public async Task<bool> BookSlot(BookingCreateDTO newBookingCreateDTO, string bookerId)
         {
             var slot = await context
-                .Slots.Where(x => x.Id == Guid.Parse(slotId) && x.StartAt > DateTimeOffset.UtcNow)
+                .Slots.Where(x => x.Id == Guid.Parse(newBookingCreateDTO.SlotId) && x.StartAt > DateTimeOffset.UtcNow)
                 .Include(x => x.Booking)
                 .FirstOrDefaultAsync();
             if (slot is null || slot.Booking is not null)
@@ -160,12 +160,7 @@ namespace TerminalApi.Services
                 return false;
             }
 
-            Booking newBooking = new Booking()
-            {
-                BookedById = bookerId,
-                SlotId = Guid.Parse(slotId),
-                CreatedAt = DateTimeOffset.UtcNow
-            };
+            Booking newBooking = newBookingCreateDTO.ToBooking(bookerId);
             try
             {
                 var res = await context.Bookings.AddAsync(newBooking);
