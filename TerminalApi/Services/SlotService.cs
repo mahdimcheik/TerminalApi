@@ -65,22 +65,26 @@ namespace TerminalApi.Services
         )
         {
             return await context
-                .Slots.Where(ad =>
+                                .Slots.Include(x => x.Booking)
+                .ThenInclude(y => y.Booker)
+                .AsSplitQuery()
+                .Where(ad =>
                     ad.CreatedById == teacherId && ad.StartAt >= fromDate && ad.EndAt <= toDate
                 )
-                .Select(ad => new SlotResponseDTO
-                {
-                    Id = ad.Id,
-                    StartAt = ad.StartAt,
-                    EndAt = ad.EndAt,
-                    Price = ad.Price,
-                    DiscountedPrice = ad.DiscountedPrice,
-                    Reduction = ad.Reduction,
-                    StudentFirstName = ad.Booking.Booker.FirstName,
-                    StudentLastName = ad.Booking.Booker.LastName,
-                    StudentImgUrl = ad.Booking.Booker.ImgUrl,
-                    StudentId = ad.Booking.BookedById
-                })
+                 .Select(ad => ad.ToResponseDTO())
+                //.Select(ad => new SlotResponseDTO
+                //{
+                //    Id = ad.Id,
+                //    StartAt = ad.StartAt,
+                //    EndAt = ad.EndAt,
+                //    Price = ad.Price,
+                //    DiscountedPrice = ad.DiscountedPrice,
+                //    Reduction = ad.Reduction,
+                //    StudentFirstName = ad.Booking.Booker.FirstName,
+                //    StudentLastName = ad.Booking.Booker.LastName,
+                //    StudentImgUrl = ad.Booking.Booker.ImgUrl,
+                //    StudentId = ad.Booking.BookedById
+                //})
                 .ToListAsync();
         }
 
