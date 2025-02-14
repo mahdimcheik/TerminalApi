@@ -1,7 +1,5 @@
-﻿using TerminalApi.Models.Adresse;
-using TerminalApi.Models.Bookings;
+﻿using TerminalApi.Models.Bookings;
 using TerminalApi.Models.Payments;
-using TerminalApi.Models.User;
 
 namespace TerminalApi.Services.Templates
 {
@@ -16,6 +14,17 @@ namespace TerminalApi.Services.Templates
             Total = 15;
             BookerImgUrl = orderDetails.BookerImgUrl;
             Bookings = orderDetails.Bookings;
+        }
+    }
+
+    public class ValidationMailTemplateViewModel
+    {
+        public string ValidationLink { get; set; }
+        public string WebsiteLink { get; set; }
+        public ValidationMailTemplateViewModel(string validation, string site)
+        {
+            ValidationLink = validation;
+            WebsiteLink = site;
         }
     }
 }

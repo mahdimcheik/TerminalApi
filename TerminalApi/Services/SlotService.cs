@@ -65,13 +65,13 @@ namespace TerminalApi.Services
         )
         {
             return await context
-                                .Slots.Include(x => x.Booking)
+                .Slots.Include(x => x.Booking)
                 .ThenInclude(y => y.Booker)
                 .AsSplitQuery()
                 .Where(ad =>
                     ad.CreatedById == teacherId && ad.StartAt >= fromDate && ad.EndAt <= toDate
                 )
-                 .Select(ad => ad.ToResponseDTO())
+                .Select(ad => ad.ToResponseDTO())
                 //.Select(ad => new SlotResponseDTO
                 //{
                 //    Id = ad.Id,

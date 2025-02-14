@@ -293,7 +293,7 @@
                                     <p
                                       style=""margin: 0; word-break: break-word""
                                     >
-                                      <strong>Dans la sauce</strong>
+                                      <strong>Inspire V2.0</strong>
                                     </p>
                                     <p
                                       style=""
@@ -1035,7 +1035,7 @@
                                     <p
                                       style=""margin: 0; word-break: break-word""
                                     >
-                                      <strong>Dans la sauce</strong>
+                                      <strong>Inspire V2.0</strong>
                                     </p>
                                     <p
                                       style=""

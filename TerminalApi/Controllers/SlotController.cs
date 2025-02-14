@@ -1,6 +1,4 @@
 ﻿using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -27,6 +25,7 @@ namespace TerminalApi.Controllers
             this.slotService = slotService;
             this.context = context;
         }
+
         [HttpGet]
         [Authorize(Roles = "Admin")]
         public async Task<ActionResult<ResponseDTO>> GetSlotsByCreatorId([FromQuery] string userId, [FromQuery] DateTimeOffset fromDate, [FromQuery] DateTimeOffset toDate)
@@ -57,10 +56,10 @@ namespace TerminalApi.Controllers
         }
 
         [HttpGet("student")]
-        public async Task<ActionResult<ResponseDTO>> GetSlotsForStudent( [FromQuery] DateTimeOffset fromDate, [FromQuery] DateTimeOffset toDate)
+        public async Task<ActionResult<ResponseDTO>> GetSlotsForStudent([FromQuery] DateTimeOffset fromDate, [FromQuery] DateTimeOffset toDate)
         {
             var user = CheckUser.GetUserFromClaim(HttpContext.User, context);
-            if(user is null) return BadRequest(new ResponseDTO { Status = 400, Message = "Quelque chose ne va pas !!!" });
+            if (user is null) return BadRequest(new ResponseDTO { Status = 400, Message = "Quelque chose ne va pas !!!" });
             try
             {
                 var result = await slotService.GetSlotsByStudent(user.Id, fromDate, toDate);
@@ -79,10 +78,14 @@ namespace TerminalApi.Controllers
             }
         }
 
+        [Authorize(Roles = "Admin")]
         [HttpPost]
         public async Task<ActionResult<ResponseDTO>> AddSlot([FromBody] SlotCreateDTO slotCreateDTO)
         {
             if (slotCreateDTO is null) return BadRequest(new ResponseDTO { Status = 400, Message = "Demande refusée" });
+            if (slotCreateDTO.StartAt < DateTimeOffset.Now) return BadRequest(new ResponseDTO { Status = 400, Message = "Demande refusée" });
+            if (slotCreateDTO.StartAt >= slotCreateDTO.EndAt) return BadRequest(new ResponseDTO { Status = 400, Message = "Demande refusée" });
+
             var user = CheckUser.GetUserFromClaim(HttpContext.User, context);
             if (user is null)
             {
@@ -101,6 +104,7 @@ namespace TerminalApi.Controllers
         }
 
         [HttpPut]
+        [Authorize(Roles = "Admin")]
         public async Task<ActionResult<ResponseDTO>> UpdateSlot([FromBody] SlotUpdateDTO slotUpdateDTO)
         {
             if (slotUpdateDTO is null) return BadRequest(new ResponseDTO { Status = 400, Message = "Demande refusée" });
@@ -120,6 +124,7 @@ namespace TerminalApi.Controllers
                 return BadRequest(new ResponseDTO { Status = 400, Message = ex.Message });
             }
         }
+
         [HttpDelete]
         [Authorize(Roles = "Admin")]
         public async Task<ActionResult<ResponseDTO>> DeleteSlot([FromQuery] string slotId)
@@ -159,10 +164,10 @@ namespace TerminalApi.Controllers
                     return BadRequest(new ResponseDTO { Status = 400, Message = "Demande refusée" });
                 }
                 var resultBooking = await slotService.BookSlot(bookingCreateDTO, user.Id);
-                if(resultBooking)
+                if (resultBooking)
                 {
 
-                return Ok(new ResponseDTO { Message = "La résérvation est enregistrée", Status = 204 });
+                    return Ok(new ResponseDTO { Message = "La résérvation est enregistrée", Status = 204 });
                 }
                 return BadRequest(new ResponseDTO { Status = 400, Message = "Demande refusée, créneau déjà résérvé ?" });
             }
@@ -173,8 +178,8 @@ namespace TerminalApi.Controllers
         }
 
         [HttpDelete("unbook")]
-        [Authorize(Roles ="Admin")]
-        public async Task<ActionResult<ResponseDTO>> RemoveReservationByTeacher([FromQuery] string slotId )
+        [Authorize(Roles = "Admin")]
+        public async Task<ActionResult<ResponseDTO>> RemoveReservationByTeacher([FromQuery] string slotId)
         {
             try
             {
@@ -223,6 +228,7 @@ namespace TerminalApi.Controllers
                 return BadRequest(new ResponseDTO { Status = 400, Message = ex.Message });
             }
         }
+
         [Authorize]
         [HttpPost("book-paid")]
         public async Task<ActionResult<ResponseDTO>> BookingPaid([FromBody] List<string> slotIds)
