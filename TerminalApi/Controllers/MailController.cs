@@ -26,6 +26,7 @@ namespace TerminalApi.Controllers
         {
             try
             {
+                Console.WriteLine("test");
                 await mailService.SendEmail(mail);
                 return Ok(
                     new ResponseDTO

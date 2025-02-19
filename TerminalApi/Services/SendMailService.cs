@@ -50,51 +50,88 @@ namespace TerminalApi.Services
 
         public async Task SendConfirmationEmail(Mail mail, string link)
         {
-            var smtpClient = new SmtpClient(EnvironmentVariables.SMTP_HostAddress)
-            {
-                Port = EnvironmentVariables.SMTP_Port, 
-                Credentials = new NetworkCredential(
-                    EnvironmentVariables.SMTP_EmailFrom,
-                    EnvironmentVariables.SMTP_Password
-                ),
-                EnableSsl = true 
-            };
-            string templatePath = "ValidationMailTemplate.cshtml"; // Name of your template file
-            var model = new ValidationMailTemplateViewModel(link, link);
-            string htmlContent = await _razorLightEngine.CompileRenderAsync(templatePath, model);
-            //var mailBody = EmailTemplates.ConfirmeMail.Replace(@"{{link}}", link);
-            var mailBody = htmlContent;
-            var mailMessage = new MailMessage
-            {
-                From = new MailAddress("ne-pas-repondre@dls.fr"),
-                Subject = mail.MailSubject,
-                Body = mailBody,
-                IsBodyHtml = true, 
-            };
+            mail.MailFrom = EnvironmentVariables.DO_NO_REPLY_MAIL;
+            await SendEmail(mail, link, "ValidationMailTemplate.cshtml");
+            //var smtpClient = new SmtpClient(EnvironmentVariables.SMTP_HostAddress)
+            //{
+            //    Port = EnvironmentVariables.SMTP_Port, 
+            //    Credentials = new NetworkCredential(
+            //        EnvironmentVariables.SMTP_EmailFrom,
+            //        EnvironmentVariables.SMTP_Password
+            //    ),
+            //    EnableSsl = true 
+            //};
+            //string templatePath = "ValidationMailTemplate.cshtml"; // Name of your template file
+            //var model = new ValidationMailTemplateViewModel(link, link);
+            //string htmlContent = await _razorLightEngine.CompileRenderAsync(templatePath, model);
+            ////var mailBody = EmailTemplates.ConfirmeMail.Replace(@"{{link}}", link);
+            //var mailBody = htmlContent;
+            //var mailMessage = new MailMessage
+            //{
+            //    From = new MailAddress("ne-pas-repondre@dls.fr"),
+            //    Subject = mail.MailSubject,
+            //    Body = mailBody,
+            //    IsBodyHtml = true, 
+            //};
 
-            mailMessage.To.Add(mail.MailTo);
-            await smtpClient.SendMailAsync(mailMessage);
+            //mailMessage.To.Add(mail.MailTo);
+            //await smtpClient.SendMailAsync(mailMessage);
         }
 
         public async Task SendResetEmail(Mail mail, string link)
         {
+            mail.MailFrom = EnvironmentVariables.DO_NO_REPLY_MAIL;
+            await SendEmail(mail, link, "PasswordResetTemplate.cshtml");
+            //var smtpClient = new SmtpClient(EnvironmentVariables.SMTP_HostAddress)
+            //{
+            //    Port = EnvironmentVariables.SMTP_Port, 
+            //    Credentials = new NetworkCredential(
+            //        EnvironmentVariables.SMTP_EmailFrom,
+            //        EnvironmentVariables.SMTP_Password
+            //    ),
+            //    EnableSsl = true
+            //};
+            ////var mailBody = EmailTemplates.ResetPassword.Replace(@"{{link}}", link);
+            //string templatePath = "ValidationPasswordTemplate.cshtml"; // Name of your template file
+            //var model = new ValidationMailTemplateViewModel(link, link);
+            //string htmlContent = await _razorLightEngine.CompileRenderAsync(templatePath, model);
+            ////var mailBody = EmailTemplates.ConfirmeMail.Replace(@"{{link}}", link);
+            //var mailBody = htmlContent;
+
+            //var mailMessage = new MailMessage
+            //{                
+            //    From = new MailAddress("ne-pas-repondre@dls.fr"),
+            //    Subject = mail.MailSubject,
+            //    Body = mailBody,
+            //    IsBodyHtml = true, 
+            //};
+
+            //mailMessage.To.Add(mail.MailTo);
+
+            //await smtpClient.SendMailAsync(mailMessage);
+        }
+        private async Task SendEmail(Mail mail, string link, string templateName)
+        {
             var smtpClient = new SmtpClient(EnvironmentVariables.SMTP_HostAddress)
             {
-                Port = EnvironmentVariables.SMTP_Port, 
+                Port = EnvironmentVariables.SMTP_Port,
                 Credentials = new NetworkCredential(
                     EnvironmentVariables.SMTP_EmailFrom,
                     EnvironmentVariables.SMTP_Password
                 ),
                 EnableSsl = true
             };
-            var mailBody = EmailTemplates.ResetPassword.Replace(@"{{link}}", link);
+            string templatePath = templateName; 
+            var model = new ValidationMailTemplateViewModel(link, link);
+            string htmlContent = await _razorLightEngine.CompileRenderAsync(templatePath, model);
+            var mailBody = htmlContent;
 
             var mailMessage = new MailMessage
-            {                
-                From = new MailAddress("ne-pas-repondre@dls.fr"),
+            {
+                From = new MailAddress(mail.MailFrom),
                 Subject = mail.MailSubject,
                 Body = mailBody,
-                IsBodyHtml = true, 
+                IsBodyHtml = true,
             };
 
             mailMessage.To.Add(mail.MailTo);

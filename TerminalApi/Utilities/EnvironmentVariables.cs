@@ -45,6 +45,8 @@
         public static string? SMTP_Password => Environment.GetEnvironmentVariable("SMTP_BREVO_KEY");
         public static int SMTP_Port =>
             Int32.Parse(Environment.GetEnvironmentVariable("SMTP_BREVO_PORT"));
+
+        public static string DO_NO_REPLY_MAIL => Environment.GetEnvironmentVariable("DO_NO_REPLY_MAIL") ?? "ne-pas-repondre@inspire.com";
         // google oauth
         public static string ID_CLIENT_GOOGLE => Environment.GetEnvironmentVariable("ID_CLIENT_GOOGLE");
         public static string? SECRET_CLIENT_GOOGLE => Environment.GetEnvironmentVariable("SECRET_CLIENT_GOOGLE");
