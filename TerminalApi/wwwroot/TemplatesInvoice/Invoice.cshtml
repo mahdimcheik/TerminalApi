@@ -1,74 +1,63 @@
-﻿@model TerminalApi.Services.Templates.InvoiceViewModel
+﻿@using TerminalApi.Services.Templates
+@model InvoiceModel
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <meta charset="utf-8" />
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Invoice</title>
     <style>
-        /* Include your styles here */
+        body { font-family: Arial, sans-serif; margin: 40px; padding: 20px; }
+        .invoice-box { max-width: 800px; margin: auto; border: 1px solid #ddd; padding: 20px; }
+        .invoice-header { text-align: center; }
+        .company-info { text-align: right; }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        table, th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+        th { background-color: #f4f4f4; }
+        .total { text-align: right; font-size: 18px; font-weight: bold; }
+        .footer { margin-top: 20px; text-align: center; font-size: 12px; color: gray; }
     </style>
 </head>
 <body>
     <div class="invoice-box">
-        <table cellpadding="0" cellspacing="0">
-            <tr class="top">
-                <td colspan="2">
-                    <table>
-                        <tr>
-                            <td class="title">
-                                <img src="@Model.BookerImgUrl" style="width:100%; max-width:300px;" />
-                            </td>
-                            <td>
-                                Facture #: @Model.Total $<br />
-                                Date: Model.InvoiceDate:dd/MM/yyyy<br />
-                            </td>
-                        </tr>
-                    </table>
-                </td>
+        <div class="invoice-header">
+            <h1>Invoice</h1>
+        </div>
+        <div class="company-info">
+            <p><strong>Company Name:</strong> @Model.CompanyName</p>
+            <p><strong>Email:</strong> @Model.CompanyEmail</p>
+            <p><strong>Date:</strong> @Model.InvoiceDate.ToString("yyyy-MM-dd")</p>
+        </div>
+
+        <h3>Bill To:</h3>
+        <p><strong>Customer Name:</strong> @Model.CustomerName</p>
+        <p><strong>Address:</strong> @Model.CustomerAddress</p>
+
+        <table>
+            <tr>
+                <th>#</th>
+                <th>Item Description</th>
+                <th>Quantity</th>
+                <th>Unit Price</th>
+                <th>Total</th>
             </tr>
-            <tr class="information">
-                <td colspan="2">
-                    <table>
-                        <tr>
-                            <td>
-                                Model.Address?.StreetNumber Model.Address?.Street<br />
-                                Model.Address?.StreetLine2<br />
-                                Model.Address?.PostalCode Model.Address?.City
-                            </td>
-                            <td>
-                                Model.User.FirstName Model.User.LastName<br />
-                                Model.User.Email<br />
-                            </td>
-                        </tr>
-                    </table>
-                </td>
-            </tr>
-            <tr class="heading">
-                <td>Article</td>
-                <td>Prix</td>
-            </tr>
-            
-                <tr class="item">
-                    <td>
-                        booking.Slot.StartAt:dd/MM/yyyy HH:mm - booking.Slot.EndAt:dd/MM/yyyy HH:mm
-                    </td>
-                    <td>
-                        booking.Slot.Price:C
-                    </td>
+            @for (int i = 0; i < Model.Items.Count; i++)
+            {
+                <tr>
+                    <td>@(i + 1)</td>
+                    <td>@Model.Items[i].Description</td>
+                    <td>@Model.Items[i].Quantity</td>
+                    <td>@Model.Items[i].UnitPrice</td>
+                    <td>@(Model.Items[i].Quantity * Model.Items[i].UnitPrice)</td>
                 </tr>
-            
-            <tr class="total">
-                <td></td>
-                <td>Total payé: @Model.Total:C</td>
+            }
+            <tr>
+                <td colspan="4" class="total">Total Amount:</td>
+                <td><strong>@Model.Items.Sum(i => i.Quantity * i.UnitPrice)</strong></td>
             </tr>
         </table>
-        <div class="date-signature">
-            <p>Fait le: Model.InvoiceDate:dd/MM/yyyy à Bordeaux</p>
-            <img src="https://cdn.prod.website-files.com/61d7de73eec437f52da6d699/62161cf7328ad280841f653f_esignature-signature.png" style="width: 40mm; height: 30mm;" />
-        </div>
-        <footer>
-            <strong>Model.InspireMessage</strong>
-        </footer>
+
+        <p class="footer">Thank you for your business!</p>
     </div>
 </body>
 </html>
