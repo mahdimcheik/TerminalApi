@@ -12,7 +12,7 @@ namespace TerminalApi.Controllers
     {
         public PaymentsController()
         {
-            StripeConfiguration.ApiKey = Environment.GetEnvironmentVariable("STRIPE_PUBLISHABLEKEY"); 
+            StripeConfiguration.ApiKey = EnvironmentVariables.STRIPE_SECRETKEY;
         }
 
         [HttpPost("create-checkout-session")]
@@ -29,7 +29,7 @@ namespace TerminalApi.Controllers
                 {
                     PriceData = new SessionLineItemPriceDataOptions
                     {
-                        Currency = "usd",
+                        Currency = "EUR",
                         UnitAmount = (long)(request.Amount * 100),
                         ProductData = new SessionLineItemPriceDataProductDataOptions
                         {
