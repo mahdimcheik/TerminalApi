@@ -9,9 +9,12 @@ namespace TerminalApi.Models.Bookings
 {
     public class BookingCreateDTO
     {
+        public Guid Id { get; set; }
+
         public string SlotId { get; set; }
         public string? Subject { get; set; }
         public string? Description { get; set; }
         public EnumTypeHelp? TypeHelp { get; set; } = 0;
+
     }
 }

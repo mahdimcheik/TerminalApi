@@ -14,7 +14,7 @@ namespace TerminalApi.Controllers
 {
     [Route("[controller]")]
     [ApiController]
-    [Authorize]
+    //[Authorize]
     public class SlotController : ControllerBase
     {
         private readonly SlotService slotService;
@@ -288,6 +288,56 @@ namespace TerminalApi.Controllers
             catch (Exception ex)
             {
                 await transaction.RollbackAsync();
+                return BadRequest(new ResponseDTO { Status = 400, Message = ex.Message });
+            }
+        }
+
+        //[Authorize(Roles ="Admin")]
+        [HttpPost("reservations-teacher")]
+        public async Task<ActionResult<ResponseDTO>> GetTeacherReservations([FromBody] QueryPagination query)
+        {
+            try
+            {
+                //var user = CheckUser.GetUserFromClaim(HttpContext.User, context);
+                //if (user is null)
+                //{
+                //    return BadRequest(new ResponseDTO { Status = 400, Message = "Demande refusée" });
+                //}
+                if(query is null ||  query.PerPage <= 0 || query.Start <0)
+                {
+                    return BadRequest(new ResponseDTO { Status = 400, Message = "Demande refusée" });
+                }
+
+                var result = await slotService.GetTeacherReservations(query);
+                return Ok(new ResponseDTO { Message = "Demande acceptée", Status = 200,Count = result.Count, Data = result.Data });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new ResponseDTO { Status = 400, Message = ex.Message });
+            }
+        }
+
+        [Authorize(Roles ="Student")]
+        [HttpPost("reservations-student")]
+        public async Task<ActionResult<ResponseDTO>> GetStudentReservations([FromBody] QueryPagination query)
+        {
+            try
+            {
+                var user = CheckUser.GetUserFromClaim(HttpContext.User, context);
+                if (user is null)
+                {
+                    return BadRequest(new ResponseDTO { Status = 400, Message = "Demande refusée" });
+                }
+                if (query is null || query.PerPage <= 0 || query.Start < 0)
+                {
+                    return BadRequest(new ResponseDTO { Status = 400, Message = "Demande refusée" });
+                }
+
+                var result = await slotService.GetStudentReservations(query, user.Id);
+                return Ok(new ResponseDTO { Message = "Demande acceptée", Status = 200, Count = result.Count, Data = result.Data });
+            }
+            catch (Exception ex)
+            {
                 return BadRequest(new ResponseDTO { Status = 400, Message = ex.Message });
             }
         }

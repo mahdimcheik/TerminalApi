@@ -51,7 +51,7 @@ namespace TerminalApi.Services
         public async Task SendConfirmationEmail(Mail mail, string link)
         {
             mail.MailFrom = EnvironmentVariables.DO_NO_REPLY_MAIL;
-            await SendEmail(mail, link, "ValidationMailTemplate.cshtml");
+            await SendEmail(mail, link, "ValidationEmailTemplate.cshtml");
             //var smtpClient = new SmtpClient(EnvironmentVariables.SMTP_HostAddress)
             //{
             //    Port = EnvironmentVariables.SMTP_Port, 

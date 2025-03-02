@@ -17,7 +17,7 @@ namespace TerminalApi.Models.Slots
         public decimal Price { get; set; }
 
         [Precision(18, 2)]
-        public decimal DiscountedPrice { get; set; }
+        public decimal? DiscountedPrice { get; set; }
         public int? Reduction { get; set; }
         public EnumSlotType Type { get; set; }
         public string? StudentId { get; set; }

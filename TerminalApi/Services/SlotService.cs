@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using TerminalApi.Contexts;
+using TerminalApi.Models;
 using TerminalApi.Models.Adresse;
 using TerminalApi.Models.Bookings;
 using TerminalApi.Models.Slots;
@@ -247,6 +248,74 @@ namespace TerminalApi.Services
             {
                 throw new Exception("Résérvation non supprimée ou non existante");
             }
+        }
+
+        public async Task<(long Count, List<BookingResponseDTO>? Data)> GetTeacherReservations(QueryPagination query)
+        {
+            var sqlQuery = context
+                .Bookings.Include(re => re.Slot)
+                .Include(re => re.Order)
+                .Include(re => re.Booker).Where(x => x != null);
+
+            if (!string.IsNullOrEmpty(query.StudentId))
+            {
+                sqlQuery = sqlQuery.Where(re => re.BookedById == query.StudentId);
+            }
+
+            if (query.FromDate.HasValue)
+            {
+                sqlQuery = sqlQuery.Where(re => re.Slot.StartAt >= query.FromDate.Value);
+            }
+
+            if (query.ToDate.HasValue)
+            {
+                sqlQuery = sqlQuery.Where(re => re.Slot.EndAt <= query.ToDate.Value);
+            }
+
+            var count = await sqlQuery.CountAsync();
+            List<BookingResponseDTO>? result = await sqlQuery
+                .Skip(query.Start)
+                .Take(query.PerPage)
+                .Select(re => re.ToBookingResponseDTO())
+                .ToListAsync();
+
+            return (count, result);
+        }
+
+        public async Task<(long Count, List<BookingResponseDTO>? Data)> GetStudentReservations(QueryPagination query, string studentId)
+        {
+            var sqlQuery = context
+                .Bookings.Include(re => re.Slot)
+                .Include(re => re.Order)
+                .Include(re => re.Booker).Where(x => x != null && x.BookedById == studentId);
+
+            if (query.FromDate.HasValue)
+            {
+                sqlQuery = sqlQuery.Where(re => re.Slot.StartAt >= query.FromDate.Value);
+            }
+
+            if (query.ToDate.HasValue)
+            {
+                sqlQuery = sqlQuery.Where(re => re.Slot.EndAt <= query.ToDate.Value);
+            }
+
+            var count = await sqlQuery.CountAsync();
+
+            var toto = sqlQuery
+                .AsSplitQuery()
+                .Skip(query.Start)
+                .Take(query.PerPage)
+                .Select(re => re.ToBookingResponseDTO()).ToQueryString();
+
+            List<BookingResponseDTO>? result = await sqlQuery
+                .AsSplitQuery()
+                .AsNoTracking()
+                .Skip(query.Start)
+                .Take(query.PerPage)
+                .Select(re => re.ToBookingResponseDTO())
+                .ToListAsync();
+
+            return (count, result);
         }
     }
 }
