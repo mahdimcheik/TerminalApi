@@ -1,16 +1,14 @@
-using System.Data;
-using System.IdentityModel.Tokens.Jwt;
-using System.IO.Compression;
-using System.Reflection;
-using System.Security.Claims;
-using System.Text;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc.Razor;
-using Microsoft.AspNetCore.ResponseCompression;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using System.Data;
+using System.IdentityModel.Tokens.Jwt;
+using System.Reflection;
+using System.Security.Claims;
+using System.Text;
 using TerminalApi.Contexts;
 using TerminalApi.Models.Role;
 using TerminalApi.Models.User;
@@ -114,7 +112,7 @@ namespace TerminalApi
                 .AddRoleManager<RoleManager<Role>>()
                 .AddUserManager<UserManager<UserApp>>()
                 .AddSignInManager<SignInManager<UserApp>>()
-                .AddErrorDescriber<FrenchIdentityErrorDescriber>()                
+                .AddErrorDescriber<FrenchIdentityErrorDescriber>()
                 .AddDefaultTokenProviders();
 
             services.Configure<IdentityOptions>(options =>
@@ -213,7 +211,7 @@ namespace TerminalApi
                 //            string.Format(POSTGRES_CONNECTION_STRING, EnvironmentVariables.DB_HOST ,EnvironmentVariables.DB_PORT, EnvironmentVariables.DB_NAME, EnvironmentVariables.DB_USER, EnvironmentVariables.DB_PASSWORD));
 
             });
-            
+
             services.Configure<DataProtectionTokenProviderOptions>(options =>
             {
                 options.TokenLifespan = TimeSpan.FromHours(24);
@@ -333,14 +331,14 @@ namespace TerminalApi
             app.Use(
 async (context, next) =>
 {
-if (context.Request.ContentLength > 200_000_000)
-{
-context.Response.StatusCode = StatusCodes.Status413PayloadTooLarge;
-await context.Response.WriteAsync("Payload Too Large");
-return;
-}
+    if (context.Request.ContentLength > 200_000_000)
+    {
+        context.Response.StatusCode = StatusCodes.Status413PayloadTooLarge;
+        await context.Response.WriteAsync("Payload Too Large");
+        return;
+    }
 
-await next.Invoke();
+    await next.Invoke();
 }
 );
 

@@ -1,9 +1,9 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using TerminalApi.Contexts;
 using TerminalApi.Models;
-using TerminalApi.Models.Adresse;
 using TerminalApi.Models.Bookings;
 using TerminalApi.Models.Slots;
+using TerminalApi.Models.User;
 using TerminalApi.Utilities;
 
 namespace TerminalApi.Services
@@ -282,12 +282,12 @@ namespace TerminalApi.Services
             return (count, result);
         }
 
-        public async Task<(long Count, List<BookingResponseDTO>? Data)> GetStudentReservations(QueryPagination query, string studentId)
+        public async Task<(long Count, List<BookingResponseDTO>? Data)> GetStudentReservations(QueryPagination query, UserApp student)
         {
             var sqlQuery = context
                 .Bookings.Include(re => re.Slot)
                 .Include(re => re.Order)
-                .Include(re => re.Booker).Where(x => x != null && x.BookedById == studentId);
+                .Where(x => x != null && x.BookedById == student.Id);
 
             if (query.FromDate.HasValue)
             {
@@ -312,7 +312,7 @@ namespace TerminalApi.Services
                 .AsNoTracking()
                 .Skip(query.Start)
                 .Take(query.PerPage)
-                .Select(re => re.ToBookingResponseDTO())
+                .Select(re => re.ToBookingResponseDTO(student))
                 .ToListAsync();
 
             return (count, result);

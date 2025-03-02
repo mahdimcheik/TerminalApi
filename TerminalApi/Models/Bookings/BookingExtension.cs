@@ -1,4 +1,6 @@
-﻿namespace TerminalApi.Models.Bookings
+﻿using TerminalApi.Models.User;
+
+namespace TerminalApi.Models.Bookings
 {
     public static class BookingExtension
     {
@@ -36,6 +38,30 @@
                 StudentFirstName = booking.Booker.FirstName,
                 StudentLastName = booking.Booker.LastName,
                 StudentImgUrl = booking.Booker.ImgUrl
+            };
+        }
+
+        public static BookingResponseDTO ToBookingResponseDTO(this Booking booking, UserApp user)
+        {
+            return new BookingResponseDTO
+            {
+                Id = booking.Id,
+                Subject = booking.Subject,
+                Description = booking.Description,
+                TypeHelp = booking.TypeHelp,
+                OrderId = booking.OrderId,
+                CreatedAt = booking.CreatedAt,
+                Price = booking.Slot.Price,
+                DiscountedPrice = booking.Slot.DiscountedPrice,
+                Reduction = booking.Slot.Reduction,
+                SlotId = booking.SlotId,
+                StartAt = booking.Slot.StartAt,
+                EndAt = booking.Slot.EndAt,
+                Type = booking.Slot.Type,
+                StudentId = user.Id,
+                StudentFirstName = user.FirstName,
+                StudentLastName = user.LastName,
+                StudentImgUrl = user.ImgUrl
             };
         }
     }

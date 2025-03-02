@@ -303,13 +303,13 @@ namespace TerminalApi.Controllers
                 //{
                 //    return BadRequest(new ResponseDTO { Status = 400, Message = "Demande refusée" });
                 //}
-                if(query is null ||  query.PerPage <= 0 || query.Start <0)
+                if (query is null || query.PerPage <= 0 || query.Start < 0)
                 {
                     return BadRequest(new ResponseDTO { Status = 400, Message = "Demande refusée" });
                 }
 
                 var result = await slotService.GetTeacherReservations(query);
-                return Ok(new ResponseDTO { Message = "Demande acceptée", Status = 200,Count = result.Count, Data = result.Data });
+                return Ok(new ResponseDTO { Message = "Demande acceptée", Status = 200, Count = result.Count, Data = result.Data });
             }
             catch (Exception ex)
             {
@@ -317,7 +317,7 @@ namespace TerminalApi.Controllers
             }
         }
 
-        [Authorize(Roles ="Student")]
+        [Authorize(Roles = "Student")]
         [HttpPost("reservations-student")]
         public async Task<ActionResult<ResponseDTO>> GetStudentReservations([FromBody] QueryPagination query)
         {
@@ -333,7 +333,7 @@ namespace TerminalApi.Controllers
                     return BadRequest(new ResponseDTO { Status = 400, Message = "Demande refusée" });
                 }
 
-                var result = await slotService.GetStudentReservations(query, user.Id);
+                var result = await slotService.GetStudentReservations(query, user);
                 return Ok(new ResponseDTO { Message = "Demande acceptée", Status = 200, Count = result.Count, Data = result.Data });
             }
             catch (Exception ex)
