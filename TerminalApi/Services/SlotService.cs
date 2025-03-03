@@ -298,6 +298,22 @@ namespace TerminalApi.Services
             {
                 sqlQuery = sqlQuery.Where(re => re.Slot.EndAt <= query.ToDate.Value);
             }
+            if(query.OrderByDate is not null && query.OrderByDate == 1)
+            {
+                sqlQuery = sqlQuery.OrderBy(x => x.Slot.StartAt);
+            }
+            if (query.OrderByDate is not null && query.OrderByDate == -1)
+            {
+                sqlQuery = sqlQuery.OrderBy(x => x.Slot.EndAt);
+            }
+            if (query.OrderByName is not null && query.OrderByName == 1)
+            {
+                sqlQuery = sqlQuery.OrderBy(x => x.Booker.LastName).ThenBy(x => x.Booker.FirstName); 
+            }
+            if (query.OrderByName is not null && query.OrderByName == -1)
+            {
+                sqlQuery = sqlQuery.OrderByDescending(x => x.Booker.LastName).ThenByDescending(x => x.Booker.FirstName);
+            }
 
             var count = await sqlQuery.CountAsync();
 
