@@ -21,7 +21,6 @@ namespace TerminalApi.Models.Slots
 
         public static SlotResponseDTO ToResponseDTO(this Slot slot)
         {
-
                 return new SlotResponseDTO
                 {
                     Id = slot.Id,

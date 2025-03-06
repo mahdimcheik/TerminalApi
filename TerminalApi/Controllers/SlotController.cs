@@ -25,6 +25,29 @@ namespace TerminalApi.Controllers
             this.slotService = slotService;
             this.context = context;
         }
+        [HttpGet("slotId/{slotId}")]
+        [Authorize]
+        public async Task<ActionResult<ResponseDTO>> GetSlotsForStudent([FromRoute] string slotId)
+        {
+            var user = CheckUser.GetUserFromClaim(HttpContext.User, context);
+            if (user is null) return BadRequest(new ResponseDTO { Status = 400, Message = "Quelque chose ne va pas !!!" });
+            try
+            {
+                var result = await slotService.GetSlotsById(slotId);
+                return Ok(
+                    new ResponseDTO
+                    {
+                        Status = 200,
+                        Message = "Créneau envoyé",
+                        Data = result,
+                    }
+                );
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new ResponseDTO { Status = 400, Message = ex.Message });
+            }
+        }
 
         [HttpGet]
         [Authorize(Roles = "Admin")]

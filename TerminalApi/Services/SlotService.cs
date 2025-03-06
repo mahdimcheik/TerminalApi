@@ -58,6 +58,21 @@ namespace TerminalApi.Services
                 throw new Exception(ex.Message);
             }
         }
+        public async Task<SlotResponseDTO?> GetSlotsById(
+            string slotId
+        )
+        {
+            var slot = context
+                .Slots.Include(x => x.Booking)
+                .ThenInclude(y => y.Booker)
+                .AsSplitQuery()
+                .FirstOrDefault(ad =>
+                    ad.Id == Guid.Parse(slotId)
+                );
+
+            if (slot is not null) return slot.ToResponseDTO();
+            return null;
+        }
 
         public async Task<List<SlotResponseDTO>?> GetSlotsByCreator(
             string teacherId,
