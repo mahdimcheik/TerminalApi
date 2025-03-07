@@ -180,6 +180,8 @@ namespace TerminalApi
             services.AddScoped<AddressService>();
             services.AddScoped<FormationService>();
             services.AddScoped<SlotService>();
+            services.AddScoped<BookingService>();
+            services.AddScoped<OrderService>();
             services.AddScoped<FakerService>();
             services.AddScoped<SseConnectionManager>();
             services.AddScoped<PdfService>();

@@ -27,22 +27,5 @@ namespace TerminalApi.Models.Slots
         public string? Subject { get; set; }
         public string? Description { get; set; }
         public EnumTypeHelp? TypeHelp { get; set; }
-
-        //public SlotResponseDTO(Slot ad)
-        //{
-        //    Id = ad.Id;
-        //    StartAt = ad.StartAt;
-        //    EndAt = ad.EndAt;
-        //    Price = ad.Price;
-        //    DiscountedPrice = ad.DiscountedPrice;
-        //    Reduction = ad.Reduction;
-        //    StudentFirstName = ad.Booking?.Booker.FirstName ?? null;
-        //    StudentLastName = ad.Booking?.Booker.LastName ?? null;
-        //    StudentImgUrl = ad.Booking?.Booker.ImgUrl ?? null;
-        //    StudentId = ad.Booking?.BookedById ?? null;
-        //    Subject = ad.Booking?.Subject ?? null;
-        //    Description = ad.Booking?.Description ?? null;
-        //    TypeHelp = ad.Booking?.TypeHelp ?? null;
-        //}
     }
 }
