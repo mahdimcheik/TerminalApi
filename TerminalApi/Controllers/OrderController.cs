@@ -26,8 +26,17 @@ namespace TerminalApi.Controllers
         {
             var order = await orderService.GetOrderByStudentAsync(orderId);
             if (order is null)
-                return NotFound( new ResponseDTO { Message = "Aucune commande disponible", Status= 404});
-            return Ok(NotFound(new ResponseDTO { Message = "Demande acceptée", Status = 200, Data =  order}));
+                return NotFound(
+                    new ResponseDTO { Message = "Aucune commande disponible", Status = 404 }
+                );
+            return Ok(
+                new ResponseDTO
+                {
+                    Message = "Demande acceptée",
+                    Status = 200,
+                    Data = order
+                }
+            );
         }
 
         [HttpGet("teacher/{orderId}")]
@@ -35,8 +44,17 @@ namespace TerminalApi.Controllers
         {
             var order = await orderService.GetOrderByTeacherAsync(orderId);
             if (order is null)
-                return NotFound(new ResponseDTO { Message = "Aucune commande disponible", Status = 404 });
-            return Ok(NotFound(new ResponseDTO { Message = "Demande acceptée", Status = 200, Data = order }));
+                return NotFound(
+                    new ResponseDTO { Message = "Aucune commande disponible", Status = 404 }
+                );
+            return Ok(
+                new ResponseDTO
+                {
+                    Message = "Demande acceptée",
+                    Status = 200,
+                    Data = order
+                }
+            );
         }
 
         [HttpGet("student/current")]
@@ -49,8 +67,19 @@ namespace TerminalApi.Controllers
             }
             var order = await orderService.GetOrCreateCurrentOrderByUserAsync(user);
             if (order is null)
-                return NotFound(new ResponseDTO { Message = "Aucune commande disponible", Status = 404 });
-            return Ok(NotFound(new ResponseDTO { Message = "Demande acceptée", Status = 200, Data = order }));
+            {
+                return NotFound(
+                    new ResponseDTO { Message = "Aucune commande disponible", Status = 404 }
+                );
+            }
+            return Ok(
+                new ResponseDTO
+                {
+                    Message = "Demande acceptée",
+                    Status = 200,
+                    Data = order
+                }
+            );
         }
     }
 }
