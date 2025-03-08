@@ -1,4 +1,7 @@
-﻿using System;
+﻿using PuppeteerSharp;
+using System;
+using TerminalApi.Models.Bookings;
+using TerminalApi.Models.User;
 
 namespace TerminalApi.Models.Payments
 {
@@ -7,6 +10,41 @@ namespace TerminalApi.Models.Payments
         public static void GenerateOrderNumber(this Order order)
         {
             order.OrderNumber = DateTime.Now.Ticks;
+        }
+
+        public static OrderResponseForStudentDTO ToOrderResponseForStudentDTO(this Order order)
+        {
+            var response =  new OrderResponseForStudentDTO
+            {
+                Id = order.Id,
+                OrderNumber = order.OrderNumber,
+                PaymentDate = order.PaymentDate,
+                CreatedAt = order.CreatedAt,
+                Status = order.Status,
+                PaymentMethod = order.PaymentMethod,
+                
+            };
+            if(order.Bookings is not null && order.Bookings.Any())
+            {
+                response.Bookings = order.Bookings.Select(x => x.ToBookingResponseDTO(order.Booker)).ToList();
+            }
+            return response;
+        }
+        public static OrderResponseForStudentDTO ToOrderResponseForTeacherDTO(this Order order)
+        {
+            var response =  new OrderResponseForStudentDTO
+            {
+                OrderNumber = order.OrderNumber,
+                PaymentDate = order.PaymentDate,
+                CreatedAt = order.CreatedAt,
+                Status = order.Status,
+                PaymentMethod = order.PaymentMethod
+            };
+            if (order.Bookings is not null && order.Bookings.Any())
+            {
+                response.Bookings = order.Bookings.Select(x => x.ToBookingResponseDTO()).ToList();
+            }
+            return response;
         }
     }
 

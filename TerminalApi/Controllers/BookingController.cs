@@ -41,7 +41,7 @@ namespace TerminalApi.Controllers
                 {
                     return BadRequest(new ResponseDTO { Status = 400, Message = "Demande refusée" });
                 }
-                var resultBooking = await bookingService.BookSlot(bookingCreateDTO, user.Id);
+                var resultBooking = await bookingService.BookSlot(bookingCreateDTO, user);
                 if (resultBooking)
                 {
 
@@ -141,12 +141,7 @@ namespace TerminalApi.Controllers
                     var bookings = new List<Booking>();
                     foreach (var slotId in slotIds)
                     {
-                        //bookings.Add(new Booking
-                        //{
-                        //    SlotId = Guid.Parse(slotId),
-                        //    BookedById = user.Id,
-                        //    CreatedAt = DateTimeOffset.Now
-                        //});
+                        // checks here
                     }
                     await context.Bookings.AddRangeAsync(bookings);
                     await context.SaveChangesAsync();
@@ -158,7 +153,7 @@ namespace TerminalApi.Controllers
                         //OrderNumber = DateTimeOffset.Now.ToUnixTimeMilliseconds(),
                         PaymentDate = DateTimeOffset.Now,
                         Status = EnumBookingStatus.Paid,
-                        PaymentMethod = "Stripe"
+                        PaymentMethod = "card"
                     };
                     await context.Orders.AddAsync(order);
                     await context.SaveChangesAsync();

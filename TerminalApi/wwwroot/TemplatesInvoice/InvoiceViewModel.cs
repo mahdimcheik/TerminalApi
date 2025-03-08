@@ -9,11 +9,11 @@ namespace TerminalApi.Services.Templates
         public decimal Total { get; set; }
         public List<BookingDetailsDto> Bookings { get; set; }
 
-        public InvoiceViewModel(OrderDetailsDto orderDetails)
+        public InvoiceViewModel(OrderResponseForTeacherDTO orderDetails)
         {
             Total = 15;
-            BookerImgUrl = orderDetails.BookerImgUrl;
-            Bookings = orderDetails.Bookings;
+            BookerImgUrl =  "" + orderDetails.OrderNumber;
+            Bookings = new();
         }
     }
 

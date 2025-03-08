@@ -20,7 +20,7 @@ namespace TerminalApi.Services
             this.orderService = orderService;
         }
 
-        public async Task<bool> BookSlot(BookingCreateDTO newBookingCreateDTO, string bookerId)
+        public async Task<bool> BookSlot(BookingCreateDTO newBookingCreateDTO, UserApp booker)
         {
             var slot = await context
                 .Slots.Where(x =>
@@ -30,7 +30,7 @@ namespace TerminalApi.Services
                 .Include(x => x.Booking)
                 .FirstOrDefaultAsync();
 
-            Order order = await orderService.GetOrCreateCurrentOrderByUserAsync(bookerId);
+            OrderResponseForStudentDTO order = await orderService.GetOrCreateCurrentOrderByUserAsync(booker);
 
             if (slot is null || slot.Booking is not null || order is null)
             {
@@ -38,7 +38,7 @@ namespace TerminalApi.Services
             }
             //newBookingCreateDTO.O
 
-            Booking newBooking = newBookingCreateDTO.ToBooking(bookerId, order.Id);
+            Booking newBooking = newBookingCreateDTO.ToBooking(booker.Id, order.Id);
             try
             {
                 var res = await context.Bookings.AddAsync(newBooking);
