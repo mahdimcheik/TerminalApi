@@ -3,6 +3,7 @@ using TerminalApi.Models.Bookings;
 using TerminalApi.Models.User;
 using TerminalApi.Models;
 using Microsoft.EntityFrameworkCore;
+using TerminalApi.Models.Payments;
 
 namespace TerminalApi.Services
 {
@@ -10,12 +11,13 @@ namespace TerminalApi.Services
     {
         private readonly SlotService slotService;
         private readonly ApiDefaultContext context;
+        private readonly OrderService orderService;
 
-
-        public BookingService(SlotService slotService, ApiDefaultContext context)
+        public BookingService(SlotService slotService, ApiDefaultContext context, OrderService orderService)
         {
             this.slotService = slotService;
             this.context = context;
+            this.orderService = orderService;
         }
 
         public async Task<bool> BookSlot(BookingCreateDTO newBookingCreateDTO, string bookerId)
@@ -27,12 +29,16 @@ namespace TerminalApi.Services
                 )
                 .Include(x => x.Booking)
                 .FirstOrDefaultAsync();
-            if (slot is null || slot.Booking is not null)
+
+            Order order = await orderService.GetOrCreateCurrentOrderByUserAsync(bookerId);
+
+            if (slot is null || slot.Booking is not null || order is null)
             {
                 return false;
             }
+            //newBookingCreateDTO.O
 
-            Booking newBooking = newBookingCreateDTO.ToBooking(bookerId);
+            Booking newBooking = newBookingCreateDTO.ToBooking(bookerId, order.Id);
             try
             {
                 var res = await context.Bookings.AddAsync(newBooking);

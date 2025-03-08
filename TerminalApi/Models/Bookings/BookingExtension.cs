@@ -4,7 +4,7 @@ namespace TerminalApi.Models.Bookings
 {
     public static class BookingExtension
     {
-        public static Booking ToBooking(this BookingCreateDTO bookingCreateDTO, string userId)
+        public static Booking ToBooking(this BookingCreateDTO bookingCreateDTO, string userId, Guid orderId)
         {
             return new Booking()
             {
@@ -13,7 +13,8 @@ namespace TerminalApi.Models.Bookings
                 CreatedAt = DateTimeOffset.Now,
                 Subject = bookingCreateDTO.Subject,
                 Description = bookingCreateDTO.Description,
-                TypeHelp = bookingCreateDTO.TypeHelp ?? 0
+                TypeHelp = bookingCreateDTO.TypeHelp ?? 0,
+                OrderId = orderId
             };
         }
 

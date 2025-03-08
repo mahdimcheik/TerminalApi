@@ -27,8 +27,11 @@ namespace TerminalApi.Services
                 {
                     BookerId = userId,
                     Status = Utilities.EnumBookingStatus.Pending,
-                    CreatedAt = DateTimeOffset.Now
+                    CreatedAt = DateTimeOffset.Now,
+                    PaymentMethod = "NotPaiedYet"
                 };
+                newOrder.GenerateOrderNumber();
+
                 context.Orders.Add(newOrder);
                 context.SaveChanges();
                 return newOrder;
