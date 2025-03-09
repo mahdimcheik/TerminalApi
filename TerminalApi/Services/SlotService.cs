@@ -111,42 +111,30 @@ namespace TerminalApi.Services
         )
         {
             return await context
-                .Slots.Include(x => x.Booking)
-                .ThenInclude(y => y.Booker)
+                .Slots
                 .AsSplitQuery()
+                .AsNoTracking()
+                .Include(x => x.Booking)
+                .ThenInclude(y => y.Booker)
+                
                 .Where(ad =>
                     (
-                        ad.CreatedById == EnvironmentVariables.TEACHER_ID
-                        && ad.StartAt >= fromDate
+                        //ad.CreatedById == EnvironmentVariables.TEACHER_ID && 
+                        ad.StartAt >= fromDate
                         && ad.EndAt <= toDate
                         && ad.StartAt >= DateTimeOffset.UtcNow
                         && ad.Booking == null
                     )
                     || (
-                        ad.CreatedById == EnvironmentVariables.TEACHER_ID
-                        && ad.StartAt >= fromDate
+                        //ad.CreatedById == EnvironmentVariables.TEACHER_ID &&
+                        ad.StartAt >= fromDate
                         && ad.EndAt <= toDate
                         && ad.Booking != null
                         && ad.Booking.BookedById == userId
                     )
                 )
                 .Select(ad => ad.ToResponseDTO())
-                //new SlotResponseDTO()
-                //{
-                //    Id = ad.Id,
-                //    StartAt = ad.StartAt,
-                //    EndAt = ad.EndAt,
-                //    Price = ad.Price,
-                //    DiscountedPrice = ad.DiscountedPrice,
-                //    Reduction = ad.Reduction,
-                //    StudentFirstName = ad.Booking.Booker.FirstName ,
-                //    StudentLastName = ad.Booking.Booker.LastName,
-                //    StudentImgUrl = ad.Booking.Booker.ImgUrl,
-                //    StudentId = ad.Booking.BookedById,
-                //    Subject = ad.Booking.Subject,
-                //    Description = ad.Booking.Description,
-                //    TypeHelp = ad.Booking.TypeHelp
-                //})
+
                 .ToListAsync();
         }
 

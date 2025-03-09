@@ -12,7 +12,9 @@ namespace TerminalApi.Models.Bookings
         public Guid Id { get; set; }
 
         public string SlotId { get; set; }
+        [MaxLength(64)]
         public string? Subject { get; set; }
+        [MaxLength(255)]
         public string? Description { get; set; }
         public EnumTypeHelp? TypeHelp { get; set; } = 0;
 
