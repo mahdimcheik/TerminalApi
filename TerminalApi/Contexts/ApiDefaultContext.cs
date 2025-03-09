@@ -4,6 +4,7 @@ using System.Security.Cryptography;
 using TerminalApi.Models.Adresse;
 using TerminalApi.Models.Bookings;
 using TerminalApi.Models.Formations;
+using TerminalApi.Models.Layout;
 using TerminalApi.Models.Payments;
 using TerminalApi.Models.Role;
 using TerminalApi.Models.Slots;
@@ -65,42 +66,22 @@ namespace TerminalApi.Contexts
             base.ConfigureConventions(configurationBuilder);
         }
         // Override SaveChangesAsync
-        public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
-        {
-            // Get entries that are being Added
-            var orders = ChangeTracker
-                .Entries<Order>()
-                .Where(e => e.State == EntityState.Added)
-                .Select(e => e.Entity);
+        //public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
+        //{
+        //    // Get entries that are being Added
+        //    var orders = ChangeTracker
+        //        .Entries<Order>()
+        //        .Where(e => e.State == EntityState.Added)
+        //        .Select(e => e.Entity);
 
-            foreach (var order in orders)
-            {
-                // Generate and set the OrderNumber
-                order.OrderNumber = await GenerateUniqueOrderNumberAsync();
-            }
+        //    foreach (var order in orders)
+        //    {
+        //        // Generate and set the OrderNumber
+        //        order.OrderNumber = await GenerateUniqueOrderNumberAsync();
+        //    }
 
-            return await base.SaveChangesAsync(cancellationToken);
-        }
-        private async Task<long> GenerateUniqueOrderNumberAsync()
-        {
-            long orderNumber = 1;
-            if (!Orders.Any())
-            {
-                return orderNumber;
-            }
-                bool exists = false;
-                var max = Orders.Max(o => o.OrderNumber);
-            int i = 1;
-            do
-            {    
-                orderNumber = max + i;
-                exists = await Orders.AnyAsync(o => o.OrderNumber == orderNumber);// ca ne sert à rien mais voila
-                i++;                
-            }
-            while (exists);
-
-            return 0;
-        }
+        //    return await base.SaveChangesAsync(cancellationToken);
+        //}        
 
         public DbSet<Address> Addresses { get; set; }
         public DbSet<Booking> Bookings { get; set; }
@@ -108,6 +89,7 @@ namespace TerminalApi.Contexts
         public DbSet<Slot> Slots { get; set; }
         public DbSet<Order> Orders { get; set; }
         public DbSet<Formation> Formations { get; set; }
+        public DbSet<Layout> Layouts { get; set; }
 
     }
 

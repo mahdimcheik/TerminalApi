@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using TerminalApi.Contexts;
@@ -11,9 +12,11 @@ using TerminalApi.Contexts;
 namespace TerminalApi.Migrations
 {
     [DbContext(typeof(ApiDefaultContext))]
-    partial class ApiDefaultContextModelSnapshot : ModelSnapshot
+    [Migration("20250309120030_layout")]
+    partial class layout
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -296,38 +299,6 @@ namespace TerminalApi.Migrations
                     b.ToTable("Formations");
                 });
 
-            modelBuilder.Entity("TerminalApi.Models.Layout.Layout", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
-
-                    b.Property<bool?>("DarkTheme")
-                        .HasColumnType("boolean");
-
-                    b.Property<string>("MenuMode")
-                        .HasMaxLength(50)
-                        .HasColumnType("character varying(50)");
-
-                    b.Property<string>("Preset")
-                        .HasMaxLength(50)
-                        .HasColumnType("character varying(50)");
-
-                    b.Property<string>("Surface")
-                        .HasMaxLength(50)
-                        .HasColumnType("character varying(50)");
-
-                    b.Property<string>("UserId")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("UserId");
-
-                    b.ToTable("Layouts");
-                });
-
             modelBuilder.Entity("TerminalApi.Models.Payments.Order", b =>
                 {
                     b.Property<Guid>("Id")
@@ -341,9 +312,8 @@ namespace TerminalApi.Migrations
                     b.Property<DateTime?>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<string>("OrderNumber")
-                        .IsRequired()
-                        .HasColumnType("text");
+                    b.Property<long>("OrderNumber")
+                        .HasColumnType("bigint");
 
                     b.Property<DateTime?>("PaymentDate")
                         .HasColumnType("timestamp with time zone");
@@ -625,17 +595,6 @@ namespace TerminalApi.Migrations
                 {
                     b.HasOne("TerminalApi.Models.User.UserApp", "User")
                         .WithMany("Formations")
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("User");
-                });
-
-            modelBuilder.Entity("TerminalApi.Models.Layout.Layout", b =>
-                {
-                    b.HasOne("TerminalApi.Models.User.UserApp", "User")
-                        .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();

@@ -39,7 +39,7 @@ namespace TerminalApi.Services
             UserApp user
         )
         {
-            Stopwatch stopwatch = Stopwatch.StartNew();
+            //Stopwatch stopwatch = Stopwatch.StartNew();
             var order = await context
                 .Orders
                 .AsSplitQuery()
@@ -49,7 +49,7 @@ namespace TerminalApi.Services
                 .FirstOrDefaultAsync(o =>
                     o.BookerId == user.Id && o.Status == Utilities.EnumBookingStatus.Pending
                 );
-            Console.WriteLine("Times : " + stopwatch.ElapsedMilliseconds + "ms" );
+            //Console.WriteLine("Times : " + stopwatch.ElapsedMilliseconds + "ms" );
             if (order == null)
             {
                 Order newOrder = new Order
@@ -59,7 +59,7 @@ namespace TerminalApi.Services
                     CreatedAt = DateTimeOffset.Now,
                     PaymentMethod = "card"
                 };
-                newOrder.GenerateOrderNumber();
+                newOrder.OrderNumber = await GenerateOrderNumberAsync();
                 
                 context.Orders.Add(newOrder);
                 context.SaveChanges();
@@ -71,6 +71,16 @@ namespace TerminalApi.Services
                 order.Booker = user;
                 return order.ToOrderResponseForStudentDTO();
             }
+        }
+
+        public async Task<string> GenerateOrderNumberAsync()
+        {
+            string datePart = DateTime.UtcNow.ToString("yyyyMMdd");
+
+            int count = await context.Orders.CountAsync(o => o.CreatedAt.Value.Date == DateTimeOffset.UtcNow);
+            int nextNumber = count + 1;
+
+            return $"INSPIRE-{datePart}-{nextNumber:D5}";
         }
     }
 }

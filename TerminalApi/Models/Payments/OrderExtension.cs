@@ -1,4 +1,5 @@
-﻿using PuppeteerSharp;
+﻿using Microsoft.EntityFrameworkCore;
+using PuppeteerSharp;
 using System;
 using TerminalApi.Models.Bookings;
 using TerminalApi.Models.User;
@@ -7,10 +8,6 @@ namespace TerminalApi.Models.Payments
 {
     public static class OrderExtension
     {
-        public static void GenerateOrderNumber(this Order order)
-        {
-            order.OrderNumber = DateTime.Now.Ticks;
-        }
 
         public static OrderResponseForStudentDTO ToOrderResponseForStudentDTO(this Order order)
         {
