@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations.Schema;
+﻿using Microsoft.EntityFrameworkCore;
+using System.ComponentModel.DataAnnotations.Schema;
 using TerminalApi.Models.Bookings;
 using TerminalApi.Models.User;
 using TerminalApi.Utilities;
@@ -17,5 +18,14 @@ namespace TerminalApi.Models.Payments
         public string PaymentMethod { get; set; }
         public ICollection<BookingResponseDTO>? Bookings { get; set; }
         public UserResponseDTO? Booker { get; set; }
+
+        [Precision(18, 2)]
+        public decimal TotalOriginalPrice { get; set; }
+
+        [Precision(18, 2)]
+        public decimal TotalDiscountedPrice { get; set; }
+
+        [Precision(18, 2)]
+        public decimal TotalReduction { get; set; }
     }
 }

@@ -35,7 +35,11 @@ namespace TerminalApi.Models.Slots
         public decimal Price { get; set; }
         public int? Reduction { get; set; }
         public EnumSlotType Type { get; set; }
+
+        // Calculated fields
         [Precision(18, 2)]
+        [JsonIgnore]
+        [NotMapped]
         public decimal DiscountedPrice => Price * (decimal)(1.0 -  0.01 * (Reduction ?? 0));
     }
 }

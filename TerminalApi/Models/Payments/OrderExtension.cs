@@ -20,7 +20,8 @@ namespace TerminalApi.Models.Payments
                 CreatedAt = order.CreatedAt,
                 Status = order.Status,
                 PaymentMethod = order.PaymentMethod,
-                
+
+
             };
             if(order.Bookings is not null && order.Bookings.Any())
             {
@@ -41,6 +42,9 @@ namespace TerminalApi.Models.Payments
             if (order.Bookings is not null && order.Bookings.Any())
             {
                 response.Bookings = order.Bookings.Select(x => x.ToBookingResponseDTO()).ToList();
+                response.TotalDiscountedPrice = order.TotalDiscountedPrice;
+                response.TotalOriginalPrice = order.TotalOriginalPrice;
+                response.TotalReduction = order.TotalReduction;
             }
             return response;
         }

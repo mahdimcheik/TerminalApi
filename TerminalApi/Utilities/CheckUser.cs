@@ -19,19 +19,20 @@ namespace TerminalApi.Utilities
             if (userEmail == null)
                 return null;
             var user = context
-                .Users.Select(x => new UserApp
-                {
-                    Id = x.Id,
-                    FirstName = x.FirstName,
-                    LastName = x.LastName,
-                    ImgUrl = x.ImgUrl,
-                    Email = x.Email,
-                    DateOfBirth = x.DateOfBirth,
-                    Description = x.Description,
-                    Title = x.Title,
-                    RefreshToken = x.RefreshToken,
-                    EmailConfirmed = x.EmailConfirmed
-                })
+                .Users
+                //.Select(x => new UserApp
+                //{
+                //    Id = x.Id,
+                //    FirstName = x.FirstName,
+                //    LastName = x.LastName,
+                //    ImgUrl = x.ImgUrl,
+                //    Email = x.Email,
+                //    DateOfBirth = x.DateOfBirth,
+                //    Description = x.Description,
+                //    Title = x.Title,
+                //    RefreshToken = x.RefreshToken,
+                //    EmailConfirmed = x.EmailConfirmed
+                //})
                 .FirstOrDefault(x => x.Email == userEmail);
 
             if (user == null)
