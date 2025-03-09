@@ -2,6 +2,7 @@
 using System.Diagnostics;
 using TerminalApi.Contexts;
 using TerminalApi.Models.Payments;
+using TerminalApi.Models.TVA;
 using TerminalApi.Models.User;
 
 namespace TerminalApi.Services
@@ -81,6 +82,11 @@ namespace TerminalApi.Services
             int nextNumber = count + 1;
 
             return $"INSPIRE-{datePart}-{nextNumber:D5}";
+        }
+
+        private TVARate GetTVARate()
+        {
+            return context.TVARates.OrderByDescending(x => x.StartAt).FirstOrDefault();
         }
     }
 }

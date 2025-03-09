@@ -2,6 +2,7 @@
 using PuppeteerSharp;
 using System;
 using TerminalApi.Models.Bookings;
+using TerminalApi.Models.TVA;
 using TerminalApi.Models.User;
 
 namespace TerminalApi.Models.Payments

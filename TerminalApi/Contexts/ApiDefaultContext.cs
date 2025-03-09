@@ -8,6 +8,7 @@ using TerminalApi.Models.Layout;
 using TerminalApi.Models.Payments;
 using TerminalApi.Models.Role;
 using TerminalApi.Models.Slots;
+using TerminalApi.Models.TVA;
 using TerminalApi.Models.User;
 using TerminalApi.Utilities;
 
@@ -53,6 +54,13 @@ namespace TerminalApi.Contexts
                 },
             };
             builder.Entity<Role>().HasData(roles);
+            TVARate tVARate = new TVARate()
+            {
+                Id = Guid.NewGuid(),
+                Rate = 0.2m,
+                StartAt = DateTimeOffset.Now
+            };
+            builder.Entity<TVARate>().HasData(tVARate);
         }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
@@ -90,7 +98,7 @@ namespace TerminalApi.Contexts
         public DbSet<Order> Orders { get; set; }
         public DbSet<Formation> Formations { get; set; }
         public DbSet<Layout> Layouts { get; set; }
-
+        public DbSet<TVARate> TVARates { get; set; }
     }
 
 }
