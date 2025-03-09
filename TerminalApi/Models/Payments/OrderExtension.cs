@@ -26,6 +26,9 @@ namespace TerminalApi.Models.Payments
             if(order.Bookings is not null && order.Bookings.Any())
             {
                 response.Bookings = order.Bookings.Select(x => x.ToBookingResponseDTO(order.Booker)).ToList();
+                response.TotalDiscountedPrice = order.TotalDiscountedPrice;
+                response.TotalOriginalPrice = order.TotalOriginalPrice;
+                response.TotalReduction = order.TotalReduction;
             }
             return response;
         }
