@@ -1,8 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations.Schema;
-using System.ComponentModel.DataAnnotations;
-using TerminalApi.Models.Payments;
-using TerminalApi.Models.Slots;
-using TerminalApi.Models.User;
+﻿using System.ComponentModel.DataAnnotations;
 using TerminalApi.Utilities;
 
 namespace TerminalApi.Models.Bookings
@@ -13,6 +9,7 @@ namespace TerminalApi.Models.Bookings
 
         public string SlotId { get; set; }
         [MaxLength(64)]
+        [Required]
         public string? Subject { get; set; }
         [MaxLength(255)]
         public string? Description { get; set; }
