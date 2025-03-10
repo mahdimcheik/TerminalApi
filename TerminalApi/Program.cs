@@ -186,6 +186,15 @@ namespace TerminalApi
             services.AddScoped<FakerService>();
             services.AddScoped<SseConnectionManager>();
             services.AddScoped<PdfService>();
+
+            // logger
+            services.AddLogging(loggingBuilder =>
+            {
+                loggingBuilder.ClearProviders();
+                loggingBuilder.AddConsole();
+                loggingBuilder.AddDebug();
+            });
+
             services.Configure<RazorViewEngineOptions>(options =>
             {
                 options.ViewLocationFormats.Add("/TemplatesInvoice/{0}" + RazorViewEngine.ViewExtension);

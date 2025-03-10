@@ -1,7 +1,9 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 using Stripe;
 using Stripe.V2;
+using TerminalApi.Utilities;
 
 namespace TerminalApi.Controllers
 {
@@ -10,23 +12,33 @@ namespace TerminalApi.Controllers
     public class WebhookController : ControllerBase
     {
         private readonly IConfiguration _configuration;
+        private readonly ILogger<WebhookController> _logger;
 
-        public WebhookController(IConfiguration configuration)
+        public WebhookController(IConfiguration configuration, ILogger<WebhookController> logger)
         {
             _configuration = configuration;
+            _logger = logger;
         }
 
         [HttpPost]
-        public IActionResult HandleWebhook()
+        public async Task<IActionResult> HandleWebhook()
         {
-            var json = new StreamReader(HttpContext.Request.Body).ReadToEnd();
+            var json = await new StreamReader(HttpContext.Request.Body).ReadToEndAsync();
 
             try
             {
+                Console.WriteLine(" ****************header : " + Request.Headers);
+                Console.WriteLine("fini *********************");
+                var stripeSignature = Request.Headers["Stripe-Signature"];
+                var webhookSecret = EnvironmentVariables.STRIPE_SECRETKEY;
+
+                _logger.LogInformation("Stripe-Signature: {StripeSignature}", stripeSignature);
+                _logger.LogInformation("Webhook Secret: {WebhookSecret}", webhookSecret);
+
                 var stripeEvent = EventUtility.ConstructEvent(
                     json,
-                    Request.Headers["Stripe-Signature"],
-                    _configuration["Stripe:WebhookSecret"]
+                    stripeSignature,
+                    webhookSecret
                 );
 
                 if (stripeEvent.Type == Stripe.EventTypes.CheckoutSessionCompleted)
@@ -39,6 +51,7 @@ namespace TerminalApi.Controllers
             }
             catch (StripeException e)
             {
+                _logger.LogError(e, "Stripe webhook error");
                 return BadRequest($"Stripe webhook error: {e.Message}");
             }
         }
