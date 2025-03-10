@@ -182,6 +182,7 @@ namespace TerminalApi
             services.AddScoped<SlotService>();
             services.AddScoped<BookingService>();
             services.AddScoped<OrderService>();
+            services.AddScoped<PaymentsService>();
             services.AddScoped<FakerService>();
             services.AddScoped<SseConnectionManager>();
             services.AddScoped<PdfService>();
