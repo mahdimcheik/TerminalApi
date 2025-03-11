@@ -1,4 +1,8 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Bogus.Bson;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Primitives;
+using Stripe;
+using Stripe.Checkout;
 using TerminalApi.Contexts;
 using TerminalApi.Models.Payments;
 using TerminalApi.Utilities;
@@ -38,6 +42,64 @@ namespace TerminalApi.Services
             return (true, order);
         }
 
+
+        public async Task<bool> CheckPaymentAndUpdateOrder(string json, StringValues signatureHeader)
+        {
+            try
+            {
+                string endpointSecret = EnvironmentVariables.STRIPE_SECRET_ENDPOINT_TEST ?? "";
+                var stripeEvent = EventUtility.ParseEvent(json);
+
+                stripeEvent = EventUtility.ConstructEvent(json, signatureHeader, endpointSecret);
+
+                if (stripeEvent.Type == "checkout.session.completed")
+                {
+                    var session = stripeEvent.Data.Object as Session;
+
+                    if (session.PaymentStatus == "paid") // Ensure payment is completed
+                    {
+                        if (session.Metadata.TryGetValue("order_id", out string orderId))
+                        {
+                            Console.WriteLine($"Payment Order ID: {orderId}");
+                            // Update the order in your database as PAID
+                        }
+                        if (session.Metadata.TryGetValue("order_number", out string orderNumber))
+                        {
+                            Console.WriteLine($"Payment  number: {orderNumber}");
+                            // Update the order in your database as PAID
+                        }
+                        if (session.Metadata.TryGetValue("booker_id", out string bookerId))
+                        {
+                            Console.WriteLine($"Payment successful for bookerId: {bookerId}");
+                            // Update the order in your database as PAID
+                        }
+                    }
+                }
+                if (stripeEvent.Type == EventTypes.PaymentIntentSucceeded)
+                {
+                    var paymentIntent = stripeEvent.Data.Object as PaymentIntent;
+                    Console.WriteLine("pauments Object " + json);
+                    //Console.WriteLine(
+                    //    "A successful payment for {0} was made.",
+                    //    paymentIntent.Amount
+                    //);
+                    //if (paymentIntent.Metadata.TryGetValue("order_id", out string orderId))
+                    //{
+                    //    Console.WriteLine($"Payment successful for Order ID: {orderId}");
+                    //}
+                }
+                return true;
+            }
+            catch (StripeException e)
+            {
+                Console.WriteLine("Error: {0}", e.Message);
+                return false;
+            }
+            catch (Exception e)
+            {
+                return false;
+            }
+        }
 
     }
 }

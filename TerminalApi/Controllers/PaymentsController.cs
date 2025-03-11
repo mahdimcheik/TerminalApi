@@ -12,7 +12,7 @@ using TerminalApi.Utilities;
 
 namespace TerminalApi.Controllers
 {
-    [Route("api/payments")]
+    [Route("[controller]")]
     [ApiController]
     public class PaymentsController : ControllerBase
     {
@@ -102,6 +102,21 @@ namespace TerminalApi.Controllers
                     new { Message = "Impossible de préparer le paiement", status = 400 }
                 );
             }
+        }
+
+        [HttpPost("webhook")]
+        public async Task<IActionResult> HandleWebHook()
+        {
+            var json = await new StreamReader(HttpContext.Request.Body).ReadToEndAsync();
+            var signatureHeader = Request.Headers["Stripe-Signature"];
+
+            bool result = await paymentsService.CheckPaymentAndUpdateOrder(json, signatureHeader);
+
+            if(result)
+            {
+                return Ok();
+            }
+            return BadRequest();            
         }
     }
 
