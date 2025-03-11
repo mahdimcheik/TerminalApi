@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.CodeAnalysis;
 using Stripe;
 using Stripe.Checkout;
 using TerminalApi.Contexts;
@@ -60,15 +61,27 @@ namespace TerminalApi.Controllers
                                 UnitAmount = (long)(result.order.TotalDiscountedPrice * 100),
                                 ProductData = new SessionLineItemPriceDataProductDataOptions
                                 {
-                                    Name = result.order.OrderNumber
-                                }
+                                    Name = result.order.OrderNumber,
+                                    Description = result.order.OrderNumber,
+                                    Metadata = new Dictionary<string, string>
+                                    {
+                                        { "order_id", "12345" },
+                                    },
+                                },
                             },
-                            Quantity = 1
-                        }
+
+                            Quantity = 1,
+                        },
                     },
                     Mode = "payment",
+                    Metadata = new Dictionary<string, string>
+                    {
+                        { "order_id", result.order.Id.ToString() },
+                        { "order_number", result.order.OrderNumber },
+                        { "booker_id", result.order.Booker.Id },
+                    },
                     SuccessUrl = $"{domain}/success",
-                    CancelUrl = $"{domain}/cancel"
+                    CancelUrl = $"{domain}/cancel",
                 };
 
                 var service = new SessionService();
@@ -79,7 +92,7 @@ namespace TerminalApi.Controllers
                     {
                         Message = "Le paiement est prêt",
                         status = 201,
-                        Data = new { sessionId = session.Id, url = session.Url }
+                        Data = new { sessionId = session.Id, url = session.Url },
                     }
                 );
             }
