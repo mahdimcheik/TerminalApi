@@ -4,6 +4,7 @@ using TerminalApi.Contexts;
 using TerminalApi.Models.Payments;
 using TerminalApi.Models.TVA;
 using TerminalApi.Models.User;
+using TerminalApi.Utilities;
 
 namespace TerminalApi.Services
 {
@@ -72,6 +73,24 @@ namespace TerminalApi.Services
                 order.Booker = user;
                 return order.ToOrderResponseForStudentDTO();
             }
+        }
+
+        public async Task<bool> UpdateOrderStatus(Guid orderId, EnumBookingStatus newStatus)
+        {
+            var order = await context
+               .Orders
+               //.AsSplitQuery()
+               //.AsNoTracking()
+               .FirstOrDefaultAsync(o =>
+                   o.Id == orderId && o.Status == Utilities.EnumBookingStatus.Pending
+               );
+            if(order is null)
+            {
+                return false;
+            }
+            order.Status = newStatus;
+            context.SaveChanges();
+            return true;
         }
 
         public async Task<string> GenerateOrderNumberAsync()

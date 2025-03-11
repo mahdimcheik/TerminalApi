@@ -7,6 +7,7 @@ using Stripe;
 using Stripe.Checkout;
 using TerminalApi.Contexts;
 using TerminalApi.Models;
+using TerminalApi.Models.Payments;
 using TerminalApi.Services;
 using TerminalApi.Utilities;
 

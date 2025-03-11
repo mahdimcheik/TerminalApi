@@ -1,4 +1,5 @@
 ﻿using Bogus.Bson;
+using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Primitives;
 using Stripe;
@@ -12,10 +13,12 @@ namespace TerminalApi.Services
     public class PaymentsService
     {
         private readonly ApiDefaultContext context;
+        private readonly OrderService orderService;
 
-        public PaymentsService(ApiDefaultContext context)
+        public PaymentsService(ApiDefaultContext context, OrderService orderService)
         {
             this.context = context;
+            this.orderService = orderService;
         }
 
         public async Task<(bool isValid, Order? order)> Checkorder(Guid orderId, string userId)
@@ -58,37 +61,48 @@ namespace TerminalApi.Services
 
                     if (session.PaymentStatus == "paid") // Ensure payment is completed
                     {
+                        (string? bookerId, string? orderId, string? orderNumber) orderIds;
                         if (session.Metadata.TryGetValue("order_id", out string orderId))
                         {
                             Console.WriteLine($"Payment Order ID: {orderId}");
+                            orderIds.orderId = orderId;
                             // Update the order in your database as PAID
                         }
                         if (session.Metadata.TryGetValue("order_number", out string orderNumber))
                         {
                             Console.WriteLine($"Payment  number: {orderNumber}");
+                            orderIds.orderNumber = orderNumber;
                             // Update the order in your database as PAID
                         }
                         if (session.Metadata.TryGetValue("booker_id", out string bookerId))
                         {
                             Console.WriteLine($"Payment successful for bookerId: {bookerId}");
+                            orderIds.bookerId = bookerId;
                             // Update the order in your database as PAID
                         }
+
+                        if(orderId is not null)
+                        {
+                            return  await orderService.UpdateOrderStatus(Guid.Parse(orderId), EnumBookingStatus.Paid);
+                            
+                        }
                     }
+                    return false;
                 }
-                if (stripeEvent.Type == EventTypes.PaymentIntentSucceeded)
-                {
-                    var paymentIntent = stripeEvent.Data.Object as PaymentIntent;
-                    Console.WriteLine("pauments Object " + json);
-                    //Console.WriteLine(
-                    //    "A successful payment for {0} was made.",
-                    //    paymentIntent.Amount
-                    //);
-                    //if (paymentIntent.Metadata.TryGetValue("order_id", out string orderId))
-                    //{
-                    //    Console.WriteLine($"Payment successful for Order ID: {orderId}");
-                    //}
-                }
-                return true;
+                //if (stripeEvent.Type == EventTypes.PaymentIntentSucceeded)
+                //{
+                //    var paymentIntent = stripeEvent.Data.Object as PaymentIntent;
+                //    Console.WriteLine("pauments Object " + json);
+                //    //Console.WriteLine(
+                //    //    "A successful payment for {0} was made.",
+                //    //    paymentIntent.Amount
+                //    //);
+                //    //if (paymentIntent.Metadata.TryGetValue("order_id", out string orderId))
+                //    //{
+                //    //    Console.WriteLine($"Payment successful for Order ID: {orderId}");
+                //    //}
+                //}
+                return false;
             }
             catch (StripeException e)
             {
