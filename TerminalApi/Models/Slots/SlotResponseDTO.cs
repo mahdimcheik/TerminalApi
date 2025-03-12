@@ -27,5 +27,6 @@ namespace TerminalApi.Models.Slots
         public string? Subject { get; set; }
         public string? Description { get; set; }
         public EnumTypeHelp? TypeHelp { get; set; }
+        public EnumBookingStatus? Status { get; set; }
     }
 }

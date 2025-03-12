@@ -16,7 +16,8 @@ namespace TerminalApi.Models.Payments
         [Column(TypeName = "timestamp with time zone")]
         public DateTimeOffset? PaymentDate { get; set; }
         [Column(TypeName = "timestamp with time zone")]
-        public DateTimeOffset? CreatedAt { get; set; }
+        public DateTimeOffset? CreatedAt { get; set; } = DateTimeOffset.UtcNow;
+        public DateTimeOffset? UpdatedAt { get; set; } = DateTimeOffset.UtcNow;
         public EnumBookingStatus Status { get; set; }
         public string PaymentMethod { get; set; }
         public ICollection<Booking> Bookings { get; set; }

@@ -116,6 +116,7 @@ namespace TerminalApi.Services
                 .AsNoTracking()
                 .Include(x => x.Booking)
                 .ThenInclude(y => y.Booker)
+                .Include(a => a.Booking.Order )
                 
                 .Where(ad =>
                     (

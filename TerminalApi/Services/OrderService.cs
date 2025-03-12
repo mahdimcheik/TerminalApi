@@ -67,6 +67,7 @@ namespace TerminalApi.Services
                     BookerId = user.Id,
                     Status = Utilities.EnumBookingStatus.Pending,
                     CreatedAt = DateTimeOffset.Now,
+                    UpdatedAt = DateTimeOffset.Now,
                     PaymentMethod = "card"
                 };
                 newOrder.OrderNumber = await GenerateOrderNumberAsync();
@@ -79,6 +80,7 @@ namespace TerminalApi.Services
             else
             {
                 order.Booker = user;
+                order.UpdatedAt = DateTimeOffset.Now;
                 return order.ToOrderResponseForStudentDTO();
             }
         }
@@ -98,6 +100,7 @@ namespace TerminalApi.Services
             }
             order.Status = newStatus;
             order.PaymentIntent = paymentIntent;
+            order.UpdatedAt = DateTimeOffset.Now;
             context.SaveChanges();
             return true;
         }

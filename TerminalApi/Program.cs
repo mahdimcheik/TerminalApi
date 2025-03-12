@@ -1,14 +1,16 @@
+using System.Data;
+using System.IdentityModel.Tokens.Jwt;
+using System.Reflection;
+using System.Security.Claims;
+using System.Text;
+using Hangfire;
+using Hangfire.PostgreSql;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc.Razor;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
-using System.Data;
-using System.IdentityModel.Tokens.Jwt;
-using System.Reflection;
-using System.Security.Claims;
-using System.Text;
 using TerminalApi.Contexts;
 using TerminalApi.Models.Role;
 using TerminalApi.Models.User;
@@ -27,8 +29,23 @@ namespace TerminalApi
             ConfigureServices(services);
 
             var app = builder.Build();
-
             ConfigureMiddlewarePipeline(app);
+
+
+            // hangfire
+            using (var scope = app.Services.CreateScope())
+            {
+                var context = scope.ServiceProvider.GetRequiredService<ApiDefaultContext>();
+                JobChron jobChron = new JobChron(context);
+                
+                RecurringJob.AddOrUpdate(
+                    "my-recurring-job",
+                    () =>  jobChron.CleanOrders(),
+                    Cron.Minutely
+                );
+            }
+
+           
 
             app.Run();
         }
@@ -197,7 +214,9 @@ namespace TerminalApi
 
             services.Configure<RazorViewEngineOptions>(options =>
             {
-                options.ViewLocationFormats.Add("/TemplatesInvoice/{0}" + RazorViewEngine.ViewExtension);
+                options.ViewLocationFormats.Add(
+                    "/TemplatesInvoice/{0}" + RazorViewEngine.ViewExtension
+                );
             });
             services.AddTransient<PdfService>();
 
@@ -213,21 +232,39 @@ namespace TerminalApi
 
             services.AddDbContext<ApiDefaultContext>(options =>
             {
-
                 //options.UseSqlite("Data Source = d:\\terminal.db;");
-                string POSTGRES_CONNECTION_STRING = "Server={0};Port={1};Database={2};User Id={3};Password={4}";
+                string POSTGRES_CONNECTION_STRING =
+                    "Server={0};Port={1};Database={2};User Id={3};Password={4}";
                 //options.UseNpgsql("Host=localhost;Port=5432;Database=leprojet;Username=postgres;Password=beecoming;");
-                options.UseNpgsql("Host=localhost;Port=8081;Database=base;Username=postgres;Password=mahdimcheik;");
+                options.UseNpgsql(
+                    "Host=localhost;Port=8081;Database=base;Username=postgres;Password=mahdimcheik;"
+                );
 
                 //options.UseNpgsql(
                 //            string.Format(POSTGRES_CONNECTION_STRING, EnvironmentVariables.DB_HOST ,EnvironmentVariables.DB_PORT, EnvironmentVariables.DB_NAME, EnvironmentVariables.DB_USER, EnvironmentVariables.DB_PASSWORD));
-
             });
 
             services.Configure<DataProtectionTokenProviderOptions>(options =>
             {
                 options.TokenLifespan = TimeSpan.FromHours(24);
             });
+
+            // hangfire
+            services.AddHangfire(configuration =>
+                configuration
+                    .SetDataCompatibilityLevel(CompatibilityLevel.Version_180)
+                    .UseSimpleAssemblyNameTypeSerializer()
+                    .UseRecommendedSerializerSettings()
+                    .UsePostgreSqlStorage(
+                        (options) =>
+                        {
+                            options.UseNpgsqlConnection(
+                                "Host=localhost;Port=8081;Database=base;Username=postgres;Password=mahdimcheik;"
+                            );
+                        }
+                    )
+            );
+            services.AddHangfireServer();
 
             ConfigureCors(services);
             ConfigureControllers(services);
@@ -324,7 +361,10 @@ namespace TerminalApi
                 c.SwaggerEndpoint("/swagger/v1/swagger.json", "data_lib v1");
                 c.RoutePrefix = "swagger";
             });
+            // hangfire
+            app.UseHangfireDashboard("/hangfire");
 
+            //backgroundJobs.Enqueue(() => Console.WriteLine("Hello world from Hangfire!"));
 
             // Enable routing.
             app.UseRouting();
@@ -341,20 +381,20 @@ namespace TerminalApi
             // Map controllers.
             app.MapControllers();
             app.Use(
-async (context, next) =>
-{
-    if (context.Request.ContentLength > 200_000_000)
-    {
-        context.Response.StatusCode = StatusCodes.Status413PayloadTooLarge;
-        await context.Response.WriteAsync("Payload Too Large");
-        return;
-    }
+                async (context, next) =>
+                {
+                    if (context.Request.ContentLength > 200_000_000)
+                    {
+                        context.Response.StatusCode = StatusCodes.Status413PayloadTooLarge;
+                        await context.Response.WriteAsync("Payload Too Large");
+                        return;
+                    }
 
-    await next.Invoke();
-}
-);
-
+                    await next.Invoke();
+                }
+            );
         }
+
         private static async Task<string> GenerateAccessTokenAsync(string email)
         {
             var securityKey = new SymmetricSecurityKey(
@@ -365,10 +405,7 @@ async (context, next) =>
                 algorithm: SecurityAlgorithms.HmacSha256
             );
 
-            var authClaims = new List<Claim>
-            {
-                new Claim(type: ClaimTypes.Email, value: email),
-            };
+            var authClaims = new List<Claim> { new Claim(type: ClaimTypes.Email, value: email), };
 
             var token = new JwtSecurityToken(
                 issuer: EnvironmentVariables.API_BACK_URL,
@@ -377,7 +414,6 @@ async (context, next) =>
                 expires: DateTime.Now.AddDays(1),
                 signingCredentials: credentials
             );
-
 
             return new JwtSecurityTokenHandler().WriteToken(token);
         }
