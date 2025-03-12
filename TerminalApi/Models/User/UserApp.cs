@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Identity;
 using TerminalApi.Models.Adresse;
 using TerminalApi.Models.Bookings;
 using TerminalApi.Models.Formations;
+using TerminalApi.Models.Notification;
 using TerminalApi.Models.Slots;
 using TerminalApi.Utilities;
 
@@ -101,6 +102,11 @@ namespace TerminalApi.Models.User
         public bool EmailConfirmed { get; set; } = false;
         public ICollection<string>? Roles { get; set; }
 
+        public ICollection<Address>? Adresses { get; set; }
+        public ICollection<Slot>? Slots { get; set; }
+        public ICollection<Booking>? Bookings { get; set; }
+        public ICollection<Formation>? Formations { get; set; }
+        public ICollection<Notification.Notification>? Notifications { get; set; }
 
     }
 

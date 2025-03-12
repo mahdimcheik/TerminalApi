@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using TerminalApi.Contexts;
@@ -11,9 +12,11 @@ using TerminalApi.Contexts;
 namespace TerminalApi.Migrations
 {
     [DbContext(typeof(ApiDefaultContext))]
-    partial class ApiDefaultContextModelSnapshot : ModelSnapshot
+    [Migration("20250312225724_create_notification_table")]
+    partial class create_notification_table
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -461,9 +464,9 @@ namespace TerminalApi.Migrations
                     b.HasData(
                         new
                         {
-                            Id = new Guid("fc289aaf-72a3-4e1e-895e-167e00f6e15b"),
+                            Id = new Guid("44d9e251-7b34-491c-9184-d5069ba32077"),
                             Rate = 0.2m,
-                            StartAt = new DateTime(2025, 3, 12, 23, 1, 29, 635, DateTimeKind.Utc).AddTicks(1905)
+                            StartAt = new DateTime(2025, 3, 12, 22, 57, 24, 333, DateTimeKind.Utc).AddTicks(9759)
                         });
                 });
 

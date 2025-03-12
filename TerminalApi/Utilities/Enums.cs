@@ -25,4 +25,32 @@
         Exams = 1,
         Homework = 2
     }
+    public enum EnumNotificationType
+    {
+        // Account related
+        AccountConfirmed = 0,
+        PasswordChanged = 1,
+        AccountCreated = 2,
+
+        // Reservation related
+        ReservationAccepted = 10,
+        ReservationRejected = 11,
+        ReservationCancelled = 12,
+        ReservationReminder = 13,
+
+        // Payment related
+        PaymentAccepted = 20,
+        PaymentFailed = 21,
+        RefundProcessed = 22,
+
+        // Teacher/Student interaction
+        MessageReceived = 30,
+        ReviewReceived = 31,
+        NewAnnouncement = 32,
+
+        // General notifications
+        SystemUpdate = 40,
+        PromotionOffer = 41,
+        GeneralReminder = 42,
+    }
 }

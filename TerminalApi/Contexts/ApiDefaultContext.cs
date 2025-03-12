@@ -1,10 +1,10 @@
 ﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
-using System.Security.Cryptography;
 using TerminalApi.Models.Adresse;
 using TerminalApi.Models.Bookings;
 using TerminalApi.Models.Formations;
 using TerminalApi.Models.Layout;
+using TerminalApi.Models.Notification;
 using TerminalApi.Models.Payments;
 using TerminalApi.Models.Role;
 using TerminalApi.Models.Slots;
@@ -70,7 +70,7 @@ namespace TerminalApi.Contexts
 
         protected override void ConfigureConventions(ModelConfigurationBuilder configurationBuilder)
         {
-           configurationBuilder.Properties<DateTimeOffset>().HaveConversion<CustomDateTimeConversion>();
+            configurationBuilder.Properties<DateTimeOffset>().HaveConversion<CustomDateTimeConversion>();
             base.ConfigureConventions(configurationBuilder);
         }
         // Override SaveChangesAsync
@@ -99,6 +99,8 @@ namespace TerminalApi.Contexts
         public DbSet<Formation> Formations { get; set; }
         public DbSet<Layout> Layouts { get; set; }
         public DbSet<TVARate> TVARates { get; set; }
+        public DbSet<Notification> Notifications { get; set; }
+
     }
 
 }
