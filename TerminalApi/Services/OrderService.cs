@@ -41,16 +41,24 @@ namespace TerminalApi.Services
             UserApp user
         )
         {
+            Order? order;
             //Stopwatch stopwatch = Stopwatch.StartNew();
-            var order = await context
+            try
+            {
+
+            order = await context
                 .Orders
                 .AsSplitQuery()
-                .AsNoTracking()
                 .Include(x => x.Bookings)
                 .ThenInclude(x => x.Slot)
                 .FirstOrDefaultAsync(o =>
                     o.BookerId == user.Id && o.Status == Utilities.EnumBookingStatus.Pending
                 );
+            }
+            catch(Exception e)
+            {
+                throw new Exception(e.Message);
+            }
             //Console.WriteLine("Times : " + stopwatch.ElapsedMilliseconds + "ms" );
             if (order == null)
             {

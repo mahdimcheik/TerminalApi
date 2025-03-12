@@ -83,11 +83,6 @@ namespace TerminalApi.Services
                             // Update the order in your database as PAID
                         }
 
-                        if(session.PaymentIntentId is not null)
-                        {
-                            return false ;
-                        }
-
                         if(orderId is not null && session.PaymentIntentId is not null)
                         {
                             return  await orderService.UpdateOrderStatus(Guid.Parse(orderId), EnumBookingStatus.Paid, session.PaymentIntentId);
