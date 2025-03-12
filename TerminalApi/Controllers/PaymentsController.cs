@@ -1,4 +1,5 @@
 ﻿using System.Linq.Expressions;
+using System.Security.Cryptography.Xml;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -110,6 +111,7 @@ namespace TerminalApi.Controllers
         {
             var json = await new StreamReader(HttpContext.Request.Body).ReadToEndAsync();
             var signatureHeader = Request.Headers["Stripe-Signature"];
+            Console.WriteLine("json : " + json +  "        signature " + signatureHeader);
 
             bool result = await paymentsService.CheckPaymentAndUpdateOrder(json, signatureHeader);
 

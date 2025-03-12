@@ -26,6 +26,8 @@ namespace TerminalApi.Models.Payments
         [Precision(18, 2)]
         public decimal TVARate { get; set; }
 
+        public string? PaymentIntent { get; set; }
+
         // Calculated fields
         [JsonIgnore]
         [NotMapped]

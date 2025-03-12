@@ -75,7 +75,7 @@ namespace TerminalApi.Services
             }
         }
 
-        public async Task<bool> UpdateOrderStatus(Guid orderId, EnumBookingStatus newStatus)
+        public async Task<bool> UpdateOrderStatus(Guid orderId, EnumBookingStatus newStatus, string paymentIntent)
         {
             var order = await context
                .Orders
@@ -89,6 +89,7 @@ namespace TerminalApi.Services
                 return false;
             }
             order.Status = newStatus;
+            order.PaymentIntent = paymentIntent;
             context.SaveChanges();
             return true;
         }

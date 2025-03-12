@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Primitives;
+using Microsoft.IdentityModel.Tokens;
 using Stripe;
 using Stripe.Checkout;
 using TerminalApi.Contexts;
@@ -58,6 +59,7 @@ namespace TerminalApi.Services
                 if (stripeEvent.Type == "checkout.session.completed")
                 {
                     var session = stripeEvent.Data.Object as Session;
+                    Console.WriteLine("********** {0} ********", json);
 
                     if (session.PaymentStatus == "paid") // Ensure payment is completed
                     {
@@ -81,9 +83,14 @@ namespace TerminalApi.Services
                             // Update the order in your database as PAID
                         }
 
-                        if(orderId is not null)
+                        if(session.PaymentIntentId is not null)
                         {
-                            return  await orderService.UpdateOrderStatus(Guid.Parse(orderId), EnumBookingStatus.Paid);
+                            return false ;
+                        }
+
+                        if(orderId is not null && session.PaymentIntentId is not null)
+                        {
+                            return  await orderService.UpdateOrderStatus(Guid.Parse(orderId), EnumBookingStatus.Paid, session.PaymentIntentId);
                             
                         }
                     }
