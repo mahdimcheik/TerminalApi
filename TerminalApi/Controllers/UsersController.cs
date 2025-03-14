@@ -561,6 +561,7 @@ namespace TerminalApi.Controllers
                         new ResponseDTO { Message = "L'utilisateur n'existe pas", Status = 404 }
                     );
                 // var decodedToken = HttpUtility.UrlDecode(model.ResetToken);
+                user.RefreshToken = Guid.NewGuid().ToString();
                 IdentityResult result = await _userManager.ResetPasswordAsync(
                     user: user,
                     token: model.ResetToken,
