@@ -246,7 +246,7 @@ namespace TerminalApi
 
             services.Configure<DataProtectionTokenProviderOptions>(options =>
             {
-                options.TokenLifespan = TimeSpan.FromHours(24);
+                options.TokenLifespan = TimeSpan.FromHours(1);
             });
 
             // hangfire
