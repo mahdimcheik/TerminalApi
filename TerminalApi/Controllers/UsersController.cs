@@ -453,7 +453,20 @@ namespace TerminalApi.Controllers
             [FromQuery] string userId
         )
         {
-            var user = await _context.Users.FirstOrDefaultAsync(x => x.Id == userId);
+            UserApp? user;
+            if (userId.ToLower().Trim().IsNullOrEmpty())
+            {
+                return BadRequest(new ResponseDTO { Message = "Aucun profil trouvé", Status = 404 });
+            }
+            if(userId.ToLower().Trim() == "teacher")
+            {
+                List<UserApp>? users = (List<UserApp>) await _userManager.GetUsersInRoleAsync("Admin");
+                user = users.FirstOrDefault();
+            }
+            else
+            {
+                user = await _context.Users.FirstOrDefaultAsync(x => x.Id == userId);
+            }
 
             if (user == null)
                 return BadRequest(
@@ -738,14 +751,14 @@ namespace TerminalApi.Controllers
                 return Ok(
                     new ResponseDTO
                     {
-                        Message = "Les utilisateurs",
+                        Message = "Autorisation renouvelée",
                         Data = new RefreshTokenOutput(user, await GenerateAccessTokenAsync(user)),
                         Status = 200
                     }
                 );
             }
 
-            return Redirect("/login");
+            return Redirect("/login");// todo test ?
         }
 
         [HttpGet("all")]
