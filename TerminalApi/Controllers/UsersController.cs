@@ -144,9 +144,8 @@ namespace TerminalApi.Controllers
 
             try
             {
-                // à corriger
                 var confirmationLink = await GenerateAccountConfirmationLink(newUser);
-                await mailService.SendConfirmationEmail(
+                await mailService.ScheduleSendConfirmationEmail(
                     new Models.Mail.Mail
                     {
                         MailBody = confirmationLink,
@@ -510,7 +509,7 @@ namespace TerminalApi.Controllers
                             + resetToken;
 
                         // Tentative d'envoi de l'e-mail pour la regénération du mot de passe
-                        await mailService.SendResetEmail(
+                        await mailService.ScheduleSendResetEmail(
                             new Models.Mail.Mail
                             {
                                 MailSubject = "Mail de réinitialisation",

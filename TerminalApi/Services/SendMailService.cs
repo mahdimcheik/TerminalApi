@@ -1,10 +1,11 @@
-using RazorLight;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Net.Mail;
 using System.Threading.Tasks;
+using Hangfire;
+using RazorLight;
 using TerminalApi.Models.Mail;
 using TerminalApi.Services.Templates;
 using TerminalApi.Utilities;
@@ -15,14 +16,16 @@ namespace TerminalApi.Services
     {
         private readonly IRazorLightEngine _razorLightEngine;
         private readonly IWebHostEnvironment _env;
+
         public SendMailService(IWebHostEnvironment env)
         {
             _env = env;
             _razorLightEngine = new RazorLightEngineBuilder()
-    .UseFileSystemProject(Path.Combine(_env.WebRootPath, "TemplatesInvoice"))
-    .UseMemoryCachingProvider()
-    .Build();
+                .UseFileSystemProject(Path.Combine(_env.WebRootPath, "TemplatesInvoice"))
+                .UseMemoryCachingProvider()
+                .Build();
         }
+
         public async Task SendEmail(Mail mail)
         {
             var smtpClient = new SmtpClient(EnvironmentVariables.SMTP_HostAddress)
@@ -40,76 +43,58 @@ namespace TerminalApi.Services
                 From = new MailAddress("ne-pas-repondre@dls.fr"),
                 Subject = mail.MailSubject,
                 Body = mail.MailBody,
-                IsBodyHtml = true, 
+                IsBodyHtml = true,
             };
 
             mailMessage.To.Add(mail.MailTo);
 
             await smtpClient.SendMailAsync(mailMessage);
         }
-
+        /// <summary>
+        /// Cette méthode sert à envoyer un email de confirmation de mail.
+        /// C'est une version asynchrone
+        /// </summary>
+        /// <param name="mail"></param>
+        /// <param name="link"></param>
+        /// <returns></returns>
         public async Task SendConfirmationEmail(Mail mail, string link)
         {
             mail.MailFrom = EnvironmentVariables.DO_NO_REPLY_MAIL;
             await SendEmail(mail, link, "ValidationEmailTemplate.cshtml");
-            //var smtpClient = new SmtpClient(EnvironmentVariables.SMTP_HostAddress)
-            //{
-            //    Port = EnvironmentVariables.SMTP_Port, 
-            //    Credentials = new NetworkCredential(
-            //        EnvironmentVariables.SMTP_EmailFrom,
-            //        EnvironmentVariables.SMTP_Password
-            //    ),
-            //    EnableSsl = true 
-            //};
-            //string templatePath = "ValidationMailTemplate.cshtml"; // Name of your template file
-            //var model = new ValidationMailTemplateViewModel(link, link);
-            //string htmlContent = await _razorLightEngine.CompileRenderAsync(templatePath, model);
-            ////var mailBody = EmailTemplates.ConfirmeMail.Replace(@"{{link}}", link);
-            //var mailBody = htmlContent;
-            //var mailMessage = new MailMessage
-            //{
-            //    From = new MailAddress("ne-pas-repondre@dls.fr"),
-            //    Subject = mail.MailSubject,
-            //    Body = mailBody,
-            //    IsBodyHtml = true, 
-            //};
-
-            //mailMessage.To.Add(mail.MailTo);
-            //await smtpClient.SendMailAsync(mailMessage);
+        }
+        /// <summary>
+        /// Cette méthode sert à envoyer un email de confirmation de mail.
+        /// En utilisant hangfire, l'envoi du mail sera executé dnas un backgorund Job.
+        /// </summary>
+        /// <param name="mail"></param>
+        /// <param name="link"></param>
+        /// <returns></returns>
+        public async Task ScheduleSendConfirmationEmail(Mail mail, string link)
+        {
+            await Task.Delay(10);
+            BackgroundJob.Enqueue(() => SendConfirmationEmail(mail, link));
         }
 
         public async Task SendResetEmail(Mail mail, string link)
         {
             mail.MailFrom = EnvironmentVariables.DO_NO_REPLY_MAIL;
             await SendEmail(mail, link, "PasswordResetTemplate.cshtml");
-            //var smtpClient = new SmtpClient(EnvironmentVariables.SMTP_HostAddress)
-            //{
-            //    Port = EnvironmentVariables.SMTP_Port, 
-            //    Credentials = new NetworkCredential(
-            //        EnvironmentVariables.SMTP_EmailFrom,
-            //        EnvironmentVariables.SMTP_Password
-            //    ),
-            //    EnableSsl = true
-            //};
-            ////var mailBody = EmailTemplates.ResetPassword.Replace(@"{{link}}", link);
-            //string templatePath = "ValidationPasswordTemplate.cshtml"; // Name of your template file
-            //var model = new ValidationMailTemplateViewModel(link, link);
-            //string htmlContent = await _razorLightEngine.CompileRenderAsync(templatePath, model);
-            ////var mailBody = EmailTemplates.ConfirmeMail.Replace(@"{{link}}", link);
-            //var mailBody = htmlContent;
-
-            //var mailMessage = new MailMessage
-            //{                
-            //    From = new MailAddress("ne-pas-repondre@dls.fr"),
-            //    Subject = mail.MailSubject,
-            //    Body = mailBody,
-            //    IsBodyHtml = true, 
-            //};
-
-            //mailMessage.To.Add(mail.MailTo);
-
-            //await smtpClient.SendMailAsync(mailMessage);
         }
+
+        public async Task ScheduleSendResetEmail(Mail mail, string link)
+        {
+            await Task.Delay(10);
+            BackgroundJob.Enqueue(() => SendResetEmail(mail, link));
+        }
+
+
+        /// <summary>
+        /// Méthode générale d'envoi de mail 
+        /// </summary>
+        /// <param name="mail"></param>
+        /// <param name="link"></param>
+        /// <param name="templateName"></param>
+        /// <returns></returns>
         private async Task SendEmail(Mail mail, string link, string templateName)
         {
             var smtpClient = new SmtpClient(EnvironmentVariables.SMTP_HostAddress)
@@ -121,7 +106,7 @@ namespace TerminalApi.Services
                 ),
                 EnableSsl = true
             };
-            string templatePath = templateName; 
+            string templatePath = templateName;
             var model = new ValidationMailTemplateViewModel(link, link);
             string htmlContent = await _razorLightEngine.CompileRenderAsync(templatePath, model);
             var mailBody = htmlContent;

@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Hangfire;
+using Microsoft.EntityFrameworkCore;
 using System.Threading.Tasks.Dataflow;
 using TerminalApi.Contexts;
 using TerminalApi.Utilities;
@@ -12,6 +13,11 @@ namespace TerminalApi.Services
         public JobChron(ApiDefaultContext context)
         {
             _context = context;
+            RecurringJob.AddOrUpdate(
+                    "my-recurring-job",
+                    () => CleanOrders(),
+                    Cron.Hourly
+                );
         }
 
         public async Task CleanOrders()

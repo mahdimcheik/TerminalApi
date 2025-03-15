@@ -33,17 +33,17 @@ namespace TerminalApi
 
 
             // hangfire
-            using (var scope = app.Services.CreateScope())
-            {
-                var context = scope.ServiceProvider.GetRequiredService<ApiDefaultContext>();
-                JobChron jobChron = new JobChron(context);
+            //using (var scope = app.Services.CreateScope())
+            //{
+            //    var context = scope.ServiceProvider.GetRequiredService<ApiDefaultContext>();
+            //    JobChron jobChron = new JobChron(context);
                 
-                RecurringJob.AddOrUpdate(
-                    "my-recurring-job",
-                    () =>  jobChron.CleanOrders(),
-                    Cron.Minutely
-                );
-            }
+            //    RecurringJob.AddOrUpdate(
+            //        "my-recurring-job",
+            //        () =>  jobChron.CleanOrders(),
+            //        Cron.Minutely
+            //    );
+            //}
 
            
 
@@ -203,6 +203,7 @@ namespace TerminalApi
             services.AddScoped<FakerService>();
             services.AddScoped<SseConnectionManager>();
             services.AddScoped<PdfService>();
+            services.AddScoped<JobChron>();
 
             // logger
             services.AddLogging(loggingBuilder =>
@@ -246,6 +247,7 @@ namespace TerminalApi
 
             services.Configure<DataProtectionTokenProviderOptions>(options =>
             {
+                // timespan pour les les tokens de password rest- email confirmation ....
                 options.TokenLifespan = TimeSpan.FromHours(1);
             });
 
@@ -272,66 +274,6 @@ namespace TerminalApi
             ConfigureIdentity(services);
             ConfigureAuthentication(services);
         }
-
-        private static void ConfigureMiddlewarePipeline_backup(WebApplication app)
-        {
-            // Configure localization for supported cultures.
-            var supportedCultures = new string[] { "fr-FR" };
-            app.UseRequestLocalization(options =>
-                options
-                    .AddSupportedCultures(supportedCultures)
-                    .AddSupportedUICultures(supportedCultures)
-                    .SetDefaultCulture("fr-FR")
-            );
-            app.UseStaticFiles();
-            // Enable authentication.
-            app.UseAuthentication();
-
-            // Enable developer exception page if in development environment.
-            if (app.Environment.IsDevelopment())
-            {
-                app.UseDeveloperExceptionPage();
-            }
-
-            // Enable Swagger and Swagger UI.
-            app.UseSwagger();
-            app.UseSwaggerUI(c =>
-            {
-                c.SwaggerEndpoint("/swagger/v1/swagger.json", "data_lib v1");
-                c.RoutePrefix = "swagger";
-            });
-
-            // Enable routing.
-            app.UseRouting();
-
-            // Enable Cross-Origin Resource Sharing (CORS).
-            app.UseCors();
-
-            // Enable HTTPS redirection (if needed).
-            app.UseHttpsRedirection();
-
-            // Enable authorization.
-            app.UseAuthorization();
-
-            // Map controllers.
-            app.MapControllers();
-
-            // Check and limit the payload size.
-            app.Use(
-                async (context, next) =>
-                {
-                    if (context.Request.ContentLength > 200_000_000)
-                    {
-                        context.Response.StatusCode = StatusCodes.Status413PayloadTooLarge;
-                        await context.Response.WriteAsync("Payload Too Large");
-                        return;
-                    }
-
-                    await next.Invoke();
-                }
-            );
-        }
-
         private static void ConfigureMiddlewarePipeline(WebApplication app)
         {
             // Configure localization for supported cultures.
@@ -394,29 +336,7 @@ namespace TerminalApi
                 }
             );
         }
-
-        private static async Task<string> GenerateAccessTokenAsync(string email)
-        {
-            var securityKey = new SymmetricSecurityKey(
-                Encoding.UTF8.GetBytes(EnvironmentVariables.JWT_KEY)
-            );
-            var credentials = new SigningCredentials(
-                key: securityKey,
-                algorithm: SecurityAlgorithms.HmacSha256
-            );
-
-            var authClaims = new List<Claim> { new Claim(type: ClaimTypes.Email, value: email), };
-
-            var token = new JwtSecurityToken(
-                issuer: EnvironmentVariables.API_BACK_URL,
-                audience: EnvironmentVariables.API_BACK_URL,
-                claims: authClaims,
-                expires: DateTime.Now.AddDays(1),
-                signingCredentials: credentials
-            );
-
-            return new JwtSecurityTokenHandler().WriteToken(token);
-        }
+       
     }
 }
 

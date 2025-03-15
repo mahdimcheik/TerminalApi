@@ -5,6 +5,9 @@ using System.Threading.Tasks;
 
 namespace TerminalApi.Models.Mail
 {
+    /// <summary>
+    /// Class minimaliste, contient les variables nécessaires à l'envoi de mail
+    /// </summary>
     public class Mail
     {
         public string MailTo { get; set; }
