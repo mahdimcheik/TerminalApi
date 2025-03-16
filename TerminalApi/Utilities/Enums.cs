@@ -56,4 +56,10 @@
         PromotionOffer = 41,
         GeneralReminder = 42,
     }
+    public enum EnumEventSSEType
+    {
+        UpdateNotifications = 0,
+        UpdateCurrentOrder = 1,
+        ConnectionSuccess = 2
+    }
 }

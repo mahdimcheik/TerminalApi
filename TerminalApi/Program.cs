@@ -201,7 +201,7 @@ namespace TerminalApi
             services.AddScoped<OrderService>();
             services.AddScoped<PaymentsService>();
             services.AddScoped<FakerService>();
-            services.AddScoped<SseConnectionManager>();
+            services.AddSingleton<SseConnectionManager>();
             services.AddScoped<PdfService>();
             services.AddScoped<JobChron>();
             services.AddScoped<NotificationService>();
