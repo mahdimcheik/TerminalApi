@@ -30,13 +30,15 @@
         // Account related
         AccountConfirmed = 0,
         PasswordChanged = 1,
-        AccountCreated = 2,
+        AccountUpdated = 2,
+        PasswordResetDemandAccepted = 3,
 
         // Reservation related
         ReservationAccepted = 10,
         ReservationRejected = 11,
         ReservationCancelled = 12,
         ReservationReminder = 13,
+        NewReservation = 14,
 
         // Payment related
         PaymentAccepted = 20,

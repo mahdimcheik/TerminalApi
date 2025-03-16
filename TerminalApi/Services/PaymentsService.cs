@@ -6,7 +6,9 @@ using Microsoft.IdentityModel.Tokens;
 using Stripe;
 using Stripe.Checkout;
 using TerminalApi.Contexts;
+using TerminalApi.Models.Notification;
 using TerminalApi.Models.Payments;
+using TerminalApi.Models.User;
 using TerminalApi.Utilities;
 
 namespace TerminalApi.Services
@@ -15,18 +17,23 @@ namespace TerminalApi.Services
     {
         private readonly ApiDefaultContext context;
         private readonly OrderService orderService;
+        private readonly NotificationService notificationService;
 
-        public PaymentsService(ApiDefaultContext context, OrderService orderService)
+        public PaymentsService(
+            ApiDefaultContext context,
+            OrderService orderService,
+            NotificationService notificationService
+        )
         {
             this.context = context;
             this.orderService = orderService;
+            this.notificationService = notificationService;
         }
 
         public async Task<(bool isValid, Order? order)> Checkorder(Guid orderId, string userId)
         {
-
-            var order = await context.Orders
-                .Include(o => o.Booker)
+            var order = await context
+                .Orders.Include(o => o.Booker)
                 .Include(o => o.Bookings)
                 .ThenInclude(b => b.Slot)
                 .FirstOrDefaultAsync(o => o.Id == orderId);
@@ -46,8 +53,10 @@ namespace TerminalApi.Services
             return (true, order);
         }
 
-
-        public async Task<bool> CheckPaymentAndUpdateOrder(string json, StringValues signatureHeader)
+        public async Task<bool> CheckPaymentAndUpdateOrder(
+            string json,
+            StringValues signatureHeader
+        )
         {
             try
             {
@@ -83,27 +92,59 @@ namespace TerminalApi.Services
                             // Update the order in your database as PAID
                         }
 
-                        if(orderId is not null && session.PaymentIntentId is not null)
+                        if (orderId is not null && session.PaymentIntentId is not null)
                         {
-                            return  await orderService.UpdateOrderStatus(Guid.Parse(orderId), EnumBookingStatus.Paid, session.PaymentIntentId);
-                            
+                            Guid orderGuid = Guid.Parse(orderId);
+                            Order? newOrder = await context
+                                .Orders.Where(x => x.Id == orderGuid)
+                                .Include(x => x.Booker)
+                                .FirstOrDefaultAsync();
+
+
+                            if (
+                                newOrder is not null
+                                && newOrder.Status != EnumBookingStatus.Paid
+                            )
+                            {
+                                // paiement accepté
+                                await notificationService.AddNotification(
+                                    new Notification
+                                    {
+                                        Id = Guid.NewGuid(),
+                                        RecipientId = newOrder.Booker.Id,
+                                        Type = EnumNotificationType.PaymentAccepted
+                                    }
+                                );
+                                // réservation enregistrée
+                                await notificationService.AddNotification(
+                                    new Notification
+                                    {
+                                        Id = Guid.NewGuid(),
+                                        RecipientId = newOrder.Booker.Id,
+                                        Type = EnumNotificationType.ReservationAccepted
+                                    }
+                                );
+                                // avertir le prof
+                                await notificationService.AddNotification(
+                                    new Notification
+                                    {
+                                        Id = Guid.NewGuid(),                                        
+                                        SenderId = newOrder.Booker.Id,
+                                        RecipientId = EnvironmentVariables.TEACHER_ID,
+                                        Type = EnumNotificationType.NewReservation
+                                    }
+                                );
+
+                                return await orderService.UpdateOrderStatus(
+                                    orderGuid,
+                                    EnumBookingStatus.Paid,
+                                    session.PaymentIntentId
+                                );
+                            }
                         }
                     }
                     return false;
                 }
-                //if (stripeEvent.Type == EventTypes.PaymentIntentSucceeded)
-                //{
-                //    var paymentIntent = stripeEvent.Data.Object as PaymentIntent;
-                //    Console.WriteLine("pauments Object " + json);
-                //    //Console.WriteLine(
-                //    //    "A successful payment for {0} was made.",
-                //    //    paymentIntent.Amount
-                //    //);
-                //    //if (paymentIntent.Metadata.TryGetValue("order_id", out string orderId))
-                //    //{
-                //    //    Console.WriteLine($"Payment successful for Order ID: {orderId}");
-                //    //}
-                //}
                 return false;
             }
             catch (StripeException e)
@@ -116,6 +157,5 @@ namespace TerminalApi.Services
                 return false;
             }
         }
-
     }
 }

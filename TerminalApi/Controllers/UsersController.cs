@@ -209,8 +209,8 @@ namespace TerminalApi.Controllers
 
             model.ToUser(user);
             using var transaction = await _context.Database.BeginTransactionAsync();
-            try            {
-                
+            try
+            {
                 await _context.SaveChangesAsync();
                 await notificationService.AddNotification(
                     new Notification
@@ -218,7 +218,7 @@ namespace TerminalApi.Controllers
                         Id = Guid.NewGuid(),
                         RecipientId = user.Id,
                         SenderId = user.Id,
-                        Type = EnumNotificationType.SystemUpdate
+                        Type = EnumNotificationType.AccountUpdated
                     }
                 );
                 await transaction.CommitAsync();
@@ -290,9 +290,9 @@ namespace TerminalApi.Controllers
             if (user.RefreshToken == null) // a new refresh token has to be saved
             {
                 user.RefreshToken = Guid.NewGuid().ToString();
-        }
+            }
 
-        user.LastLogginAt = DateTime.Now;
+            user.LastLogginAt = DateTime.Now;
             await _context.SaveChangesAsync();
             // to allow cookies sent from the front end
             HttpContext.Response.Headers.Add(
@@ -472,11 +472,14 @@ namespace TerminalApi.Controllers
             UserApp? user;
             if (userId.ToLower().Trim().IsNullOrEmpty())
             {
-                return BadRequest(new ResponseDTO { Message = "Aucun profil trouvé", Status = 404 });
+                return BadRequest(
+                    new ResponseDTO { Message = "Aucun profil trouvé", Status = 404 }
+                );
             }
-            if(userId.ToLower().Trim() == "teacher")
+            if (userId.ToLower().Trim() == "teacher")
             {
-                List<UserApp>? users = (List<UserApp>) await _userManager.GetUsersInRoleAsync("Admin");
+                List<UserApp>? users =
+                    (List<UserApp>)await _userManager.GetUsersInRoleAsync("Admin");
                 user = users.FirstOrDefault();
             }
             else
@@ -533,6 +536,15 @@ namespace TerminalApi.Controllers
                                 MailTo = user.Email,
                             },
                             resetLink
+                        );
+                        await notificationService.AddNotification(
+                            new Notification
+                            {
+                                Id = Guid.NewGuid(),
+                                RecipientId = user.Id,
+                                SenderId = user.Id,
+                                Type = EnumNotificationType.PasswordResetDemandAccepted
+                            }
                         );
 
                         return Ok(
@@ -600,7 +612,15 @@ namespace TerminalApi.Controllers
                 if (result.Succeeded)
                 {
                     await _context.SaveChangesAsync();
-
+                    await notificationService.AddNotification(
+                        new Notification
+                        {
+                            Id = Guid.NewGuid(),
+                            RecipientId = user.Id,
+                            SenderId = user.Id,
+                            Type = EnumNotificationType.PasswordChanged
+                        }
+                    );
                     return Ok(
                         new ResponseDTO
                         {
@@ -774,7 +794,7 @@ namespace TerminalApi.Controllers
                 );
             }
 
-            return Redirect("/login");// todo test ?
+            return Redirect("/login"); // todo test ?
         }
 
         [HttpGet("all")]

@@ -40,7 +40,7 @@ namespace TerminalApi.Controllers
                     new ResponseDTO
                     {
                         Status = StatusCodes.Status404NotFound,
-                        Message = "Notification non-ajoutée"
+                        Message = $"Notification non-ajoutée {e.Message} "
                     }
                 );
             }
@@ -71,7 +71,7 @@ namespace TerminalApi.Controllers
                     new ResponseDTO
                     {
                         Status = StatusCodes.Status404NotFound,
-                        Message = "Notifications non-trouvées"
+                        Message = $"Notifications non-trouvées {e.Message}"
                     }
                 );
             }

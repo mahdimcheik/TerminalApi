@@ -85,7 +85,8 @@ namespace TerminalApi.Services
             return type switch
             {
                 EnumNotificationType.AccountConfirmed => "Votre compte vient d'être confirmé",
-                EnumNotificationType.AccountCreated => "Votre compte vient d'être créé",
+                EnumNotificationType.AccountUpdated => "Votre compte vient d'être mis à jour",
+                EnumNotificationType.PasswordResetDemandAccepted => "Un email de réinitialisation de mot de passe vient d'être envoyé",
                 EnumNotificationType.NewAnnouncement => "Nouvelle annonce / Offres",
                 EnumNotificationType.MessageReceived => "Vous avez reçu un message",
                 EnumNotificationType.GeneralReminder => "Rappel: vous avez un rendez-vous aujourd'hui",
@@ -95,6 +96,7 @@ namespace TerminalApi.Services
                 EnumNotificationType.PromotionOffer => "Offre promotionnelle",
                 EnumNotificationType.RefundProcessed => "Votre remboursement a été traité, le montant demandé sera versé prochainement",
                 EnumNotificationType.ReservationAccepted => "Votre réservation a été acceptée",
+                EnumNotificationType.NewReservation => "Vous venez de recevoir une nouvelle commande",
                 EnumNotificationType.ReservationCancelled => "Votre réservation a été annulée",
                 EnumNotificationType.ReservationRejected => "Votre réservation a été rejetée",
                 EnumNotificationType.ReservationReminder => "Rappel: vous avez un rendez-vous aujourd'hui",
