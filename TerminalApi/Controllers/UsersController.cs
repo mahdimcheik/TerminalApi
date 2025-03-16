@@ -13,6 +13,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using TerminalApi.Contexts;
 using TerminalApi.Models;
+using TerminalApi.Models.Notification;
 using TerminalApi.Models.Role;
 using TerminalApi.Models.User;
 using TerminalApi.Services;
@@ -35,6 +36,9 @@ namespace TerminalApi.Controllers
         private readonly IWebHostEnvironment _env;
         private readonly FakerService fakerService;
         private readonly SignInManager<UserApp> signInManager;
+        private readonly NotificationService notificationService;
+
+        public object NotificationType { get; private set; }
 
         public UsersController(
             ApiDefaultContext context,
@@ -43,7 +47,8 @@ namespace TerminalApi.Controllers
             SendMailService mailService,
             IWebHostEnvironment env,
             FakerService fakerService,
-            SignInManager<UserApp> signInManager
+            SignInManager<UserApp> signInManager,
+            NotificationService notificationService
         )
         {
             this._context = context;
@@ -53,6 +58,7 @@ namespace TerminalApi.Controllers
             this._env = env;
             this.fakerService = fakerService;
             this.signInManager = signInManager;
+            this.notificationService = notificationService;
         }
 
         #endregion
@@ -202,13 +208,24 @@ namespace TerminalApi.Controllers
             }
 
             model.ToUser(user);
-
-            try
-            {
+            using var transaction = await _context.Database.BeginTransactionAsync();
+            try            {
+                
                 await _context.SaveChangesAsync();
+                await notificationService.AddNotification(
+                    new Notification
+                    {
+                        Id = Guid.NewGuid(),
+                        RecipientId = user.Id,
+                        SenderId = user.Id,
+                        Type = EnumNotificationType.SystemUpdate
+                    }
+                );
+                await transaction.CommitAsync();
             }
             catch (Exception ex)
             {
+                await transaction.RollbackAsync();
                 return BadRequest(new ResponseDTO { Status = 401, Message = ex.Message });
             }
 
@@ -277,7 +294,7 @@ namespace TerminalApi.Controllers
 
         user.LastLogginAt = DateTime.Now;
             await _context.SaveChangesAsync();
-
+            // to allow cookies sent from the front end
             HttpContext.Response.Headers.Add(
                 key: "Access-Control-Allow-Credentials",
                 value: "true"

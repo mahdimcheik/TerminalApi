@@ -22,11 +22,16 @@ namespace TerminalApi.Models.Notification
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
         [ForeignKey(nameof(Sender))]
+
         public string? SenderId { get; set; }
+        [InverseProperty("NotificationsCreated")]
+
         public UserApp? Sender { get; set; }
 
         [ForeignKey(nameof(Recipient))]
         public string? RecipientId { get; set; }
+        [InverseProperty("NotificationsRecieved")]
+
         public UserApp? Recipient { get; set; }
 
         [ForeignKey(nameof(Booking))]

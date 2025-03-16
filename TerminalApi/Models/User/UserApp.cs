@@ -42,6 +42,8 @@ namespace TerminalApi.Models.User
         public ICollection<Slot>? Slots { get; set; }
         public ICollection<Booking>? Bookings { get; set; }
         public ICollection<Formation>? Formations { get; set; }
+        public ICollection<Notification.Notification>? NotificationsRecieved { get; set; }
+        public ICollection<Notification.Notification>? NotificationsCreated { get; set; }
     }
     public class RefreshTokenOutput
     {

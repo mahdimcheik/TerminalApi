@@ -204,6 +204,7 @@ namespace TerminalApi
             services.AddScoped<SseConnectionManager>();
             services.AddScoped<PdfService>();
             services.AddScoped<JobChron>();
+            services.AddScoped<NotificationService>();
 
             // logger
             services.AddLogging(loggingBuilder =>
