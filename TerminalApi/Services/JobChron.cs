@@ -1,7 +1,8 @@
-﻿using Hangfire;
+﻿using System.Threading.Tasks.Dataflow;
+using Hangfire;
 using Microsoft.EntityFrameworkCore;
-using System.Threading.Tasks.Dataflow;
 using TerminalApi.Contexts;
+using TerminalApi.Models.Notification;
 using TerminalApi.Utilities;
 
 namespace TerminalApi.Services
@@ -9,15 +10,13 @@ namespace TerminalApi.Services
     public class JobChron
     {
         private readonly ApiDefaultContext _context;
+        private readonly NotificationService notificationService;
 
-        public JobChron(ApiDefaultContext context)
+        public JobChron(ApiDefaultContext context, NotificationService notificationService)
         {
             _context = context;
-            RecurringJob.AddOrUpdate(
-                    "my-recurring-job",
-                    () => CleanOrders(),
-                    Cron.Hourly
-                );
+            this.notificationService = notificationService;
+            RecurringJob.AddOrUpdate("clean-database-orders", () => CleanOrders(), "*/2 * * * *");
         }
 
         public async Task CleanOrders()
@@ -26,9 +25,13 @@ namespace TerminalApi.Services
             {
                 var orders = _context
                     .Orders.Where(x =>
-                        x.Status != EnumBookingStatus.Paid
-                        && (x.UpdatedAt == null || x.UpdatedAt < DateTimeOffset.UtcNow.AddMinutes(-5))
-                    ).Include(x => x.Bookings)
+                        x.Status == EnumBookingStatus.Pending
+                        && (
+                            x.UpdatedAt == null
+                            || x.UpdatedAt < DateTimeOffset.UtcNow.AddMinutes(-2)
+                        )
+                    )
+                    .Include(x => x.Bookings)
                     .ToList();
                 foreach (var order in orders)
                 {
@@ -39,7 +42,16 @@ namespace TerminalApi.Services
                     }
 
                     _context.RemoveRange(order.Bookings);
-                    
+
+                    await notificationService.AddNotification(
+                        new Notification
+                        {
+                            Id = Guid.NewGuid(),
+                            SenderId = EnvironmentVariables.TEACHER_ID,
+                            RecipientId = order.BookerId,
+                            Type = EnumNotificationType.ReservationCancelledTimeOut
+                        }
+                    );
                 }
                 await _context.SaveChangesAsync();
             }

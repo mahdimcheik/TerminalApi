@@ -98,6 +98,7 @@ namespace TerminalApi.Services
                 EnumNotificationType.ReservationAccepted => "Votre réservation a été acceptée",
                 EnumNotificationType.NewReservation => "Vous venez de recevoir une nouvelle commande",
                 EnumNotificationType.ReservationCancelled => "Votre réservation a été annulée",
+                EnumNotificationType.ReservationCancelledTimeOut => "Votre réservation a été annulée pour abscence de paiement",
                 EnumNotificationType.ReservationRejected => "Votre réservation a été rejetée",
                 EnumNotificationType.ReservationReminder => "Rappel: vous avez un rendez-vous aujourd'hui",
                 EnumNotificationType.ReviewReceived => "Vous avez reçu un avis",

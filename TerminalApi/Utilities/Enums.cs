@@ -37,8 +37,9 @@
         ReservationAccepted = 10,
         ReservationRejected = 11,
         ReservationCancelled = 12,
-        ReservationReminder = 13,
-        NewReservation = 14,
+        ReservationCancelledTimeOut = 13,
+        ReservationReminder = 14,
+        NewReservation = 15,
 
         // Payment related
         PaymentAccepted = 20,
