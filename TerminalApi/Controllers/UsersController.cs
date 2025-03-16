@@ -273,9 +273,9 @@ namespace TerminalApi.Controllers
             if (user.RefreshToken == null) // a new refresh token has to be saved
             {
                 user.RefreshToken = Guid.NewGuid().ToString();
-            }
+        }
 
-            user.LastLogginAt = DateTime.Now;
+        user.LastLogginAt = DateTime.Now;
             await _context.SaveChangesAsync();
 
             HttpContext.Response.Headers.Add(

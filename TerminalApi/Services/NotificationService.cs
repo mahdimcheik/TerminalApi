@@ -1,9 +1,8 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
-using PuppeteerSharp;
 using TerminalApi.Contexts;
 using TerminalApi.Models.Notification;
-using TerminalApi.Models.Payments;
+using TerminalApi.Utilities;
 
 namespace TerminalApi.Services
 {
@@ -16,7 +15,10 @@ namespace TerminalApi.Services
             this.context = context;
         }
 
-        public async Task<Notification> AddNotification(Notification notification)
+        public async Task<NotificationResponseDTO> AddNotification(
+            Notification notification,
+            string? customDescription = null
+        )
         {
             if (notification is null)
             {
@@ -74,9 +76,77 @@ namespace TerminalApi.Services
                     }
                 }
 
+                // Composer la déscription de la notification
+
+                if (customDescription is null)
+                {
+                    switch (notification.Type)
+                    {
+                        case EnumNotificationType.AccountConfirmed:
+                            notification.Description = "Votre compte vient d'être confirmé";
+                            break;
+                        case EnumNotificationType.AccountCreated:
+                            notification.Description = "Votre compte vient d'être créé";
+                            break;
+                        case EnumNotificationType.NewAnnouncement:
+                            notification.Description = "Nouvelle annonce / Offres";
+                            break;
+                        case EnumNotificationType.MessageReceived:
+                            notification.Description = "Vous avez reçu un message";
+                            break;
+                        case EnumNotificationType.GeneralReminder:
+                            notification.Description =
+                                "Rappel: vous avez un rendez-vous aujourd'hui";
+                            break;
+                        case EnumNotificationType.PasswordChanged:
+                            notification.Description = "Votre mot de passe a été modifié";
+                            break;
+                        case EnumNotificationType.PaymentAccepted:
+                            notification.Description = "Votre paiement a été accepté";
+                            break;
+                        case EnumNotificationType.PaymentFailed:
+                            notification.Description = "Votre paiement a échoué";
+                            break;
+                        case EnumNotificationType.PromotionOffer:
+                            notification.Description = "Offre promotionnelle";
+                            break;
+                        case EnumNotificationType.RefundProcessed:
+                            notification.Description =
+                                "Votre remboursement a été traité, le montantd emandé sera versé prochainement ";
+                            break;
+                        case EnumNotificationType.ReservationAccepted:
+                            notification.Description = "Votre réservation a été acceptée";
+                            break;
+                        case EnumNotificationType.ReservationCancelled:
+                            notification.Description = "Votre réservation a été annulée";
+                            break;
+                        case EnumNotificationType.ReservationRejected:
+                            notification.Description = "Votre réservation a été rejetée";
+                            break;
+                        case EnumNotificationType.ReservationReminder:
+                            notification.Description =
+                                "Rappel: vous avez un rendez-vous aujourd'hui";
+                            break;
+                        case EnumNotificationType.ReviewReceived:
+                            notification.Description = "Vous avez reçu un avis";
+                            break;
+                        case EnumNotificationType.SystemUpdate:
+                            notification.Description =
+                                "Mise à jour du système prérvu le : 21/04/1986";
+                            break;
+                        default:
+                            notification.Description = "Nouvelle notification";
+                            break;
+                    }
+                }
+                else
+                {
+                    notification.Description = customDescription;
+                }
+
                 context.Notifications.Add(notification);
                 await context.SaveChangesAsync();
-                return notification;
+                return notification.ToRespsonseDTO();
             }
             catch (Exception e)
             {
@@ -126,10 +196,12 @@ namespace TerminalApi.Services
             }
         }
 
-        public async Task<PaginatedResult<Notification>> GetNotifications(string userId, NotificationFilter filter)
+        public async Task<PaginatedNotificationResult<NotificationResponseDTO>> GetNotifications(
+            string userId,
+            NotificationFilter filter
+        )
         {
-            var query = context.Notifications
-                .Where(n => n.RecipientId == userId);
+            var query = context.Notifications.Where(n => n.RecipientId == userId);
 
             if (filter.IsRead.HasValue)
             {
@@ -144,26 +216,13 @@ namespace TerminalApi.Services
                 .Take(filter.PerPage)
                 .ToListAsync();
 
-            return new PaginatedResult<Notification>
+            return new PaginatedNotificationResult<NotificationResponseDTO>
             {
-                Items = notifications,
+                Items = notifications.Select(x => x.ToRespsonseDTO()).ToList(),
                 TotalItems = totalItems,
                 offset = filter.Offset,
                 PerPage = filter.PerPage
             };
         }
-    }
-    public class NotificationFilter
-    {
-        public bool? IsRead { get; set; }
-        public int Offset { get; set; } = 0;
-        public int PerPage { get; set; } = 10;
-    }
-    public class PaginatedResult<T>
-    {
-        public List<T> Items { get; set; }
-        public int TotalItems { get; set; }
-        public int offset { get; set; }
-        public int PerPage { get; set; }
     }
 }
