@@ -99,7 +99,7 @@ namespace TerminalApi.Controllers
                     }
                 );
             }
-            catch (Exception ex)
+            catch
             {
                 return BadRequest(
                     new { Message = "Impossible de préparer le paiement", status = 400 }

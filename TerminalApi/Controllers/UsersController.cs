@@ -38,8 +38,6 @@ namespace TerminalApi.Controllers
         private readonly SignInManager<UserApp> signInManager;
         private readonly NotificationService notificationService;
 
-        public object NotificationType { get; private set; }
-
         public UsersController(
             ApiDefaultContext context,
             UserManager<UserApp> userManager,
@@ -156,9 +154,9 @@ namespace TerminalApi.Controllers
                     {
                         MailBody = confirmationLink,
                         MailSubject = "Mail de confirmation",
-                        MailTo = newUser.Email,
+                        MailTo = newUser.Email ?? "mahdi.mcheik@hotmail.fr",
                     },
-                    confirmationLink
+                    confirmationLink ?? ""
                 );
 
                 // Retourne une réponse avec le statut déterminé, l'identifiant de l'utilisateur, le message de réponse et le statut complet
@@ -176,12 +174,11 @@ namespace TerminalApi.Controllers
             {
                 // En cas d'exception, afficher la trace et retourner une réponse avec le statut approprié
                 Console.WriteLine(e);
-                return BadRequest(
+                return Conflict(
                     new ResponseDTO { Status = 400, Message = "Le compte n'est pas créé!!!" }
                 );
             }
 
-            return Conflict(new ResponseDTO { Status = 404, Message = "Le compte n'est pas créé" });
         }
 
         [EnableCors]
@@ -399,7 +396,7 @@ namespace TerminalApi.Controllers
             [FromQuery] string confirmationToken
         )
         {
-            UserApp user = await _userManager.FindByIdAsync(userId);
+            UserApp? user = await _userManager.FindByIdAsync(userId);
             if (user is null)
             {
                 return BadRequest(new ResponseDTO { Message = "Validation échouée", Status = 400 });

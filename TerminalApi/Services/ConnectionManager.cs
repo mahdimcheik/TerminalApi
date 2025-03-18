@@ -57,7 +57,7 @@ namespace TerminalApi.Services
                     await Response.Body.WriteAsync(messageBytes, 0, messageBytes.Length, cancellationToken);
 
                     await Response.Body.FlushAsync(cancellationToken);
-                    await Task.Delay(5000);
+                    await Task.Delay(1000);
                 }
             }
             catch

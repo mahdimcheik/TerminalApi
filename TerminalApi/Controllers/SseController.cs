@@ -1,5 +1,7 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.IdentityModel.Tokens;
+using System.Security.Claims;
 using System.Text;
 using TerminalApi.Models;
 using TerminalApi.Services;
@@ -11,30 +13,64 @@ namespace TerminalApi.Controllers
     [ApiController]
     public class SseController : ControllerBase
     {
-        private readonly SseConnectionManager _connectionManager;
+        private readonly SseService _sseService;
 
-        public SseController(SseConnectionManager connectionManager)
-        {           
-             _connectionManager = connectionManager;
+        public SseController(SseService sseService)
+        {
+            _sseService = sseService;
         }
 
-        [HttpGet("{userId}")]
-        public async Task SseEndpoint([FromRoute] string userId, CancellationToken cancellationToken)
+        [HttpGet("{email}/{token}")]
+        public async Task Get(string email,string token, CancellationToken cancellationToken)
         {
-            var toto = userId;
-            await _connectionManager.Subscribe(Response,userId, cancellationToken,  HttpContext);
+            if(email is null || email.IsNullOrEmpty() || token.IsNullOrEmpty())
+            {
+                return;
+            }
+
+            try
+            {
+
+                var principal = UtilitiesUser.GetPrincipalFromToken(token);
+                
+                var userEmail = principal
+                    ?.Claims.FirstOrDefault(x => x.Type == ClaimTypes.Email)
+                    ?.Value?.ToLower();
+                if(userEmail.IsNullOrEmpty() || userEmail != email )
+                {
+                    return;
+                }
+
+            }
+            catch { return; }
+
+            Response.ContentType = "text/event-stream";
+            Response.Headers.Append("Cache-Control", "no-cache");
+            Response.Headers.Append("Connection", "keep-alive");
+
+            var reader = _sseService.ConnectUser(email, token);
+             
+            await using var writer = new StreamWriter(Response.Body, Encoding.UTF8, leaveOpen: true);
+
+            try
+            {
+                await foreach (var message in reader.ReadAllAsync(cancellationToken))
+                {
+                    await writer.WriteAsync($"data: {message}\n\n");
+                    await writer.FlushAsync();
+                }
+            }
+            finally
+            {
+                _sseService.DisconnectUser(email, token);
+            }
         }
 
-        [HttpPost("notify/{clientId}/{type:int}")]
-        public async Task SendMessageToClient(string clientId, EnumEventSSEType type, CancellationToken cancellationToken, [FromBody] object? message)
+        [HttpPost("notify/{userId}")]
+        public async Task<IActionResult> SendMessage(string userId, [FromBody] string message)
         {
-            var res = await _connectionManager.NotifyUserById(clientId, type, message, cancellationToken);
-        }
-
-        [HttpPost("notify-all/{type:int}")]
-        public async Task BroadcastMessage(EnumEventSSEType type, [FromBody] object? message, CancellationToken cancellationToken )
-        {
-            await _connectionManager.NotifyAllUsers( type, message, cancellationToken);
+            await _sseService.SendMessageToUserAsync(userId, message);
+            return Ok($"Message sent to {userId}");
         }
     }
 
