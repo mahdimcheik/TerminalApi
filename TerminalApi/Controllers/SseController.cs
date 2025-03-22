@@ -48,7 +48,7 @@ namespace TerminalApi.Controllers
             Response.Headers.Append("Cache-Control", "no-cache");
             Response.Headers.Append("Connection", "keep-alive");
 
-            var reader = _sseService.ConnectUser(email, token);
+            var reader = _sseService.ConnectUser(email);
              
             await using var writer = new StreamWriter(Response.Body, Encoding.UTF8, leaveOpen: true);
 
@@ -62,7 +62,7 @@ namespace TerminalApi.Controllers
             }
             finally
             {
-                _sseService.DisconnectUser(email, token);
+                _sseService.DisconnectUser(email);
             }
         }
 
@@ -71,6 +71,12 @@ namespace TerminalApi.Controllers
         {
             await _sseService.SendMessageToUserAsync(userId, message);
             return Ok($"Message sent to {userId}");
+        }
+        [HttpPost("notifyAll")]
+        public async Task<IActionResult> SendMessageToall([FromBody] string message)
+        {
+            await _sseService.SendMessageToAllAsync(message);
+            return Ok($"Message sent");
         }
     }
 

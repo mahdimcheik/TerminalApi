@@ -5,37 +5,34 @@ namespace TerminalApi.Services
 {
     public class SseService
     {
-        private readonly ConcurrentDictionary<string, ConcurrentDictionary< string,Channel<string>>> _userChannels = new();
+        private readonly ConcurrentDictionary<string, Channel<string>> _userChannels = new();
 
-        public ChannelReader<string> ConnectUser(string email, string token)
+        public ChannelReader<string> ConnectUser(string email)
         {
-
+            _userChannels.TryRemove(email, out _);
             var channel = Channel.CreateUnbounded<string>();
-            var channelList = _userChannels.GetOrAdd(email, _ => new ());
-            channelList.TryRemove(token, out _);
-            channelList.TryAdd(token, channel);
+            var channelList = _userChannels.TryAdd(email,channel);
             return channel.Reader;
         }
 
-        public void DisconnectUser(string email,string token)
-        {
-            var channelList = _userChannels.GetOrAdd(email, _ => new());
-            if(channelList is not null)
-            {
-                channelList.TryRemove(token, out _);
-            }
-            
-        } 
+        public void DisconnectUser(string email)
+        {      
+            _userChannels.TryRemove(email, out _);
+        }
 
-        public async Task SendMessageToUserAsync(string userId, string message)
+        public async Task SendMessageToUserAsync(string email, string message)
         {
-            if (_userChannels.TryGetValue(userId, out var channel))
+            if (_userChannels.TryGetValue(email, out var channel))
             {
-                foreach (var userChannel in channel)
-                {
-                    //await channel.TryGetValue(userChannel, out channel).Writer.WriteAsync(message);
-                    await userChannel.Value.Writer.WriteAsync(message);
-                }
+                    await channel.Writer.WriteAsync(message);                
+            }
+        }
+
+        public async Task SendMessageToAllAsync(string message)
+        {
+            foreach (var channel in _userChannels)
+            {
+                await channel.Value.Writer.WriteAsync(message);
             }
         }
     }
