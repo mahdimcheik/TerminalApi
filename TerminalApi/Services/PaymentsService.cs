@@ -18,16 +18,19 @@ namespace TerminalApi.Services
         private readonly ApiDefaultContext context;
         private readonly OrderService orderService;
         private readonly NotificationService notificationService;
+        private readonly SseService sseConnectionManager;
 
         public PaymentsService(
             ApiDefaultContext context,
             OrderService orderService,
-            NotificationService notificationService
+            NotificationService notificationService,  
+            SseService sseConnectionManager
         )
         {
             this.context = context;
             this.orderService = orderService;
             this.notificationService = notificationService;
+            this.sseConnectionManager = sseConnectionManager;
         }
 
         public async Task<(bool isValid, Order? order)> Checkorder(Guid orderId, string userId)
@@ -115,6 +118,7 @@ namespace TerminalApi.Services
                                         Type = EnumNotificationType.PaymentAccepted
                                     }
                                 );
+                                await sseConnectionManager.SendMessageToUserAsync(newOrder.Booker.Id, "Test after payment");
                                 // réservation enregistrée
                                 await notificationService.AddNotification(
                                     new Notification

@@ -4,6 +4,7 @@ using TerminalApi.Models.User;
 using TerminalApi.Models;
 using Microsoft.EntityFrameworkCore;
 using TerminalApi.Models.Payments;
+using TerminalApi.Models.Notification;
 
 namespace TerminalApi.Services
 {
@@ -12,12 +13,16 @@ namespace TerminalApi.Services
         private readonly SlotService slotService;
         private readonly ApiDefaultContext context;
         private readonly OrderService orderService;
+        private readonly SseService sseService;
+        private readonly NotificationService notificationService;
 
-        public BookingService(SlotService slotService, ApiDefaultContext context, OrderService orderService)
+        public BookingService(SlotService slotService, ApiDefaultContext context, OrderService orderService, SseService sseService, NotificationService notificationService)
         {
             this.slotService = slotService;
             this.context = context;
             this.orderService = orderService;
+            this.sseService = sseService;
+            this.notificationService = notificationService;
         }
 
         public async Task<bool> BookSlot(BookingCreateDTO newBookingCreateDTO, UserApp booker)
@@ -43,6 +48,15 @@ namespace TerminalApi.Services
             {
                 var res = await context.Bookings.AddAsync(newBooking);
                 await context.SaveChangesAsync();
+                var notification = new Notification
+                {
+                    RecipientId = booker.Id,
+                    Type = Utilities.EnumNotificationType.ReservationAccepted
+                };
+               var notificationDb =   await notificationService.AddNotification(notification);
+
+                var message = System.Text.Json.JsonSerializer.Serialize(notificationDb);
+                await sseService.SendMessageToUserAsync(booker.Email, message);
                 return true;
             }
             catch (Exception ex)

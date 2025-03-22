@@ -66,11 +66,11 @@ namespace TerminalApi.Controllers
             }
         }
 
-        [HttpPost("notify/{userId}")]
-        public async Task<IActionResult> SendMessage(string userId, [FromBody] string message)
+        [HttpPost("notify/{email}")]
+        public async Task<IActionResult> SendMessage(string email, [FromBody] string message)
         {
-            await _sseService.SendMessageToUserAsync(userId, message);
-            return Ok($"Message sent to {userId}");
+            await _sseService.SendMessageToUserAsync(email, message);
+            return Ok($"Message sent to {email}");
         }
         [HttpPost("notifyAll")]
         public async Task<IActionResult> SendMessageToall([FromBody] string message)
