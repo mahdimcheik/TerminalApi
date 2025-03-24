@@ -19,6 +19,13 @@ namespace TerminalApi.Controllers
         [HttpGet]
         public async Task<IActionResult> Get([FromQuery] string orderId)
         {
+            Console.WriteLine(orderId);
+            await pdfService.GeneratePdfAsync(orderId);
+            return Ok();
+        }
+        [HttpGet("testing")]
+        public async Task<IActionResult> GetTest([FromQuery] string orderId)
+        {
             await pdfService.GeneratePdfAsync(orderId);
             return Ok();
         }

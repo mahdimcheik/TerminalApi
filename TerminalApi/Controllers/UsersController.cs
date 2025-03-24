@@ -919,6 +919,7 @@ namespace TerminalApi.Controllers
             var properties = new AuthenticationProperties { RedirectUri = redirectUrl };
             return Challenge(properties, "Google");
         }
+
     }
 
     public class TokenResponse
