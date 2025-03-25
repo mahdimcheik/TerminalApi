@@ -2,6 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using System.ComponentModel;
 using TerminalApi.Contexts;
+using TerminalApi.Models;
 using TerminalApi.Models.User;
 using TerminalApi.Utilities;
 
@@ -23,10 +24,31 @@ namespace TerminalApi.Services
             return await context.Users.FirstOrDefaultAsync(x => x.Id  == EnvironmentVariables.TEACHER_ID);
         }
 
-        public async Task<List<UserResponseDTO>> GetAllStudentsDTO()
+        public async Task<ResponseDTO> GetAllStudentsDTO(QueryPagination query)
         {
-            var students = await _userManager.GetUsersInRoleAsync("Student");
-            return students.Select(x => x.ToUserResponseDTO()).ToList();
+            var querySql = context.Users.Where(x => x.EmailConfirmed && x.Id != HardCode.TeacherId);
+
+            var count = await querySql.CountAsync();
+
+            if(query is null)
+            {
+                return new ResponseDTO
+                {
+                    Message = "Demande acceptée",
+                    Count = count,
+                    Data = querySql.Skip( 0).Take( 10).ToList()
+                };
+            }
+
+            querySql = querySql.Skip(query?.Start ?? 0).Take(query?.PerPage ?? 10);
+
+            var result = await  querySql.ToListAsync();
+            return new ResponseDTO
+            {
+                Message = "Demande acceptée",
+                Count = count,
+                Data = result
+            };
         }
     }
 }

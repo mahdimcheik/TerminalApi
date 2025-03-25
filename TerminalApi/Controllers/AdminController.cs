@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using TerminalApi.Models;
 using TerminalApi.Models.User;
 using TerminalApi.Services;
 
@@ -17,10 +18,10 @@ namespace TerminalApi.Controllers
             this.userService = userService;
         }
 
-        [HttpGet("all-students")]
-        public async Task<IActionResult> GetAllStudents()
+        [HttpPost("all-students")]
+        public async Task<IActionResult> GetAllStudents([FromBody] QueryPagination query)
         {
-            var students = await userService.GetAllStudentsDTO();
+            var students = await userService.GetAllStudentsDTO( query);
             return Ok(students);
         }
     }

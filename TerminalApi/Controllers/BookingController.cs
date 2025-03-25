@@ -54,11 +54,7 @@ namespace TerminalApi.Controllers
                 return BadRequest(new ResponseDTO { Status = 400, Message = ex.Message });
             }
         }
-
-        private ActionResult<ResponseDTO> BadRequest(ResponseDTO responseDTO)
-        {
-            throw new NotImplementedException();
-        }
+    
 
         [HttpDelete("unbook")]
         [Authorize(Roles = "Admin")]
