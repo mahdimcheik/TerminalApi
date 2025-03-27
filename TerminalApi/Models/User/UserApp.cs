@@ -145,6 +145,7 @@ namespace TerminalApi.Models.User
         public string? PhoneNumber { get; set; }
         [Column(TypeName = "Text")]
         public string? Description { get; set; }
+        public string? ImgUrl { get; set; } = @"https://upload.wikimedia.org/wikipedia/commons/thumb/1/12/User_icon_2.svg/1200px-User_icon_2.svg.png";
         public string? Title { get; set; }
         [Required]
         public EnumGender Gender { get; set; } = EnumGender.Autre;

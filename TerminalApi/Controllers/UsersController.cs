@@ -815,14 +815,27 @@ namespace TerminalApi.Controllers
 
         [HttpGet("seed")]
         [AllowAnonymous]
-        public ActionResult SeedUsers()
+        public async Task<ActionResult> SeedUsers()
         {
-            var users = fakerService
+            var usersDTO = fakerService
                 .GenerateUserCreateDTO()
                 .Generate(500)
-                .Select(x => x.ToUser())
+                //.Select(x => x.ToUser())
                 .ToList();
-            _context.Users.AddRange(users);
+            var users = usersDTO.Select(x => x.ToUser()).ToList();
+            //_context.Users.AddRange(users);
+            for (int i = 0;i< 500;i++)
+            {
+                IdentityResult result = await _userManager.CreateAsync(users[i], usersDTO[i].Password);
+
+                // Tenter d'ajouter l'utilisateur aux rôles spécifiés dans le modèle
+                IdentityResult roleResult = await _userManager.AddToRolesAsync(
+                    user: users[i],
+                    roles: ["Student"]
+                );
+            }
+
+
             _context.SaveChanges();
             return Ok(users.Take(10));
         }
