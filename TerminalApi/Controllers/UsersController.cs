@@ -37,6 +37,7 @@ namespace TerminalApi.Controllers
         private readonly FakerService fakerService;
         private readonly SignInManager<UserApp> signInManager;
         private readonly NotificationService notificationService;
+        private readonly AuthService authService;
 
         public UsersController(
             ApiDefaultContext context,
@@ -46,7 +47,8 @@ namespace TerminalApi.Controllers
             IWebHostEnvironment env,
             FakerService fakerService,
             SignInManager<UserApp> signInManager,
-            NotificationService notificationService
+            NotificationService notificationService,
+            AuthService authService
         )
         {
             this._context = context;
@@ -57,6 +59,7 @@ namespace TerminalApi.Controllers
             this.fakerService = fakerService;
             this.signInManager = signInManager;
             this.notificationService = notificationService;
+            this.authService = authService;
         }
 
         #endregion
@@ -85,100 +88,13 @@ namespace TerminalApi.Controllers
                 );
             }
 
-            // Initialiser la chaîne de réponse
-            string ResponseContent = string.Empty;
+            var response = await authService.Register(model);
 
-            // Appeler une fonction asynchrone pour vérifier si l'adresse e-mail est déjà utilisée
-            bool isEmailAlreadyUsed = await IsEmailAlreadyUsedAsync(model.Email);
-
-            // Vérifier si l'adresse e-mail est déjà utilisée
-            if (isEmailAlreadyUsed)
+            if(response.Status == 200 || response.Status == 201)
             {
-                // Si l'adresse e-mail est déjà utilisée, mettre à jour la réponse et sauter vers l'étiquette UserAlreadyExisted
-                ResponseContent = "L'adresse email est déjà utilisée";
-                return Conflict(
-                    new ResponseDTO { Status = 404, Message = "\"L'email est déjà utilisé\"" }
-                );
+                return Ok(response);
             }
-
-            // Utiliser le mot de passe fourni ou générer un mot de passe aléatoire
-            bool isPasswordNull = model.Password == null;
-
-            // Créer un nouvel utilisateur en utilisant les données du modèle et la base de données contextuelle
-            UserApp newUser = model.ToUser();
-            newUser.CreatedAt = DateTime.Now;
-            newUser.LastModifiedAt = DateTime.Now;
-            newUser.ImgUrl =
-                @"https://upload.wikimedia.org/wikipedia/commons/thumb/1/12/User_icon_2.svg/1200px-User_icon_2.svg.png";
-
-            // Obtenir la date actuelle
-            DateTimeOffset date = DateTimeOffset.Now;
-
-            // Tenter de créer un nouvel utilisateur avec le gestionnaire d'utilisateurs
-            IdentityResult result = await _userManager.CreateAsync(newUser, model.Password);
-
-            // Tenter d'ajouter l'utilisateur aux rôles spécifiés dans le modèle
-            IdentityResult roleResult = await _userManager.AddToRolesAsync(
-                user: newUser,
-                roles: ["Student"]
-            );
-
-            // Vérifier si la création de l'utilisateur a échoué
-            if (!result.Succeeded)
-            {
-                // Si la création a échoué, ajouter les erreurs au modèle d'état pour retourner une réponse BadRequest
-                foreach (var error in result.Errors)
-                {
-                    ModelState.AddModelError(key: string.Empty, errorMessage: error.Description);
-                }
-
-                // Retourner une réponse BadRequest avec le modèle d'état contenant les erreurs
-                return BadRequest(
-                    new ResponseDTO
-                    {
-                        Message = "Création échouée",
-                        Status = 401,
-                        Data = ModelState,
-                    }
-                );
-            }
-
-            // Si tout s'est bien déroulé, enregistrer les changements dans le contexte de base de données
-            await _context.SaveChangesAsync();
-
-            try
-            {
-                var confirmationLink = await GenerateAccountConfirmationLink(newUser);
-                await mailService.ScheduleSendConfirmationEmail(
-                    new Models.Mail.Mail
-                    {
-                        MailBody = confirmationLink,
-                        MailSubject = "Mail de confirmation",
-                        MailTo = newUser.Email ?? "mahdi.mcheik@hotmail.fr",
-                    },
-                    confirmationLink ?? ""
-                );
-
-                // Retourne une réponse avec le statut déterminé, l'identifiant de l'utilisateur, le message de réponse et le statut complet
-                return Ok(
-                    new ResponseDTO
-                    {
-                        Message = "Profil créé",
-                        Status = 200,
-                        Data = newUser.ToUserResponseDTO(),
-                    }
-                );
-                ;
-            }
-            catch (Exception e)
-            {
-                // En cas d'exception, afficher la trace et retourner une réponse avec le statut approprié
-                Console.WriteLine(e);
-                return Conflict(
-                    new ResponseDTO { Status = 400, Message = "Le compte n'est pas créé!!!" }
-                );
-            }
-
+            return BadRequest(response);
         }
 
         [EnableCors]
@@ -234,12 +150,6 @@ namespace TerminalApi.Controllers
                     Data = user.ToUserResponseDTO(),
                 }
             );
-        }
-
-        private async Task<bool> IsEmailAlreadyUsedAsync(string email)
-        {
-            var existingUser = await _userManager.FindByEmailAsync(email);
-            return existingUser != null;
         }
 
         #endregion
@@ -380,8 +290,6 @@ namespace TerminalApi.Controllers
         }
         #endregion
 
-
-
         #region Confirm account
         /// <summary>
         /// Validate a mail address
@@ -414,21 +322,6 @@ namespace TerminalApi.Controllers
             return BadRequest(new ResponseDTO { Message = "Validation échouée", Status = 400 });
         }
         #endregion
-
-        private async Task<string?> GenerateAccountConfirmationLink(UserApp user)
-        {
-            var confirmationToken = await _userManager.GenerateEmailConfirmationTokenAsync(user);
-            confirmationToken = HttpUtility.UrlEncode(confirmationToken);
-
-            var confirmationLink =
-                EnvironmentVariables.API_BACK_URL
-                + "/users/email-confirmation?userId="
-                + user.Id
-                + "&confirmationToken="
-                + confirmationToken;
-
-            return confirmationLink;
-        }
 
         #region CurrentUser informations
         [HttpGet("my-informations")]

@@ -207,6 +207,7 @@ namespace TerminalApi
             services.AddScoped<JobChron>();
             services.AddScoped<NotificationService>();
             services.AddScoped<UsersService>();
+            services.AddScoped<AuthService>();
 
             // logger
             services.AddLogging(loggingBuilder =>
