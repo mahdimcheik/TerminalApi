@@ -64,7 +64,7 @@ namespace TerminalApi.Controllers
 
         #endregion
 
-        #region Post Register
+        #region Register update upload
         /// <summary>
         /// Register a new user
         /// </summary>
@@ -90,7 +90,7 @@ namespace TerminalApi.Controllers
 
             var response = await authService.Register(model);
 
-            if(response.Status == 200 || response.Status == 201)
+            if (response.Status == 200 || response.Status == 201)
             {
                 return Ok(response);
             }
@@ -107,51 +107,31 @@ namespace TerminalApi.Controllers
                 return BadRequest(ModelState);
             }
 
-            var user = CheckUser.GetUserFromClaim(HttpContext.User, _context);
+            var result = await authService.Update(model, HttpContext.User);
 
-            if (user is null)
+            if (result.Status == 200 || result.Status == 201)
             {
-                return BadRequest(
-                    new ResponseDTO
-                    {
-                        Status = 404,
-                        Message = "Le compte n'existe pas ou ne correspond pas",
-                    }
-                );
+                return Ok(result);
             }
-
-            model.ToUser(user);
-            using var transaction = await _context.Database.BeginTransactionAsync();
-            try
-            {
-                await _context.SaveChangesAsync();
-                await notificationService.AddNotification(
-                    new Notification
-                    {
-                        Id = Guid.NewGuid(),
-                        RecipientId = user.Id,
-                        SenderId = user.Id,
-                        Type = EnumNotificationType.AccountUpdated
-                    }
-                );
-                await transaction.CommitAsync();
-            }
-            catch (Exception ex)
-            {
-                await transaction.RollbackAsync();
-                return BadRequest(new ResponseDTO { Status = 401, Message = ex.Message });
-            }
-
-            return Ok(
-                new ResponseDTO
-                {
-                    Message = "Profil mis à jour",
-                    Status = 200,
-                    Data = user.ToUserResponseDTO(),
-                }
-            );
+            return BadRequest(result);
         }
 
+        [HttpPost("upload-avatar")]
+        [Authorize]
+        public async Task<IActionResult> OnPostUploadAsync(IFormFile file)
+        {
+            var result = await authService.UploadAvatar(
+                file,
+                HttpContext.User,
+                HttpContext.Request
+            );
+
+            if (result.Status == 200 || result.Status == 201)
+            {
+                return Ok(result);
+            }
+            return BadRequest(result);
+        }
         #endregion
 
         #region POST Login
@@ -176,51 +156,13 @@ namespace TerminalApi.Controllers
                         Data = ModelState,
                     }
                 );
+            var result = await authService.Login(model, HttpContext.Response);
 
-            var user = await _userManager.FindByEmailAsync(model.Email);
-
-            if (user == null)
-                return NotFound(
-                    new ResponseDTO { Message = "L'utilisateur n'existe pas ", Status = 404 }
-                );
-
-            var result = await _userManager.CheckPasswordAsync(
-                user: user,
-                password: model.Password
-            );
-            if (!_userManager.CheckPasswordAsync(user: user, password: model.Password).Result)
-                return BadRequest(new ResponseDTO { Message = "Connexion échouée", Status = 401 });
-
-            //if (!await _userManager.IsEmailConfirmedAsync(user))
-            //    return Unauthorized();
-
-            if (user.RefreshToken == null) // a new refresh token has to be saved
+            if (result.Status == 200 || result.Status == 201)
             {
-                user.RefreshToken = Guid.NewGuid().ToString();
+                return Ok(result);
             }
-
-            user.LastLogginAt = DateTime.Now;
-            await _context.SaveChangesAsync();
-            // to allow cookies sent from the front end
-            HttpContext.Response.Headers.Add(
-                key: "Access-Control-Allow-Credentials",
-                value: "true"
-            );
-            var userRoles = await _userManager.GetRolesAsync(user);
-
-            return Ok(
-                new ResponseDTO
-                {
-                    Message = "Connexion réussite",
-                    Status = 200,
-                    Data = new
-                    {
-                        Token = await GenerateAccessTokenAsync(user),
-                        refreshToken = user.RefreshToken,
-                        User = user.ToUserResponseDTO(userRoles),
-                    },
-                }
-            );
+            return BadRequest(result);
         }
 
         private ClaimsPrincipal? GetPrincipalFromExpiredToken(string? token)
@@ -304,22 +246,13 @@ namespace TerminalApi.Controllers
             [FromQuery] string confirmationToken
         )
         {
-            UserApp? user = await _userManager.FindByIdAsync(userId);
-            if (user is null)
+            var result = await authService.EmailConfirmation(userId, confirmationToken);
+
+            if (result.Status == 200 || result.Status == 201)
             {
-                return BadRequest(new ResponseDTO { Message = "Validation échouée", Status = 400 });
+                return Redirect(result.Message);
             }
-
-            IdentityResult result = await _userManager.ConfirmEmailAsync(user, confirmationToken);
-
-            if (result.Succeeded)
-            {
-                return Redirect(
-                    $"{EnvironmentVariables.API_FRONT_URL}/auth/email-confirmation-success"
-                );
-            }
-
-            return BadRequest(new ResponseDTO { Message = "Validation échouée", Status = 400 });
+            return BadRequest(result);
         }
         #endregion
 
@@ -401,77 +334,18 @@ namespace TerminalApi.Controllers
             [FromBody] ForgotPasswordInput model
         )
         {
-            if (ModelState.IsValid)
+            if (!ModelState.IsValid)
             {
-                var user = await _userManager.FindByEmailAsync(model.Email);
-                if (user != null)
-                {
-                    try
-                    {
-                        var resetToken = await _userManager.GeneratePasswordResetTokenAsync(user);
-                        resetToken = HttpUtility.UrlEncode(resetToken);
-
-                        var resetLink =
-                            EnvironmentVariables.API_FRONT_URL
-                            + "/auth/reset-password?userId="
-                            + user.Id
-                            + "&resetToken="
-                            + resetToken;
-
-                        // Tentative d'envoi de l'e-mail pour la regénération du mot de passe
-                        await mailService.ScheduleSendResetEmail(
-                            new Models.Mail.Mail
-                            {
-                                MailSubject = "Mail de réinitialisation",
-                                MailTo = user.Email,
-                            },
-                            resetLink
-                        );
-                        await notificationService.AddNotification(
-                            new Notification
-                            {
-                                Id = Guid.NewGuid(),
-                                RecipientId = user.Id,
-                                SenderId = user.Id,
-                                Type = EnumNotificationType.PasswordResetDemandAccepted
-                            }
-                        );
-
-                        return Ok(
-                            new ResponseDTO
-                            {
-                                Message =
-                                    "Un email de réinitialisation vient d'être envoyé à cette adresse "
-                                    + user.Email,
-                                Status = 200,
-                                Data = new
-                                {
-                                    resetToken,
-                                    Email = user.Email,
-                                    Id = user.Id,
-                                },
-                            }
-                        );
-                    }
-                    catch
-                    {
-                        return BadRequest(
-                            new ResponseDTO
-                            {
-                                Message = "Erreur de réinitialisation, réessayez plus tard ",
-                                Status = 400,
-                            }
-                        );
-                    }
-                }
+                return BadRequest(new ResponseDTO { Message = "Demande refusée", Status = 400 });
             }
-            return BadRequest(
-                new ResponseDTO
-                {
-                    Message = "Erreur de réinitialisation, réessayez plus tard ",
-                    Status = 400,
-                }
-            );
+
+            var result = await authService.ForgotPassword(model);
+
+            if (result.Status == 200 || result.Status == 201)
+            {
+                return Ok(result);
+            }
+            return BadRequest(result);
         }
 
         #endregion
@@ -484,157 +358,22 @@ namespace TerminalApi.Controllers
             [FromBody] PasswordRecoveryInput model
         )
         {
-            if (ModelState.IsValid && model.Password == model.PasswordConfirmation)
+            if (!ModelState.IsValid || model.Password != model.PasswordConfirmation)
             {
-                UserApp? user = await _userManager.FindByIdAsync(model.UserId);
-                if (user is null)
-                    return BadRequest(
-                        new ResponseDTO { Message = "L'utilisateur n'existe pas", Status = 404 }
-                    );
-                // var decodedToken = HttpUtility.UrlDecode(model.ResetToken);
-                user.RefreshToken = Guid.NewGuid().ToString();
-                IdentityResult result = await _userManager.ResetPasswordAsync(
-                    user: user,
-                    token: model.ResetToken,
-                    newPassword: model.Password
-                );
-
-                if (result.Succeeded)
-                {
-                    await _context.SaveChangesAsync();
-                    await notificationService.AddNotification(
-                        new Notification
-                        {
-                            Id = Guid.NewGuid(),
-                            RecipientId = user.Id,
-                            SenderId = user.Id,
-                            Type = EnumNotificationType.PasswordChanged
-                        }
-                    );
-                    return Ok(
-                        new ResponseDTO
-                        {
-                            Message = "Mot de passe vient d'être modifié",
-                            Status = 201,
-                        }
-                    );
-                }
-                else
-                {
-                    foreach (var error in result.Errors)
-                    {
-                        ModelState.AddModelError(
-                            key: string.Empty,
-                            errorMessage: error.Description
-                        );
-                    }
-                }
+                return BadRequest(new ResponseDTO { Message = "Demande refusée", Status = 400 });
             }
-            return BadRequest(
-                new ResponseDTO
-                {
-                    Message = "Problème de validation, votre token est valid ?",
-                    Status = 404,
-                    Data = ModelState,
-                }
-            );
+
+            var result = await authService.ChangePassword(model);
+
+            if (result.Status == 200 || result.Status == 201)
+            {
+                return Ok(result);
+            }
+            return BadRequest(result);
         }
         #endregion
-        /*
-        #region POST Change password
-        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
-        [Route("/change-password")]
-        [HttpPost]
-        public IActionResult ChangePassword([FromBody] ChangePasswordInput input)
-        {
-            string? userEmail = HttpContext.User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.Email)?.Value;
-            User user = _userManager.FindByEmailAsync(userEmail).Result;
-            if (user == null)
-                return StatusCode(StatusCodes.Status400BadRequest);
-
-            if (input == null)
-            {
-                return BadRequest();
-            }
-
-            if (input.NewPassword != input.NewPasswordConfirmation) return BadRequest("La confirmation doit être identique à l'original");
-            if (input.OldPassword == input.NewPassword) return BadRequest("Le nouveau mot de passe doit être différent de l'ancien");
-
-            IdentityResult result = _userManager.ChangePasswordAsync(user: user, currentPassword: input.OldPassword, newPassword: input.NewPassword).Result;
-
-            if (result.Succeeded)
-            {
-                return Ok();
-            }
-
-            return BadRequest("Echec du changement de mot de passe");
-        }
-        #endregion
-        */
-        [HttpPost("upload-avatar")]
-        [Authorize]
-        public async Task<IActionResult> OnPostUploadAsync(IFormFile file)
-        {
-            if (file == null)
-            {
-                return BadRequest("No file uploaded.");
-            }
-            var user = CheckUser.GetUserFromClaim(HttpContext.User, _context);
-            if (user is null)
-            {
-                return BadRequest(new ResponseDTO { Status = 400, Message = "Demande refusée" });
-            }
-            //verifier si le type est image
-            var allowedMimeTypes = new[] { "image/jpeg", "image/png", "image/gif", "image/bmp" };
-            var allowedExtensions = new[] { ".jpg", ".jpeg", ".png", ".gif", ".bmp" };
-
-            var fileExtension = Path.GetExtension(file.FileName).ToLowerInvariant();
-            if (
-                !allowedMimeTypes.Contains(file.ContentType)
-                || !allowedExtensions.Contains(fileExtension)
-            )
-            {
-                return BadRequest(
-                    new ResponseDTO
-                    {
-                        Status = 404,
-                        Message = "le type du ficheir n'est pas autorisé'"
-                    }
-                );
-            }
-
-            // supprimer l' ancien fichier s' il existe
-            var oldFilenameFromDB = Path.GetFileName(user.ImgUrl);
-            if (user.ImgUrl is not null && !oldFilenameFromDB.IsNullOrEmpty())
-            {
-                var uploadFolder = Path.Combine(_env.WebRootPath, "images");
-
-                // Define the file name using the user's Guid
-
-                var fullFileName = Path.Combine(uploadFolder, oldFilenameFromDB);
-                if (System.IO.File.Exists(fullFileName))
-                {
-                    System.IO.File.Delete(fullFileName);
-                }
-            }
-            //
-
-
-            string fileName = Guid.NewGuid() + "_avatar" + Path.GetExtension(file.FileName);
-            var filePath = Path.Combine(_env.WebRootPath, "images", fileName); // wwwroot + images + filename ???
-
-            using (var stream = System.IO.File.Create(filePath))
-            {
-                await file.CopyToAsync(stream);
-            }
-
-            var url = $"{Request.Scheme}://{Request.Host}/images/{fileName}";
-            user.ImgUrl = url;
-            await _context.SaveChangesAsync();
-
-            return Ok(new { fileName, url });
-        }
-
+          
+        #region refresh token
         [Route("refresh-token")]
         [AllowAnonymous]
         [HttpPost]
@@ -642,50 +381,25 @@ namespace TerminalApi.Controllers
             [FromBody] RefreshTokenBodyInput values
         )
         {
-            Console.WriteLine("refresh token ");
-
             if (!ModelState.IsValid)
-                return BadRequest(ModelState);
-
-            string? userEmail = HttpContext
-                .User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.Email)
-                ?.Value?.ToLower();
-            if (userEmail == null)
-            {
-                var principal = GetPrincipalFromExpiredToken(values.Token);
-                userEmail = principal
-                    ?.Claims.FirstOrDefault(x => x.Type == ClaimTypes.Email)
-                    ?.Value?.ToLower();
-            }
-
-            if (userEmail == null)
-                return Unauthorized();
-
-            UserApp? user = _context.Users.FirstOrDefault(x => x.Email.ToLower() == userEmail);
-
-            if (user == null)
-                return NotFound();
-
-            if (values.RefreshToken == user.RefreshToken)
-            {
-                HttpContext.Response.Headers.Add(
-                    key: "Access-Control-Allow-Credentials",
-                    value: "true"
-                );
-                //HttpContext.Response.Headers.Add(key: "Authorization", value: accessToken);
-
-                return Ok(
+                return BadRequest(
                     new ResponseDTO
                     {
-                        Message = "Autorisation renouvelée",
-                        Data = new RefreshTokenOutput(user, await GenerateAccessTokenAsync(user)),
-                        Status = 200
+                        Data = ModelState,
+                        Status = 400,
+                        Message = "Demande refusée"
                     }
                 );
-            }
 
-            return Redirect("/login"); // todo test ?
+            var result = await authService.UpdateRefreshToken(values, HttpContext);
+
+            if (result.Status == 200 || result.Status == 201)
+            {
+                return Ok(result);
+            }
+            return BadRequest(result);
         }
+        #endregion
 
         [HttpGet("all")]
         [Authorize(Roles = "Admin")]
@@ -706,8 +420,9 @@ namespace TerminalApi.Controllers
             );
         }
 
+        #region fixture
         [HttpGet("seed")]
-        [AllowAnonymous]
+        [Authorize(Roles = "Admin")]
         public async Task<ActionResult> SeedUsers()
         {
             var usersDTO = fakerService
@@ -717,9 +432,12 @@ namespace TerminalApi.Controllers
                 .ToList();
             var users = usersDTO.Select(x => x.ToUser()).ToList();
             //_context.Users.AddRange(users);
-            for (int i = 0;i< 500;i++)
+            for (int i = 0; i < 500; i++)
             {
-                IdentityResult result = await _userManager.CreateAsync(users[i], usersDTO[i].Password);
+                IdentityResult result = await _userManager.CreateAsync(
+                    users[i],
+                    usersDTO[i].Password
+                );
 
                 // Tenter d'ajouter l'utilisateur aux rôles spécifiés dans le modèle
                 IdentityResult roleResult = await _userManager.AddToRolesAsync(
@@ -728,10 +446,12 @@ namespace TerminalApi.Controllers
                 );
             }
 
-
             _context.SaveChanges();
             return Ok(users.Take(10));
         }
+        #endregion
+
+        #region google oAuth
 
         [AllowAnonymous]
         [HttpGet("/google-callback")]
@@ -826,8 +546,10 @@ namespace TerminalApi.Controllers
             return Challenge(properties, "Google");
         }
 
+        #endregion
     }
 
+    #region google models
     public class TokenResponse
     {
         [JsonPropertyName("access_token")]
@@ -875,4 +597,5 @@ namespace TerminalApi.Controllers
         [JsonPropertyName("locale")]
         public string Locale { get; set; }
     }
+    #endregion
 }
