@@ -164,72 +164,6 @@ namespace TerminalApi.Controllers
             }
             return BadRequest(result);
         }
-
-        private ClaimsPrincipal? GetPrincipalFromExpiredToken(string? token)
-        {
-            var tokenValidationParameters = new TokenValidationParameters
-            {
-                ValidateAudience = false,
-                ValidateIssuer = false,
-                ValidateIssuerSigningKey = true,
-                IssuerSigningKey = new SymmetricSecurityKey(
-                    Encoding.UTF8.GetBytes(EnvironmentVariables.JWT_KEY)
-                ),
-                ValidateLifetime = false,
-            };
-
-            var tokenHandler = new JwtSecurityTokenHandler();
-            var principal = tokenHandler.ValidateToken(
-                token,
-                tokenValidationParameters,
-                out SecurityToken securityToken
-            );
-            if (
-                securityToken is not JwtSecurityToken jwtSecurityToken
-                || !jwtSecurityToken.Header.Alg.Equals(
-                    SecurityAlgorithms.HmacSha256,
-                    StringComparison.InvariantCultureIgnoreCase
-                )
-            )
-                throw new SecurityTokenException("Invalid token");
-
-            return principal;
-        }
-
-        private async Task<string> GenerateAccessTokenAsync(UserApp user)
-        {
-            var securityKey = new SymmetricSecurityKey(
-                Encoding.UTF8.GetBytes(EnvironmentVariables.JWT_KEY)
-            );
-            var credentials = new SigningCredentials(
-                key: securityKey,
-                algorithm: SecurityAlgorithms.HmacSha256
-            );
-
-            var userRoles = await _userManager.GetRolesAsync(user);
-
-            var authClaims = new List<Claim>
-            {
-                new Claim(type: ClaimTypes.Email, value: user.Email),
-            };
-
-            foreach (var userRole in userRoles)
-            {
-                authClaims.Add(new Claim(type: ClaimTypes.Role, value: userRole));
-            }
-
-            var token = new JwtSecurityToken(
-                issuer: EnvironmentVariables.API_BACK_URL,
-                audience: EnvironmentVariables.API_BACK_URL,
-                claims: authClaims,
-                expires: DateTime.Now.AddMinutes(15),
-                signingCredentials: credentials
-            );
-
-            _context.Entry(user).State = EntityState.Modified;
-
-            return new JwtSecurityTokenHandler().WriteToken(token);
-        }
         #endregion
 
         #region Confirm account
@@ -401,24 +335,24 @@ namespace TerminalApi.Controllers
         }
         #endregion
 
-        [HttpGet("all")]
-        [Authorize(Roles = "Admin")]
-        public async Task<ActionResult<ResponseDTO>> getAllUsers(
-            [FromQuery] int first,
-            [FromQuery] int rows
-        )
-        {
-            var users = await _context.Users.Skip(first).Take(rows).ToListAsync();
-            var totalCount = await _context.Users.CountAsync();
-            return Ok(
-                new ResponseDTO
-                {
-                    Message = "Les utilisateurs",
-                    Data = new { users, totalCount },
-                    Status = 200
-                }
-            );
-        }
+        //[HttpGet("all")]
+        //[Authorize(Roles = "Admin")]
+        //public async Task<ActionResult<ResponseDTO>> getAllUsers(
+        //    [FromQuery] int first,
+        //    [FromQuery] int rows
+        //)
+        //{
+        //    var users = await _context.Users.Skip(first).Take(rows).ToListAsync();
+        //    var totalCount = await _context.Users.CountAsync();
+        //    return Ok(
+        //        new ResponseDTO
+        //        {
+        //            Message = "Les utilisateurs",
+        //            Data = new { users, totalCount },
+        //            Status = 200
+        //        }
+        //    );
+        //}
 
         #region fixture
         [HttpGet("seed")]
@@ -449,103 +383,6 @@ namespace TerminalApi.Controllers
             _context.SaveChanges();
             return Ok(users.Take(10));
         }
-        #endregion
-
-        #region google oAuth
-
-        [AllowAnonymous]
-        [HttpGet("/google-callback")]
-        public async Task<IActionResult> GoogleCallback(
-            [FromQuery] string code,
-            [FromQuery] string state
-        )
-        {
-            if (string.IsNullOrEmpty(code))
-            {
-                return BadRequest("Invalid Google authentication response.");
-            }
-
-            var tokenResponse = await ExchangeCodeForTokenAsync(code);
-            if (tokenResponse == null)
-            {
-                return BadRequest("Failed to exchange code for token.");
-            }
-
-            var userInfo = await GetUserInfoAsync(tokenResponse.AccessToken);
-            if (userInfo == null)
-            {
-                return BadRequest("Failed to retrieve user information.");
-            }
-
-            var user = await _userManager.FindByEmailAsync(userInfo.Email);
-            if (user == null)
-            {
-                user = new UserApp { UserName = userInfo.Email, Email = userInfo.Email };
-                await _userManager.CreateAsync(user);
-                await _userManager.AddLoginAsync(
-                    user,
-                    new UserLoginInfo("Google", userInfo.Id, "Google")
-                );
-            }
-
-            var token = await GenerateAccessTokenAsync(user);
-            return Ok(new { Token = token });
-        }
-
-        private async Task<TokenResponse> ExchangeCodeForTokenAsync(string code)
-        {
-            var client = new HttpClient();
-            var request = new HttpRequestMessage(
-                HttpMethod.Post,
-                "https://oauth2.googleapis.com/token"
-            )
-            {
-                Content = new FormUrlEncodedContent(
-                    new Dictionary<string, string>
-                    {
-                        { "code", code },
-                        { "client_id", EnvironmentVariables.ID_CLIENT_GOOGLE },
-                        { "client_secret", EnvironmentVariables.SECRET_CLIENT_GOOGLE },
-                        { "redirect_uri", $"{Request.Scheme}://{Request.Host}/google-callback" },
-                        { "grant_type", "authorization_code" }
-                    }
-                )
-            };
-
-            var response = await client.SendAsync(request);
-            if (!response.IsSuccessStatusCode)
-            {
-                return null;
-            }
-
-            var responseContent = await response.Content.ReadAsStringAsync();
-            return JsonSerializer.Deserialize<TokenResponse>(responseContent);
-        }
-
-        private async Task<UserInfo> GetUserInfoAsync(string accessToken)
-        {
-            var client = new HttpClient();
-            var response = await client.GetAsync(
-                $"https://www.googleapis.com/oauth2/v2/userinfo?access_token={accessToken}"
-            );
-            if (!response.IsSuccessStatusCode)
-            {
-                return null;
-            }
-
-            var responseContent = await response.Content.ReadAsStringAsync();
-            return JsonSerializer.Deserialize<UserInfo>(responseContent);
-        }
-
-        [AllowAnonymous]
-        [HttpGet("google-login")]
-        public IActionResult GoogleLogin()
-        {
-            var redirectUrl = Url.Action("GoogleCallback", "Users");
-            var properties = new AuthenticationProperties { RedirectUri = redirectUrl };
-            return Challenge(properties, "Google");
-        }
-
         #endregion
     }
 
