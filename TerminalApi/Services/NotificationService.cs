@@ -1,6 +1,8 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using System.Linq.Expressions;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using TerminalApi.Contexts;
+using TerminalApi.Models;
 using TerminalApi.Models.Notification;
 using TerminalApi.Utilities;
 
@@ -14,7 +16,7 @@ namespace TerminalApi.Services
         {
             this.context = context;
         }
-       
+
         public async Task<NotificationResponseDTO> AddNotification(
             Notification notification,
             string? customDescription = null
@@ -29,7 +31,8 @@ namespace TerminalApi.Services
             {
                 await ValidateNotificationEntities(notification);
 
-                notification.Description = customDescription ?? GetDefaultDescription(notification.Type);
+                notification.Description =
+                    customDescription ?? GetDefaultDescription(notification.Type);
 
                 context.Notifications.Add(notification);
                 await context.SaveChangesAsync();
@@ -45,7 +48,9 @@ namespace TerminalApi.Services
         {
             if (!string.IsNullOrEmpty(notification.SenderId))
             {
-                var sender = await context.Users.FirstOrDefaultAsync(u => u.Id == notification.SenderId);
+                var sender = await context.Users.FirstOrDefaultAsync(u =>
+                    u.Id == notification.SenderId
+                );
                 if (sender is null)
                 {
                     throw new Exception("Erreur lors de la création de la notification");
@@ -54,7 +59,9 @@ namespace TerminalApi.Services
 
             if (!string.IsNullOrEmpty(notification.RecipientId))
             {
-                var recipient = await context.Users.FirstOrDefaultAsync(u => u.Id == notification.RecipientId);
+                var recipient = await context.Users.FirstOrDefaultAsync(u =>
+                    u.Id == notification.RecipientId
+                );
                 if (recipient is null)
                 {
                     throw new Exception("Erreur lors de la création de la notification");
@@ -63,7 +70,9 @@ namespace TerminalApi.Services
 
             if (notification.BookingId.HasValue)
             {
-                var booking = await context.Bookings.FirstOrDefaultAsync(u => u.Id == notification.BookingId);
+                var booking = await context.Bookings.FirstOrDefaultAsync(u =>
+                    u.Id == notification.BookingId
+                );
                 if (booking is null)
                 {
                     throw new Exception("Erreur lors de la création de la notification");
@@ -72,7 +81,9 @@ namespace TerminalApi.Services
 
             if (notification.OrderId.HasValue)
             {
-                var order = await context.Orders.FirstOrDefaultAsync(u => u.Id == notification.OrderId);
+                var order = await context.Orders.FirstOrDefaultAsync(u =>
+                    u.Id == notification.OrderId
+                );
                 if (order is null)
                 {
                     throw new Exception("Erreur lors de la création de la notification");
@@ -86,27 +97,34 @@ namespace TerminalApi.Services
             {
                 EnumNotificationType.AccountConfirmed => "Votre compte vient d'être confirmé",
                 EnumNotificationType.AccountUpdated => "Votre compte vient d'être mis à jour",
-                EnumNotificationType.PasswordResetDemandAccepted => "Un email de réinitialisation de mot de passe vient d'être envoyé",
+                EnumNotificationType.PasswordResetDemandAccepted
+                    => "Un email de réinitialisation de mot de passe vient d'être envoyé",
                 EnumNotificationType.NewAnnouncement => "Nouvelle annonce / Offres",
                 EnumNotificationType.MessageReceived => "Vous avez reçu un message",
-                EnumNotificationType.GeneralReminder => "Rappel: vous avez un rendez-vous aujourd'hui",
+                EnumNotificationType.GeneralReminder
+                    => "Rappel: vous avez un rendez-vous aujourd'hui",
                 EnumNotificationType.PasswordChanged => "Votre mot de passe a été modifié",
                 EnumNotificationType.PaymentAccepted => "Votre paiement a été accepté",
                 EnumNotificationType.PaymentFailed => "Votre paiement a échoué",
                 EnumNotificationType.PromotionOffer => "Offre promotionnelle",
-                EnumNotificationType.RefundProcessed => "Votre remboursement a été traité, le montant demandé sera versé prochainement",
+                EnumNotificationType.RefundProcessed
+                    => "Votre remboursement a été traité, le montant demandé sera versé prochainement",
                 EnumNotificationType.ReservationAccepted => "Votre réservation a été acceptée",
-                EnumNotificationType.NewReservation => "Vous venez de recevoir une nouvelle commande",
+                EnumNotificationType.NewReservation
+                    => "Vous venez de recevoir une nouvelle commande",
                 EnumNotificationType.ReservationCancelled => "Votre réservation a été annulée",
-                EnumNotificationType.ReservationCancelledTimeOut => "Votre réservation a été annulée pour abscence de paiement",
+                EnumNotificationType.ReservationCancelledTimeOut
+                    => "Votre réservation a été annulée pour abscence de paiement",
                 EnumNotificationType.ReservationRejected => "Votre réservation a été rejetée",
-                EnumNotificationType.ReservationReminder => "Rappel: vous avez un rendez-vous aujourd'hui",
+                EnumNotificationType.ReservationReminder
+                    => "Rappel: vous avez un rendez-vous aujourd'hui",
                 EnumNotificationType.ReviewReceived => "Vous avez reçu un avis",
-                EnumNotificationType.SystemUpdate => "Mise à jour du système prévue le : 21/04/1986",
+                EnumNotificationType.SystemUpdate
+                    => "Mise à jour du système prévue le : 21/04/1986",
                 _ => "Nouvelle notification",
             };
         }
-        
+
         public async Task<Notification> ToggleNotification(Guid notificationId)
         {
             var notification = await context.Notifications.FirstOrDefaultAsync(u =>
@@ -177,10 +195,10 @@ namespace TerminalApi.Services
                 PerPage = filter.PerPage
             };
         }
-        public async Task<PaginatedNotificationResult<NotificationResponseDTO>> GetUserNotificationsAsync(
-            string userId,
-            NotificationFilter filter
-        )
+
+        public async Task<
+            PaginatedNotificationResult<NotificationResponseDTO>
+        > GetUserNotificationsAsync(string userId, NotificationFilter filter)
         {
             var query = context.Notifications.Where(n => n.RecipientId == userId);
 
@@ -204,6 +222,32 @@ namespace TerminalApi.Services
                 offset = filter.Offset,
                 PerPage = filter.PerPage
             };
+        }
+
+        public async Task<ResponseDTO> Update(Notification notification, bool newValue)
+        {
+            try
+            {
+                notification.IsRead = newValue;
+                context.Notifications.Update(notification);
+
+                await context.SaveChangesAsync();
+
+                return new ResponseDTO
+                {
+                    Message = "Notification mise à jour",
+                    Status = 200,
+                    Data = notification.ToRespsonseDTO()
+                };
+            }
+            catch
+            {
+                return new ResponseDTO
+                {
+                    Message = "Erreur lors de la mise à jour de la notification",
+                    Status = 500
+                };
+            }
         }
     }
 }

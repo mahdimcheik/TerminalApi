@@ -1,9 +1,12 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using PuppeteerSharp;
+using TerminalApi.Contexts;
 using TerminalApi.Models;
 using TerminalApi.Models.Notification;
 using TerminalApi.Services;
+using TerminalApi.Utilities;
 
 namespace TerminalApi.Controllers
 {
@@ -12,10 +15,12 @@ namespace TerminalApi.Controllers
     public class NotificationsController : ControllerBase
     {
         private readonly NotificationService _notificationService;
+        private readonly ApiDefaultContext context;
 
-        public NotificationsController(NotificationService notificationService)
+        public NotificationsController(NotificationService notificationService, ApiDefaultContext context)
         {
             _notificationService = notificationService;
+            this.context = context;
         }
 
         [HttpPost]
@@ -46,15 +51,19 @@ namespace TerminalApi.Controllers
             }
         }
 
-        [HttpGet("user/{userId}")]
+        [HttpGet("user")]
         public async Task<IActionResult> GetUserNotifications(
-            string userId,
             [FromQuery] NotificationFilter filter
         )
         {
+            var user = CheckUser.GetUserFromClaim(HttpContext.User, context);
+            if (user is null)
+            {
+                return BadRequest(new ResponseDTO { Status = 400, Message = "Demande refusée" });
+            }
             try
             {
-                var response = await _notificationService.GetUserNotificationsAsync(userId, filter);
+                var response = await _notificationService.GetUserNotificationsAsync(user.Id, filter);
                 return Ok(
                     new ResponseDTO
                     {
@@ -72,6 +81,43 @@ namespace TerminalApi.Controllers
                     {
                         Status = StatusCodes.Status404NotFound,
                         Message = $"Notifications non-trouvées {e.Message}"
+                    }
+                );
+            }
+        }
+
+        [HttpPut("{notificationId}/{newValue}")]
+        public async Task<IActionResult> UpdateNotification(Guid notificationId, bool newValue)
+        {
+            var user = CheckUser.GetUserFromClaim(HttpContext.User, context);
+            if (user is null)
+            {
+                return BadRequest(new ResponseDTO { Status = 400, Message = "Demande refusée" });
+            }
+            var notification =  await context.Notifications.FirstOrDefaultAsync(x => x.Id == notificationId && x.RecipientId == user.Id);
+            if(notification is null)
+            {
+                return BadRequest(new ResponseDTO { Status = 400, Message = "Demande refusée" });
+            }
+            try
+            {
+                var response = await _notificationService.Update(notification, newValue);
+                return Ok(
+                    new ResponseDTO
+                    {
+                        Data = response.Data,
+                        Status = response.Status,
+                        Message = response.Message
+                    }
+                );
+            }
+            catch (Exception e)
+            {
+                return BadRequest(
+                    new ResponseDTO
+                    {
+                        Status = StatusCodes.Status404NotFound,
+                        Message = $"Notification non-mise à jour {e.Message}"
                     }
                 );
             }
