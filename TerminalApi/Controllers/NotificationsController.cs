@@ -10,7 +10,7 @@ using TerminalApi.Utilities;
 
 namespace TerminalApi.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("[controller]")]
     [ApiController]
     public class NotificationsController : ControllerBase
     {
@@ -51,9 +51,9 @@ namespace TerminalApi.Controllers
             }
         }
 
-        [HttpGet("user")]
+        [HttpPost("user")]
         public async Task<IActionResult> GetUserNotifications(
-            [FromQuery] NotificationFilter filter
+            [FromBody] NotificationFilter filter
         )
         {
             var user = CheckUser.GetUserFromClaim(HttpContext.User, context);
