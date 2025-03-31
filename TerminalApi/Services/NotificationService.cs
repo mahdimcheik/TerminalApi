@@ -95,8 +95,9 @@ namespace TerminalApi.Services
         {
             return type switch
             {
-                EnumNotificationType.AccountConfirmed => "Votre compte vient d'être confirmé",
-                EnumNotificationType.AccountUpdated => "Votre compte vient d'être mis à jour",
+                EnumNotificationType.AccountConfirmed => @"<span class=""text-surface-700 dark:text-surface-100"">Votre compte vient d'être confirmé</span> ",
+                EnumNotificationType.AccountUpdated => @"<span class=""text-surface-700 dark:text-surface-100"">Votre compte vient d'être mis à jour</span> ",
+                
                 EnumNotificationType.PasswordResetDemandAccepted
                     => "Un email de réinitialisation de mot de passe vient d'être envoyé",
                 EnumNotificationType.NewAnnouncement => "Nouvelle annonce / Offres",
@@ -112,9 +113,9 @@ namespace TerminalApi.Services
                 EnumNotificationType.ReservationAccepted => "Votre réservation a été acceptée",
                 EnumNotificationType.NewReservation
                     => "Vous venez de recevoir une nouvelle commande",
-                EnumNotificationType.ReservationCancelled => "Votre réservation a été annulée",
+                EnumNotificationType.ReservationCancelled => @"<span class=""text-surface-700 dark:text-surface-100"">Votre réservation a été  <span class=""text-primary font-bold"">annulée</span> </span> ",            
                 EnumNotificationType.ReservationCancelledTimeOut
-                    => "Votre réservation a été annulée pour abscence de paiement",
+                    => @"<span class=""text-surface-700 dark:text-surface-100"">Votre réservation a été annulée <span class=""text-primary font-bold"">pour abscence de paiement</span></span> ",           
                 EnumNotificationType.ReservationRejected => "Votre réservation a été rejetée",
                 EnumNotificationType.ReservationReminder
                     => "Rappel: vous avez un rendez-vous aujourd'hui",

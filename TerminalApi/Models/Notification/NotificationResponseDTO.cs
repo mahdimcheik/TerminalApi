@@ -14,7 +14,7 @@ namespace TerminalApi.Models.Notification
 
         public bool IsRead { get; set; }
 
-        public DateTime CreatedAt { get; set; }
+        public DateTimeOffset CreatedAt { get; set; }
 
         public string? SenderId { get; set; }
         public string? RecipientId { get; set; }

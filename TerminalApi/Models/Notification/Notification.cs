@@ -19,7 +19,8 @@ namespace TerminalApi.Models.Notification
 
         public bool IsRead { get; set; } = false;
 
-        public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+        [Column(TypeName = "timestamp with time zone")]
+        public DateTimeOffset CreatedAt { get; set; } = DateTimeOffset.UtcNow;
 
         [ForeignKey(nameof(Sender))]
 

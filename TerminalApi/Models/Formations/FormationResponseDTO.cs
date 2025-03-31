@@ -15,5 +15,6 @@ namespace TerminalApi.Models.Formations
         public DateTimeOffset StartAt { get; set; }
         [Column(TypeName = "timestamp with time zone")]
         public DateTimeOffset EndAt { get; set; }
+        public string? UserId { get; set; }
     }
 }

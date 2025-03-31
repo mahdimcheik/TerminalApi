@@ -25,6 +25,7 @@
                 Company = formation.Company,
                 City= formation.City,
                 Country= formation.Country,
+                UserId = formation.UserId
             };
         }
 

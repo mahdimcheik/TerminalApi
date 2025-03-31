@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using TerminalApi.Contexts;
@@ -11,9 +12,11 @@ using TerminalApi.Contexts;
 namespace TerminalApi.Migrations
 {
     [DbContext(typeof(ApiDefaultContext))]
-    partial class ApiDefaultContextModelSnapshot : ModelSnapshot
+    [Migration("20250330193832_fix_notificationDatetime_format")]
+    partial class fix_notificationDatetime_format
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -472,9 +475,9 @@ namespace TerminalApi.Migrations
                     b.HasData(
                         new
                         {
-                            Id = new Guid("3ac0b7b8-292e-4497-8c39-dd7aea95458d"),
+                            Id = new Guid("f715843e-4e49-438d-9d37-e3ca0f2fdbc2"),
                             Rate = 0.2m,
-                            StartAt = new DateTime(2025, 3, 30, 19, 42, 40, 913, DateTimeKind.Utc).AddTicks(6686)
+                            StartAt = new DateTime(2025, 3, 30, 19, 38, 32, 185, DateTimeKind.Utc).AddTicks(9620)
                         });
                 });
 
