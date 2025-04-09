@@ -83,8 +83,8 @@ namespace TerminalApi.Controllers
                         { "order_number", result.order.OrderNumber },
                         { "booker_id", result.order.Booker.Id },
                     },
-                    SuccessUrl = $"{domain}/success",
-                    CancelUrl = $"{domain}/cancel",
+                    SuccessUrl = $"{domain}/dashboard/success",
+                    CancelUrl = $"{domain}/dashboard/cancel",
                 };
 
                 var service = new SessionService();
