@@ -5,6 +5,7 @@ using Microsoft.IdentityModel.Tokens;
 using TerminalApi.Contexts;
 using TerminalApi.Models.Adresse;
 using TerminalApi.Models.Formations;
+using TerminalApi.Models.Slots;
 using TerminalApi.Services;
 
 namespace TerminalApi.Controllers
@@ -60,6 +61,36 @@ namespace TerminalApi.Controllers
 
             await context.SaveChangesAsync();
             return Ok("Addresses ajoutées");
+        }
+
+        [HttpGet("add-slots")]
+        public async Task<IActionResult> AddSlots()
+        {
+            var slotsDTO = fakerService.GenerateSlotCreateDTO().Generate(3000);
+
+            var slots = slotsDTO.Select(x =>
+            {
+                return x.ToSlot("1577fcf3-35a3-42fb-add1-daffcc56f640");
+            }).ToList();
+
+            context.Slots.AddRange(slots);
+
+            await context.SaveChangesAsync();
+            return Ok("Addresses ajoutées");
+        }
+
+        [HttpGet("add-orders")]
+        public async Task<IActionResult> AddOrders()
+        {
+            await fakerService.CreateOrdersFixtureAsync();
+            return Ok("orders ajoutées");
+        }
+
+        [HttpGet("add-bookings")]
+        public async Task<IActionResult> AddBookings()
+        {
+            await fakerService.GenerateBookingCreateDTO();
+            return Ok("bookingsajoutées");
         }
     }
 }

@@ -1,8 +1,14 @@
 ﻿using Bogus;
 using Bogus.Extensions;
+using Microsoft.EntityFrameworkCore;
 using System.ComponentModel.DataAnnotations;
+using System.Threading.Tasks;
+using TerminalApi.Contexts;
 using TerminalApi.Models.Adresse;
+using TerminalApi.Models.Bookings;
 using TerminalApi.Models.Formations;
+using TerminalApi.Models.Payments;
+using TerminalApi.Models.Slots;
 using TerminalApi.Models.User;
 using TerminalApi.Utilities;
 
@@ -10,6 +16,13 @@ namespace TerminalApi.Services
 {
     public class FakerService
     {
+        private readonly ApiDefaultContext context;
+
+        public FakerService(ApiDefaultContext context)
+        {
+            this.context = context;
+        }
+
         public Faker<UserCreateDTO> GenerateUserCreateDTO()
         {
             return new Faker<UserCreateDTO>()
@@ -44,6 +57,111 @@ namespace TerminalApi.Services
                 .RuleFor(u => u.Street, f => f.Address.StreetName())
                 .RuleFor(u => u.PostalCode, f => f.Address.ZipCode().ClampLength(max: 19))
                 .RuleFor(u => u.AddressType, f => f.PickRandom<AddressTypeEnum>());
+        }
+
+        public Faker<SlotCreateDTO> GenerateSlotCreateDTO()
+        {
+            return new Faker<SlotCreateDTO>()
+                .RuleFor(u => u.Price, f => f.PickRandom<decimal>(40, 100))
+                .RuleFor(u => u.CreatedAt, f => f.Date.Past(1, DateTime.Now).ToUniversalTime())
+                .RuleFor(u => u.StartAt, f => f.Date.Past(1, DateTime.Now.AddDays(-10)).ToUniversalTime())
+                .RuleFor(u => u.EndAt, (f, t) => t.StartAt.AddHours(1))
+                .RuleFor(u => u.Reduction, f => f.PickRandom(0, 50));
+        }
+
+        public async Task GenerateBookingCreateDTO()
+        {
+            var slots = await context.Slots.ToListAsync();
+            var users = await context.Users.Where(x => x.Id != "1577fcf3-35a3-42fb-add1-daffcc56f6401577fcf3-35a3-42fb-add1-daffcc56f640").ToListAsync();
+
+            int i = 0;
+            foreach(var user in users.Take(100))
+            {
+                var order = context.Orders.FirstOrDefault(x => x.BookerId == user.Id);
+
+                var booking1 = new BookingCreateDTO()
+                {
+                    Id = Guid.NewGuid(),
+                    SlotId = slots[i].Id.ToString(),
+                    Subject = "test" + i,
+                    Description = "description " + i,
+                    TypeHelp = 0
+                };
+                i++;
+                var booking2 = new BookingCreateDTO()
+                {
+                    Id = Guid.NewGuid(),
+                    SlotId = slots[i].Id.ToString(),
+                    Subject = "test" + i,
+                    Description = "description " + i,
+                    TypeHelp = 0
+                };i++;
+                var booking3 = new BookingCreateDTO()
+                {
+                    Id = Guid.NewGuid(),
+                    SlotId = slots[i].Id.ToString(),
+                    Subject = "test" + i,
+                    Description = "description " + i,
+                    TypeHelp = 0
+                };i++;
+
+                context.Bookings.Add(booking1.ToBooking(user.Id, order.Id));
+                context.Bookings.Add(booking2.ToBooking(user.Id, order.Id));
+                context.Bookings.Add(booking3.ToBooking(user.Id, order.Id));
+            }
+
+            await context.SaveChangesAsync();
+        }
+
+        public async Task CreateOrdersFixtureAsync()
+        {      
+            var users = await context.Users.Where(x => x.Id != "1577fcf3-35a3-42fb-add1-daffcc56f6401577fcf3-35a3-42fb-add1-daffcc56f640").ToListAsync();
+
+            foreach (var user in users)
+            {
+                var days = new Random().Next(1, 100);
+                Order newOrder = new Order
+                {
+                    BookerId = user.Id,
+                    Status = Utilities.EnumBookingStatus.Pending,
+                    CreatedAt = DateTimeOffset.UtcNow.AddDays(-days),
+                    UpdatedAt = DateTimeOffset.UtcNow.AddDays(-days),
+                    PaymentMethod = "card"
+                };
+                newOrder.OrderNumber = await GenerateOrderNumberAsync();
+
+                context.Orders.Add(newOrder);
+
+            }
+
+            foreach (var user in users.Take(100))
+            {
+                var days = new Random().Next(1, 100);
+                Order newOrder = new Order
+                {
+                    BookerId = user.Id,
+                    Status = Utilities.EnumBookingStatus.Paid,
+                    CreatedAt = DateTimeOffset.UtcNow.AddDays(-days),
+                    UpdatedAt = DateTimeOffset.UtcNow.AddDays(-days),
+                    PaymentMethod = "card"
+                };
+                newOrder.OrderNumber = await GenerateOrderNumberAsync();
+
+                context.Orders.Add(newOrder);
+
+            }
+
+            context.SaveChanges();
+        }
+
+        public async Task<string> GenerateOrderNumberAsync()
+        {
+            string datePart = DateTime.UtcNow.ToString("yyyyMMdd");
+
+            int count = await context.Orders.CountAsync(o => o.CreatedAt.Value.Date == DateTimeOffset.UtcNow);
+            int nextNumber = count + 1;
+
+            return $"INSPIRE-{datePart}-{nextNumber:D5}";
         }
     }
 }
