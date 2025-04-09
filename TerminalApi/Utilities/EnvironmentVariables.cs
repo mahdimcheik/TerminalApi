@@ -57,5 +57,9 @@
         public static string? STRIPE_PUBLISHABLEKEY => Environment.GetEnvironmentVariable("STRIPE_PUBLISHABLEKEY");
         public static string? STRIPE_SECRETKEY => Environment.GetEnvironmentVariable("STRIPE_SECRETKEY");
         public static string? STRIPE_SECRET_ENDPOINT_TEST = Environment.GetEnvironmentVariable("STRIPE_SECREt_ENDPOINT_TEST");
+
+        // hangfire
+        public static string? HANGFIRE_ORDER_CLEANING_DELAY =>
+            Environment.GetEnvironmentVariable("HANGFIRE_ORDER_CLEANING_DELAY");
     }
 }
