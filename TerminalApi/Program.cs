@@ -29,23 +29,7 @@ namespace TerminalApi
             ConfigureServices(services);
 
             var app = builder.Build();
-            ConfigureMiddlewarePipeline(app);
-
-
-            // hangfire
-            //using (var scope = app.Services.CreateScope())
-            //{
-            //    var context = scope.ServiceProvider.GetRequiredService<ApiDefaultContext>();
-            //    JobChron jobChron = new JobChron(context);
-                
-            //    RecurringJob.AddOrUpdate(
-            //        "my-recurring-job",
-            //        () =>  jobChron.CleanOrders(),
-            //        Cron.Minutely
-            //    );
-            //}
-
-           
+            ConfigureMiddlewarePipeline(app);           
 
             app.Run();
         }

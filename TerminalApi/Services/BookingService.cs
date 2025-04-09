@@ -5,6 +5,7 @@ using TerminalApi.Models;
 using Microsoft.EntityFrameworkCore;
 using TerminalApi.Models.Payments;
 using TerminalApi.Models.Notification;
+using TerminalApi.Utilities;
 
 namespace TerminalApi.Services
 {
@@ -53,7 +54,14 @@ namespace TerminalApi.Services
                     RecipientId = booker.Id,
                     Type = Utilities.EnumNotificationType.ReservationAccepted
                 };
-               var notificationDb =   await notificationService.AddNotification(notification);
+                var notificationForTeacher = new Notification
+                {
+                    RecipientId = EnvironmentVariables.TEACHER_ID,
+                    SenderId = booker.Id,
+                    Type = Utilities.EnumNotificationType.NewReservation
+                };
+                await notificationService.AddNotification(notificationForTeacher);
+                var notificationDb =   await notificationService.AddNotification(notification);
 
                 var message = System.Text.Json.JsonSerializer.Serialize(notificationDb);
                 await sseService.SendMessageToUserAsync(booker.Email, message);
