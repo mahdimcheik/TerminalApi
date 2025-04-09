@@ -21,17 +21,20 @@ namespace TerminalApi.Services
 
         public async Task CleanOrders()
         {
+            int delay = 2; // default value
+            var gotDelayed = int.TryParse( EnvironmentVariables.HANGFIRE_ORDER_CLEANING_DELAY, out delay);
             try
             {
                 var orders = _context
-                    .Orders.Where(x =>
+                    .Orders.Include(x => x.Bookings)
+                    .Where(x =>
                         x.Status == EnumBookingStatus.Pending
+                        && x.Bookings.Count > 0
                         && (
-                            x.UpdatedAt == null
-                            || x.UpdatedAt < DateTimeOffset.UtcNow.AddMinutes(-2)
+                            x.UpdatedAt != null
+                            && x.UpdatedAt < DateTimeOffset.UtcNow.AddMinutes(-1 * delay)
                         )
                     )
-                    .Include(x => x.Bookings)
                     .ToList();
                 foreach (var order in orders)
                 {
@@ -41,7 +44,11 @@ namespace TerminalApi.Services
                         order.UpdatedAt = DateTimeOffset.UtcNow;
                     }
 
-                    _context.RemoveRange(order.Bookings);
+                    _context.RemoveRange(
+                        order.Bookings.Where(x =>
+                            x.CreatedAt < DateTimeOffset.UtcNow.AddMinutes(-1 * delay)
+                        )
+                    );
 
                     await notificationService.AddNotification(
                         new Notification
