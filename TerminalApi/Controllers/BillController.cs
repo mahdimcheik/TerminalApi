@@ -24,10 +24,10 @@ namespace TerminalApi.Controllers
             return Ok();
         }
         [HttpGet("testing")]
-        public async Task<IActionResult> GetTest([FromQuery] string orderId)
+        public async Task<IActionResult> GetTest()
         {
-            await pdfService.GeneratePdfAsync(orderId);
-            return Ok();
+            var file = await pdfService.GeneratePdfAsync("");
+            return File(file, "application/pdf", "facture.pdf");
         }
     }
 }

@@ -28,9 +28,9 @@ namespace TerminalApi.Services
                 .Build();
         }
 
-        public async Task GeneratePdfAsync(string orderId)
+        public async Task<byte[]> GeneratePdfAsync(string orderId)
         {
-            var guid = Guid.Parse(orderId);
+            var res = Guid.TryParse(orderId, out Guid guidId);
            
             //var orderDetails = await context.Orders
             //    .Where(x => x.Id == guid)
@@ -87,7 +87,7 @@ namespace TerminalApi.Services
             using var page = await browser.NewPageAsync();
 
             await page.SetContentAsync(htmlContent);
-            await page.PdfAsync("customContent.pdf", new PdfOptions
+            var file = await page.PdfDataAsync( new PdfOptions
             {
                 Format = PaperFormat.A4,
                 DisplayHeaderFooter = true,
@@ -96,6 +96,7 @@ namespace TerminalApi.Services
             </div>",
                 MarginOptions = new PuppeteerSharp.Media.MarginOptions { Top = "40px", Bottom = "60px" }
             });
+            return file;
         }
     }
 }
