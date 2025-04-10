@@ -50,12 +50,12 @@ namespace TerminalApi.Controllers
     [FromQuery] OrderPagination query
 )
         {
-            var user = CheckUser.GetUserFromClaim(HttpContext.User, context);
-            if (user is null)
-            {
-                return BadRequest(new ResponseDTO { Status = 400, Message = "Demande refusée" });
-            }
-            var orders = await orderService.GetOrdersForTeacherPaginatedAsync(query, user);
+            //var user = CheckUser.GetUserFromClaim(HttpContext.User, context);
+            //if (user is null)
+            //{
+            //    return BadRequest(new ResponseDTO { Status = 400, Message = "Demande refusée" });
+            //}
+            var orders = await orderService.GetOrdersForTeacherPaginatedAsync(query);
             if (orders is null)
                 return NotFound(
                     new ResponseDTO { Message = "Aucune commande disponible", Status = 404 }

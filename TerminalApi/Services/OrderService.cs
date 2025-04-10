@@ -1,5 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
-using System.Diagnostics;
+﻿using System.Diagnostics;
+using Microsoft.EntityFrameworkCore;
 using TerminalApi.Contexts;
 using TerminalApi.Models;
 using TerminalApi.Models.Payments;
@@ -46,17 +46,15 @@ namespace TerminalApi.Services
             //Stopwatch stopwatch = Stopwatch.StartNew();
             try
             {
-
-            order = await context
-                .Orders
-                .AsSplitQuery()
-                .Include(x => x.Bookings)
-                .ThenInclude(x => x.Slot)
-                .FirstOrDefaultAsync(o =>
-                    o.BookerId == user.Id && o.Status == Utilities.EnumBookingStatus.Pending
-                );
+                order = await context
+                    .Orders.AsSplitQuery()
+                    .Include(x => x.Bookings)
+                    .ThenInclude(x => x.Slot)
+                    .FirstOrDefaultAsync(o =>
+                        o.BookerId == user.Id && o.Status == Utilities.EnumBookingStatus.Pending
+                    );
             }
-            catch(Exception e)
+            catch (Exception e)
             {
                 throw new Exception(e.Message);
             }
@@ -72,7 +70,7 @@ namespace TerminalApi.Services
                     PaymentMethod = "card"
                 };
                 newOrder.OrderNumber = await GenerateOrderNumberAsync();
-                
+
                 context.Orders.Add(newOrder);
                 context.SaveChanges();
                 newOrder.Booker = user;
@@ -86,30 +84,37 @@ namespace TerminalApi.Services
             }
         }
 
-        public async Task<bool> UpdateOrderStatus(Guid orderId, EnumBookingStatus newStatus, string paymentIntent)
+        public async Task<bool> UpdateOrderStatus(
+            Guid orderId,
+            EnumBookingStatus newStatus,
+            string paymentIntent
+        )
         {
-            var order = await context
-               .Orders
-               //.AsSplitQuery()
-               //.AsNoTracking()
-               .FirstOrDefaultAsync(o =>
-                   o.Id == orderId && o.Status == Utilities.EnumBookingStatus.Pending
-               );
-            if(order is null)
+            var order = await context.Orders.FirstOrDefaultAsync(o =>
+                o.Id == orderId && o.Status == Utilities.EnumBookingStatus.Pending
+            );
+            if (order is null)
             {
                 return false;
             }
             order.Status = newStatus;
             order.PaymentIntent = paymentIntent;
-            order.UpdatedAt = DateTimeOffset.Now;
+            order.UpdatedAt = DateTimeOffset.UtcNow;
+            if (newStatus == EnumBookingStatus.Paid)
+            {
+                order.PaymentDate = DateTimeOffset.UtcNow;
+            }
             context.SaveChanges();
             return true;
         }
-        public async Task<ResponseDTO> GetOrdersForStudentPaginatedAsync(OrderPagination query, UserApp user)
+
+        public async Task<ResponseDTO> GetOrdersForStudentPaginatedAsync(
+            OrderPagination query,
+            UserApp user
+        )
         {
             var sqlQuery = context
-                .Orders
-                .AsSplitQuery()
+                .Orders.AsSplitQuery()
                 .Include(x => x.Bookings)
                 .ThenInclude(x => x.Slot)
                 .Where(x => x.BookerId == user.Id);
@@ -132,22 +137,21 @@ namespace TerminalApi.Services
                 Message = "Demande acceptée",
                 Status = 200,
                 Count = count,
-                Data =  result 
+                Data = result
             };
         }
 
-        public async Task<ResponseDTO> GetOrdersForTeacherPaginatedAsync(OrderPagination query, UserApp user)
+        public async Task<ResponseDTO> GetOrdersForTeacherPaginatedAsync(OrderPagination query)
         {
-            var sqlQuery = context
-                .Orders
-                .AsSplitQuery()
-                .Include(x => x.Bookings)
-                .ThenInclude(x => x.Slot) as IQueryable<Order>;
+            var sqlQuery =
+                context.Orders.AsSplitQuery().Include(x => x.Bookings).ThenInclude(x => x.Slot)
+                as IQueryable<Order>;
 
-            if(query.BookerId is not null )
+            if (query.BookerId is not null)
             {
                 sqlQuery = sqlQuery.Where(x => x.BookerId == query.BookerId);
-            }else 
+            }
+            else
             {
                 if (!string.IsNullOrWhiteSpace(query.SearchField))
                 {
@@ -155,11 +159,18 @@ namespace TerminalApi.Services
                     sqlQuery = sqlQuery
                         .Include(x => x.Booker)
                         .Where(x =>
-                            EF.Functions.ILike(x.Booker.FirstName, $"%{search}%") ||
-                            EF.Functions.ILike(x.Booker.LastName, $"%{search}%") ||
-                            EF.Functions.ILike(x.Booker.Email, $"%{search}%"));
+                            EF.Functions.ILike(x.Booker.FirstName, $"%{search}%")
+                            || EF.Functions.ILike(x.Booker.LastName, $"%{search}%")
+                            || EF.Functions.ILike(x.Booker.Email, $"%{search}%")
+                        );
                 }
             }
+
+            if(query.Status is not null)
+            {
+                sqlQuery = sqlQuery.Where(re => re.Status == query.Status);
+            }
+           
             if (query.FromDate.HasValue)
             {
                 sqlQuery = sqlQuery.Where(re => re.PaymentDate >= query.FromDate.Value);
@@ -167,6 +178,23 @@ namespace TerminalApi.Services
             if (query.ToDate.HasValue)
             {
                 sqlQuery = sqlQuery.Where(re => re.PaymentDate <= query.ToDate.Value);
+            }
+
+            if (query.OrderByDate is not null && query.OrderByDate != 0)
+            {
+                if (query.OrderByDate == 1)
+                {
+                    sqlQuery = sqlQuery.OrderBy(x => x.PaymentDate);
+                }
+                else
+                {
+                    sqlQuery = sqlQuery.OrderByDescending(x => x.PaymentDate);
+                }
+            }
+
+            if(query.PerPage == 0)
+            {
+                query.PerPage = 10;
             }
 
             var count = await sqlQuery.CountAsync();
@@ -188,7 +216,9 @@ namespace TerminalApi.Services
         {
             string datePart = DateTime.UtcNow.ToString("yyyyMMdd");
 
-            int count = await context.Orders.CountAsync(o => o.CreatedAt.Value.Date == DateTimeOffset.UtcNow);
+            int count = await context.Orders.CountAsync(o =>
+                o.CreatedAt.Value.Date == DateTimeOffset.UtcNow
+            );
             int nextNumber = count + 1;
 
             return $"SKILLHIVE-{datePart}-{nextNumber:D5}";
@@ -198,6 +228,5 @@ namespace TerminalApi.Services
         {
             return context.TVARates.OrderByDescending(x => x.StartAt).FirstOrDefault();
         }
-    }    
-
+    }
 }

@@ -6,8 +6,8 @@ namespace TerminalApi.Models
 {
     public class QueryPagination
     {
-        public int Start { get; set; }
-        public int PerPage { get; set; }
+        public int Start { get; set; } = 0;
+        public int PerPage { get; set; } = 10;
         public string? StudentId { get; set; }
         public DateTimeOffset? FromDate { get; set; }
         public DateTimeOffset? ToDate { get; set; }
@@ -17,11 +17,11 @@ namespace TerminalApi.Models
 
     public class OrderPagination
     {
-        public int Start { get; set; }
-        public int PerPage { get; set; }
+        public int Start { get; set; } = 0;
+        public int PerPage { get; set; } = 10;
         public DateTimeOffset? FromDate { get; set; }
         public DateTimeOffset? ToDate { get; set; }
-        public EnumBookingStatus Status { get; set; }
+        public EnumBookingStatus? Status { get; set; }
         public string? BookerId { get; set; }
         public short? OrderByDate { get; set; } = 0;
         public string? SearchField { get; set; }

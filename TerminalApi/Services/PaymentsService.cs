@@ -73,7 +73,7 @@ namespace TerminalApi.Services
                     var session = stripeEvent.Data.Object as Session;
                     Console.WriteLine("********** {0} ********", json);
 
-                    if (session.PaymentStatus == "paid") // Ensure payment is completed
+                    if (session.PaymentStatus == "paid") 
                     {
                         (string? bookerId, string? orderId, string? orderNumber) orderIds;
                         if (session.Metadata.TryGetValue("order_id", out string orderId))
