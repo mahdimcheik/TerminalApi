@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using System.Diagnostics;
 using TerminalApi.Contexts;
+using TerminalApi.Models;
 using TerminalApi.Models.Payments;
 using TerminalApi.Models.TVA;
 using TerminalApi.Models.User;
@@ -104,6 +105,84 @@ namespace TerminalApi.Services
             context.SaveChanges();
             return true;
         }
+        public async Task<ResponseDTO> GetOrdersForStudentPaginatedAsync(OrderPagination query, UserApp user)
+        {
+            var sqlQuery = context
+                .Orders
+                .AsSplitQuery()
+                .Include(x => x.Bookings)
+                .ThenInclude(x => x.Slot)
+                .Where(x => x.BookerId == user.Id);
+            if (query.FromDate.HasValue)
+            {
+                sqlQuery = sqlQuery.Where(re => re.PaymentDate >= query.FromDate.Value);
+            }
+            if (query.ToDate.HasValue)
+            {
+                sqlQuery = sqlQuery.Where(re => re.PaymentDate <= query.ToDate.Value);
+            }
+            var count = await sqlQuery.CountAsync();
+            List<OrderResponseForStudentDTO>? result = await sqlQuery
+                .Skip(query.Start)
+                .Take(query.PerPage)
+                .Select(re => re.ToOrderResponseForStudentDTO())
+                .ToListAsync();
+            return new ResponseDTO
+            {
+                Message = "Demande acceptée",
+                Status = 200,
+                Count = count,
+                Data =  result 
+            };
+        }
+
+        public async Task<ResponseDTO> GetOrdersForTeacherPaginatedAsync(OrderPagination query, UserApp user)
+        {
+            var sqlQuery = context
+                .Orders
+                .AsSplitQuery()
+                .Include(x => x.Bookings)
+                .ThenInclude(x => x.Slot) as IQueryable<Order>;
+
+            if(query.BookerId is not null )
+            {
+                sqlQuery = sqlQuery.Where(x => x.BookerId == query.BookerId);
+            }else 
+            {
+                if (!string.IsNullOrWhiteSpace(query.SearchField))
+                {
+                    string search = query.SearchField.ToLower();
+                    sqlQuery = sqlQuery
+                        .Include(x => x.Booker)
+                        .Where(x =>
+                            EF.Functions.ILike(x.Booker.FirstName, $"%{search}%") ||
+                            EF.Functions.ILike(x.Booker.LastName, $"%{search}%") ||
+                            EF.Functions.ILike(x.Booker.Email, $"%{search}%"));
+                }
+            }
+            if (query.FromDate.HasValue)
+            {
+                sqlQuery = sqlQuery.Where(re => re.PaymentDate >= query.FromDate.Value);
+            }
+            if (query.ToDate.HasValue)
+            {
+                sqlQuery = sqlQuery.Where(re => re.PaymentDate <= query.ToDate.Value);
+            }
+
+            var count = await sqlQuery.CountAsync();
+            List<OrderResponseForStudentDTO>? result = await sqlQuery
+                .Skip(query.Start)
+                .Take(query.PerPage)
+                .Select(re => re.ToOrderResponseForTeacherDTO())
+                .ToListAsync();
+            return new ResponseDTO
+            {
+                Message = "Demande acceptée",
+                Status = 200,
+                Count = count,
+                Data = result
+            };
+        }
 
         public async Task<string> GenerateOrderNumberAsync()
         {
@@ -112,12 +191,13 @@ namespace TerminalApi.Services
             int count = await context.Orders.CountAsync(o => o.CreatedAt.Value.Date == DateTimeOffset.UtcNow);
             int nextNumber = count + 1;
 
-            return $"INSPIRE-{datePart}-{nextNumber:D5}";
+            return $"SKILLHIVE-{datePart}-{nextNumber:D5}";
         }
 
         private TVARate GetTVARate()
         {
             return context.TVARates.OrderByDescending(x => x.StartAt).FirstOrDefault();
         }
-    }
+    }    
+
 }

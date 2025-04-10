@@ -20,6 +20,55 @@ namespace TerminalApi.Controllers
             this.orderService = orderService;
             this.context = context;
         }
+        [HttpGet("student/all")]
+        public async Task<ActionResult<ResponseDTO>>  GetOrderForStudentPaginated(
+            [FromQuery] OrderPagination query
+        )
+        {
+            var user = CheckUser.GetUserFromClaim(HttpContext.User, context);
+            if (user is null)
+            {
+                return BadRequest(new ResponseDTO { Status = 400, Message = "Demande refusée" });
+            }
+            var orders = await orderService.GetOrdersForStudentPaginatedAsync(query, user);
+            if (orders is null)
+                return NotFound(
+                    new ResponseDTO { Message = "Aucune commande disponible", Status = 404 }
+                );
+            return Ok(
+                new ResponseDTO
+                {
+                    Message = "Demande acceptée",
+                    Status = 200,
+                    Data = orders
+                }
+            );
+        }
+
+        [HttpGet("teacher/all")]
+        public async Task<ActionResult<ResponseDTO>> GetOrderForTeacherPaginated(
+    [FromQuery] OrderPagination query
+)
+        {
+            var user = CheckUser.GetUserFromClaim(HttpContext.User, context);
+            if (user is null)
+            {
+                return BadRequest(new ResponseDTO { Status = 400, Message = "Demande refusée" });
+            }
+            var orders = await orderService.GetOrdersForTeacherPaginatedAsync(query, user);
+            if (orders is null)
+                return NotFound(
+                    new ResponseDTO { Message = "Aucune commande disponible", Status = 404 }
+                );
+            return Ok(
+                new ResponseDTO
+                {
+                    Message = "Demande acceptée",
+                    Status = 200,
+                    Data = orders
+                }
+            );
+        }
 
         [HttpGet("student/{orderId}")]
         public async Task<ActionResult<ResponseDTO>> GetOrderByStudent(Guid orderId)
@@ -38,6 +87,8 @@ namespace TerminalApi.Controllers
                 }
             );
         }
+
+        
 
         [HttpGet("teacher/{orderId}")]
         public async Task<ActionResult<ResponseDTO>> GetOrderByTeacher(Guid orderId)
