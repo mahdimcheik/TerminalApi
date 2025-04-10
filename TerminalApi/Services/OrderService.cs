@@ -108,16 +108,19 @@ namespace TerminalApi.Services
             return true;
         }
 
-        public async Task<List<OrderResponseForStudentDTO>> GetOrdersForStudentPaginatedAsync(
+        public async Task<ResponseDTO?> GetOrdersForStudentPaginatedAsync(
             OrderPagination query,
             UserApp user
         )
         {
             var sqlQuery = context
-                .Orders.AsSplitQuery()
-                .Include(x => x.Bookings)
+                .Orders.Include(x => x.Bookings)
                 .ThenInclude(x => x.Slot)
-                .Where(x => x.BookerId == user.Id);
+                .Where(x => x.BookerId == user.Id)
+                .AsSplitQuery();
+
+            var count = await sqlQuery.CountAsync();
+
             if (query.FromDate.HasValue)
             {
                 sqlQuery = sqlQuery.Where(re => re.PaymentDate >= query.FromDate.Value);
@@ -126,17 +129,26 @@ namespace TerminalApi.Services
             {
                 sqlQuery = sqlQuery.Where(re => re.PaymentDate <= query.ToDate.Value);
             }
-            var count = await sqlQuery.CountAsync();
+
             List<OrderResponseForStudentDTO>? result = await sqlQuery
-                .OrderBy(x => x.PaymentDate)
+                .Where(x => x.PaymentDate != null)
+                .OrderByDescending(x => x.PaymentDate)
                 .Skip(query.Start)
                 .Take(query.PerPage)
                 .Select(re => re.ToOrderResponseForStudentDTO())
                 .ToListAsync();
-            return result;
+            return new ResponseDTO
+            {
+                Count = count,
+                Message = "Demande acceptée",
+                Data = result,
+                Status = 200
+            };
         }
 
-        public async Task<List<OrderResponseForTeacherDTO>> GetOrdersForTeacherPaginatedAsync(OrderPagination query)
+        public async Task<List<OrderResponseForTeacherDTO>> GetOrdersForTeacherPaginatedAsync(
+            OrderPagination query
+        )
         {
             var sqlQuery =
                 context.Orders.AsSplitQuery().Include(x => x.Bookings).ThenInclude(x => x.Slot)
@@ -161,11 +173,11 @@ namespace TerminalApi.Services
                 }
             }
 
-            if(query.Status is not null)
+            if (query.Status is not null)
             {
                 sqlQuery = sqlQuery.Where(re => re.Status == query.Status);
             }
-           
+
             if (query.FromDate.HasValue)
             {
                 sqlQuery = sqlQuery.Where(re => re.PaymentDate >= query.FromDate.Value);
@@ -187,7 +199,7 @@ namespace TerminalApi.Services
                 }
             }
 
-            if(query.PerPage == 0)
+            if (query.PerPage == 0)
             {
                 query.PerPage = 10;
             }

@@ -30,18 +30,10 @@ namespace TerminalApi.Controllers
             {
                 return BadRequest(new ResponseDTO { Status = 400, Message = "Demande refusée" });
             }
-            var orders = await orderService.GetOrdersForStudentPaginatedAsync(query, user);
-            if (orders is null || orders.Count == 0)
-                return NotFound(
-                    new ResponseDTO { Message = "Aucune commande disponible", Status = 404 }
-                );
+            var response = await orderService.GetOrdersForStudentPaginatedAsync(query, user);
+
             return Ok(
-                new ResponseDTO
-                {
-                    Message = "Demande acceptée",
-                    Status = 200,
-                    Data = orders
-                }
+               response
             );
         }
 
