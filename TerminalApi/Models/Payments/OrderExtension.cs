@@ -32,9 +32,9 @@ namespace TerminalApi.Models.Payments
             }
             return response;
         }
-        public static OrderResponseForStudentDTO ToOrderResponseForTeacherDTO(this Order order)
+        public static OrderResponseForTeacherDTO ToOrderResponseForTeacherDTO(this Order order)
         {
-            var response =  new OrderResponseForStudentDTO
+            var response =  new OrderResponseForTeacherDTO
             {
                 OrderNumber = order.OrderNumber,
                 PaymentDate = order.PaymentDate,

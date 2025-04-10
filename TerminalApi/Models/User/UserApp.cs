@@ -60,7 +60,9 @@ namespace TerminalApi.Models.User
 
     public class RefreshTokenBodyInput
     {
+        [Required]
         public string Token { get; set; }
+        [Required]
         public string RefreshToken { get; set; }
     }
     public class UserUpdateDTO

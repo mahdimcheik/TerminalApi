@@ -42,6 +42,8 @@
                     "https://192.168.1.36:5113",
                     "http://192.168.1.36:4200",
                     "https://192.168.1.36:4200",
+                    "http://10.0.0.124:4200",
+                    "https://10.0.0.124:4200",
                     "capacitor://localhost",
                     "ionic://localhost",
                     EnvironmentVariables.API_BACK_URL,

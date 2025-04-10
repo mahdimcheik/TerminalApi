@@ -20,9 +20,9 @@ namespace TerminalApi.Controllers
             this.orderService = orderService;
             this.context = context;
         }
-        [HttpGet("student/all")]
+        [HttpPost("student/all")]
         public async Task<ActionResult<ResponseDTO>>  GetOrderForStudentPaginated(
-            [FromQuery] OrderPagination query
+            [FromBody] OrderPagination query
         )
         {
             var user = CheckUser.GetUserFromClaim(HttpContext.User, context);
@@ -31,7 +31,7 @@ namespace TerminalApi.Controllers
                 return BadRequest(new ResponseDTO { Status = 400, Message = "Demande refusée" });
             }
             var orders = await orderService.GetOrdersForStudentPaginatedAsync(query, user);
-            if (orders is null)
+            if (orders is null || orders.Count == 0)
                 return NotFound(
                     new ResponseDTO { Message = "Aucune commande disponible", Status = 404 }
                 );
@@ -45,18 +45,13 @@ namespace TerminalApi.Controllers
             );
         }
 
-        [HttpGet("teacher/all")]
+        [HttpPost("teacher/all")]
         public async Task<ActionResult<ResponseDTO>> GetOrderForTeacherPaginated(
-    [FromQuery] OrderPagination query
+    [FromBody] OrderPagination query
 )
         {
-            //var user = CheckUser.GetUserFromClaim(HttpContext.User, context);
-            //if (user is null)
-            //{
-            //    return BadRequest(new ResponseDTO { Status = 400, Message = "Demande refusée" });
-            //}
             var orders = await orderService.GetOrdersForTeacherPaginatedAsync(query);
-            if (orders is null)
+            if (orders is null || orders.Count == 0)
                 return NotFound(
                     new ResponseDTO { Message = "Aucune commande disponible", Status = 404 }
                 );

@@ -28,7 +28,7 @@ namespace TerminalApi.Services
             return null;
         }
 
-        public async Task<OrderResponseForStudentDTO?> GetOrderByTeacherAsync(Guid orderId)
+        public async Task<OrderResponseForTeacherDTO?> GetOrderByTeacherAsync(Guid orderId)
         {
             var result = await context.Orders.FirstOrDefaultAsync(o => o.Id == orderId);
             if (result is not null)
@@ -108,7 +108,7 @@ namespace TerminalApi.Services
             return true;
         }
 
-        public async Task<ResponseDTO> GetOrdersForStudentPaginatedAsync(
+        public async Task<List<OrderResponseForStudentDTO>> GetOrdersForStudentPaginatedAsync(
             OrderPagination query,
             UserApp user
         )
@@ -132,16 +132,10 @@ namespace TerminalApi.Services
                 .Take(query.PerPage)
                 .Select(re => re.ToOrderResponseForStudentDTO())
                 .ToListAsync();
-            return new ResponseDTO
-            {
-                Message = "Demande acceptée",
-                Status = 200,
-                Count = count,
-                Data = result
-            };
+            return result;
         }
 
-        public async Task<ResponseDTO> GetOrdersForTeacherPaginatedAsync(OrderPagination query)
+        public async Task<List<OrderResponseForTeacherDTO>> GetOrdersForTeacherPaginatedAsync(OrderPagination query)
         {
             var sqlQuery =
                 context.Orders.AsSplitQuery().Include(x => x.Bookings).ThenInclude(x => x.Slot)
@@ -198,18 +192,12 @@ namespace TerminalApi.Services
             }
 
             var count = await sqlQuery.CountAsync();
-            List<OrderResponseForStudentDTO>? result = await sqlQuery
+            List<OrderResponseForTeacherDTO>? result = await sqlQuery
                 .Skip(query.Start)
                 .Take(query.PerPage)
                 .Select(re => re.ToOrderResponseForTeacherDTO())
                 .ToListAsync();
-            return new ResponseDTO
-            {
-                Message = "Demande acceptée",
-                Status = 200,
-                Count = count,
-                Data = result
-            };
+            return result;
         }
 
         public async Task<string> GenerateOrderNumberAsync()
