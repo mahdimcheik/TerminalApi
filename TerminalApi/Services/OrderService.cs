@@ -128,6 +128,7 @@ namespace TerminalApi.Services
             }
             var count = await sqlQuery.CountAsync();
             List<OrderResponseForStudentDTO>? result = await sqlQuery
+                .OrderBy(x => x.PaymentDate)
                 .Skip(query.Start)
                 .Take(query.PerPage)
                 .Select(re => re.ToOrderResponseForStudentDTO())
