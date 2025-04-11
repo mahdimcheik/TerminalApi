@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using PuppeteerSharp;
+using Stripe;
 using System;
 using TerminalApi.Models.Bookings;
 using TerminalApi.Models.TVA;
@@ -29,6 +30,7 @@ namespace TerminalApi.Models.Payments
                 response.TotalDiscountedPrice = order.TotalDiscountedPrice;
                 response.TotalOriginalPrice = order.TotalOriginalPrice;
                 response.TotalReduction = order.TotalReduction;
+                response.PaymentIntent = order.PaymentIntent;
             }
             return response;
         }
@@ -48,6 +50,7 @@ namespace TerminalApi.Models.Payments
                 response.TotalDiscountedPrice = order.TotalDiscountedPrice;
                 response.TotalOriginalPrice = order.TotalOriginalPrice;
                 response.TotalReduction = order.TotalReduction;
+                response.PaymentIntent = order.PaymentIntent;
             }
             return response;
         }

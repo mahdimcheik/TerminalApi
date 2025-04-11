@@ -28,5 +28,6 @@ namespace TerminalApi.Models.Payments
 
         [Precision(18, 2)]
         public decimal TotalReduction { get; set; }
+        public string? PaymentIntent { get; set; }
     }
 }
