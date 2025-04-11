@@ -1,11 +1,11 @@
-﻿@using TerminalApi.Services.Templates
-@model InvoiceModel
+﻿@using TerminalApi.Models.Payments
+@model OrderResponseForStudentDTO
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Invoice</title>
+    <title>Facture</title>
     <style>
         body { font-family: Arial, sans-serif; margin: 40px; padding: 20px; }
         .invoice-box { max-width: 800px; margin: auto; border: 1px solid #ddd; padding: 20px; }
@@ -21,43 +21,52 @@
 <body>
     <div class="invoice-box">
         <div class="invoice-header">
-            <h1>Invoice</h1>
+            <h1>Facture</h1>
         </div>
         <div class="company-info">
-            <p><strong>Company Name:</strong> @Model.CompanyName</p>
-            <p><strong>Email:</strong> @Model.CompanyEmail</p>
-            <p><strong>Date:</strong> @Model.InvoiceDate.ToString("yyyy-MM-dd")</p>
+            <p><strong>Entreprise:</strong> Skill Hive </p>
+            <p><strong>Numéro Siret:</strong> 123-5845-859 </p>
+            <p><strong>Email:</strong> teacher&#64;skillhive.fr</p>
+            <p><strong>Date:</strong> @Model.PaymentDate?.ToString("yyyy-MM-dd")</p>
         </div>
 
-        <h3>Bill To:</h3>
-        <p><strong>Customer Name:</strong> @Model.CustomerName</p>
-        <p><strong>Address:</strong> @Model.CustomerAddress</p>
+        <h3>Coordonnées client:</h3>
+        <p><strong>Client:</strong> @Model.Bookings?.First().StudentFirstName @Model.Bookings?.First().StudentLastName </p>
+        <p><strong>Address:</strong> 1 rue Honoré Daumier, Talence 33400</p>
+        <p><strong>Transaction :</strong> @Model.PaymentIntent</p>
+        <p><strong>Numéro facture :</strong> @Model.OrderNumber</p>
 
         <table>
             <tr>
                 <th>#</th>
-                <th>Item Description</th>
-                <th>Quantity</th>
-                <th>Unit Price</th>
-                <th>Total</th>
+                <th>Description</th>
+                <th>Date</th>
+                <th>Prix </th>
+                <th>Prix réduit</th>
             </tr>
-            @for (int i = 0; i < Model.Items.Count; i++)
+            
+            @for (int i = 0; i < Model.Bookings?.Count; i++)
             {
+                var items = Model.Bookings.ToList();
                 <tr>
                     <td>@(i + 1)</td>
-                    <td>@Model.Items[i].Description</td>
-                    <td>@Model.Items[i].Quantity</td>
-                    <td>@Model.Items[i].UnitPrice</td>
-                    <td>@(Model.Items[i].Quantity * Model.Items[i].UnitPrice)</td>
+                    <td>@items[i].Subject</td>
+                    <td>@items[i].StartAt.ToString("yyyy-MM-dd")</td>
+                    <td>@items[i].Price</td>
+                    <td>@items[i].DiscountedPrice</td>
                 </tr>
             }
             <tr>
-                <td colspan="4" class="total">Total Amount:</td>
-                <td><strong>@Model.Items.Sum(i => i.Quantity * i.UnitPrice)</strong></td>
+                <td colspan="4" class="total">Total payé:</td>
+                <td><strong>@Model.Bookings?.Sum(i => i.DiscountedPrice) €</strong></td>   
+            </tr>
+            <tr>
+                <td colspan="4" class="total">Dont TVA :</td>
+                <td><strong>@(String.Format("{0:0.00}",  Model.Bookings?.Sum(i => i.DiscountedPrice) * (decimal)0.2)) €</strong></td>
             </tr>
         </table>
 
-        <p class="footer">Thank you for your business!</p>
+        <p class="footer">Merci de votre achat!</p>
     </div>
 </body>
 </html>
