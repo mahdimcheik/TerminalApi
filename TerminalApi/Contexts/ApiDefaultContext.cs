@@ -100,6 +100,7 @@ namespace TerminalApi.Contexts
         public DbSet<Layout> Layouts { get; set; }
         public DbSet<TVARate> TVARates { get; set; }
         public DbSet<Notification> Notifications { get; set; }
+        public DbSet<RefreshTokens> RefreshTokens { get; set; }
 
     }
 

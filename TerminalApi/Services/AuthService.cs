@@ -300,15 +300,15 @@ namespace TerminalApi.Services
             };
         }
 
-        public async Task<ResponseDTO> UploadAvatar(IFormFile file, ClaimsPrincipal UserPrincipal, HttpRequest request)
+        public async Task<ResponseDTO> UploadAvatar(
+            IFormFile file,
+            ClaimsPrincipal UserPrincipal,
+            HttpRequest request
+        )
         {
             if (file == null)
             {
-                return new ResponseDTO
-                {
-                    Message = "Aucun fichier téléversé",
-                    Status = 400
-                };
+                return new ResponseDTO { Message = "Aucun fichier téléversé", Status = 400 };
             }
             var user = CheckUser.GetUserFromClaim(UserPrincipal, context);
             if (user is null)
@@ -325,13 +325,11 @@ namespace TerminalApi.Services
                 || !allowedExtensions.Contains(fileExtension)
             )
             {
-                return 
-                    new ResponseDTO
-                    {
-                        Status = 404,
-                        Message = "le type du ficheir n'est pas autorisé'"
-                    }
-                ;
+                return new ResponseDTO
+                {
+                    Status = 404,
+                    Message = "le type du ficheir n'est pas autorisé'"
+                };
             }
 
             // supprimer l' ancien fichier s' il existe
@@ -363,14 +361,22 @@ namespace TerminalApi.Services
             user.ImgUrl = url;
             await context.SaveChangesAsync();
 
-            return new ResponseDTO { Message = "Avatar téléversé", Status = 200, Data = new { fileName, url } };
+            return new ResponseDTO
+            {
+                Message = "Avatar téléversé",
+                Status = 200,
+                Data = new { fileName, url }
+            };
         }
 
-        public async Task<ResponseDTO> UpdateRefreshToken(RefreshTokenBodyInput values, HttpContext httpContext)
+        public async Task<ResponseDTO> UpdateRefreshToken(
+            RefreshTokenBodyInput values,
+            HttpContext httpContext
+        )
         {
             string? userEmail = httpContext
-    .User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.Email)
-    ?.Value?.ToLower();
+                .User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.Email)
+                ?.Value?.ToLower();
             if (userEmail == null)
             {
                 var principal = GetPrincipalFromExpiredToken(values.Token);
@@ -380,20 +386,12 @@ namespace TerminalApi.Services
             }
 
             if (userEmail == null)
-                return new ResponseDTO
-                {
-                    Status = 401,
-                    Message = "Demande refusée"
-                };
+                return new ResponseDTO { Status = 401, Message = "Demande refusée" };
 
             UserApp? user = context.Users.FirstOrDefault(x => x.Email.ToLower() == userEmail);
 
             if (user == null)
-                return new ResponseDTO
-                {
-                    Status = 404,
-                    Message = "Demande refusée"
-                };
+                return new ResponseDTO { Status = 404, Message = "Demande refusée" };
 
             if (values.RefreshToken == user.RefreshToken)
             {
@@ -403,23 +401,18 @@ namespace TerminalApi.Services
                 );
                 //HttpContext.Response.Headers.Add(key: "Authorization", value: accessToken);
 
-                return 
-                    new ResponseDTO
-                    {
-                        Message = "Autorisation renouvelée",
-                        Data = new RefreshTokenOutput(user, await GenerateAccessTokenAsync(user)),
-                        Status = 200
-                    }
-                ;
+                return new ResponseDTO
+                {
+                    Message = "Autorisation renouvelée",
+                    Data = new RefreshTokenOutput(user, await GenerateAccessTokenAsync(user)),
+                    Status = 200
+                };
             }
 
-            return new ResponseDTO
-            {
-                Status = 404,
-                Message = "Demande refusée"
-            };
+            return new ResponseDTO { Status = 404, Message = "Demande refusée" };
         }
-         public async Task<ResponseDTO> Login(UserLoginDTO model, HttpResponse response)
+
+        public async Task<ResponseDTO> Login(UserLoginDTO model, HttpResponse response)
         {
             var user = await userManager.FindByEmailAsync(model.Email);
 
@@ -436,7 +429,31 @@ namespace TerminalApi.Services
             if (user.RefreshToken == null) // a new refresh token has to be saved
             {
                 user.RefreshToken = Guid.NewGuid().ToString();
+                
             }
+
+            // à la connection, je crée ou je met à jour le refreshtoken
+            var RefreshToken = context.RefreshTokens.FirstOrDefault(x => x.UserId == user.Id);
+            if (RefreshToken is null)
+            {
+                context.RefreshTokens.Add(
+                    new RefreshTokens
+                    {
+                        Id = Guid.NewGuid(),
+                        RefreshToken = user.RefreshToken,
+                        UserId = user.Id,
+                        ExpirationDate = DateTimeOffset.UtcNow.AddDays(7),
+                    }
+                );
+            }
+            else
+            {
+                RefreshToken.RefreshToken = user.RefreshToken;
+                RefreshToken.ExpirationDate = DateTimeOffset.UtcNow.AddDays(7);
+                context.Entry(RefreshToken).State = EntityState.Modified;
+            }
+
+            await context.SaveChangesAsync();
 
             user.LastLogginAt = DateTime.Now;
             await context.SaveChangesAsync();
