@@ -148,7 +148,7 @@ namespace TerminalApi.Controllers
                 issuer: EnvironmentVariables.API_BACK_URL,
                 audience: EnvironmentVariables.API_BACK_URL,
             claims: authClaims,
-                expires: DateTime.Now.AddMinutes(15),
+                expires: DateTime.Now.AddMinutes(2),
                 signingCredentials: credentials
             );
 

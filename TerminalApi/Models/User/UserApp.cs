@@ -45,26 +45,13 @@ namespace TerminalApi.Models.User
         public ICollection<Notification.Notification>? NotificationsRecieved { get; set; }
         public ICollection<Notification.Notification>? NotificationsCreated { get; set; }
     }
-    public class RefreshTokenOutput
-    {
-        [JsonIgnore] protected UserApp MyUser { get; private set; }
-        [JsonIgnore] protected string MyAccessToken { get; private set; }
-        public string AccessToken => MyAccessToken;
 
-        public RefreshTokenOutput(UserApp User, string AccessToken)
-        {
-            this.MyUser = User;
-            this.MyAccessToken = AccessToken;
-        }
-    }
-
-    public class RefreshTokenBodyInput
+    public class LoginOutputDTO
     {
-        [Required]
-        public string Token { get; set; }
-        [Required]
-        public string RefreshToken { get; set; }
-    }
+        public string Token { get; set; } = null!;
+        public string RefreshToken { get; set; } = null!;
+        public UserResponseDTO User { get; set; } = null!;
+    }  
     public class UserUpdateDTO
     {
         [Required]

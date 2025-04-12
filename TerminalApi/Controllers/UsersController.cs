@@ -18,6 +18,7 @@ using TerminalApi.Models.Role;
 using TerminalApi.Models.User;
 using TerminalApi.Services;
 using TerminalApi.Utilities;
+using static System.Net.WebRequestMethods;
 
 namespace TerminalApi.Controllers
 {
@@ -160,6 +161,17 @@ namespace TerminalApi.Controllers
 
             if (result.Status == 200 || result.Status == 201)
             {
+                Response.Cookies.Append(
+                    "refreshToken",
+                    (result.Data as LoginOutputDTO).RefreshToken,
+                    new CookieOptions
+                    {
+                        HttpOnly = true,
+                        Secure = false,
+                        SameSite = SameSiteMode.Strict,
+                        Expires = DateTimeOffset.UtcNow.AddDays(7),
+                    }
+                );
                 return Ok(result);
             }
             return BadRequest(result);
@@ -195,7 +207,6 @@ namespace TerminalApi.Controllers
         [Authorize]
         public async Task<ActionResult<ResponseDTO>> GetMyInformations()
         {
-            Console.WriteLine("Called my infos");
             var user = CheckUser.GetUserFromClaim(HttpContext.User, _context);
 
             if (user == null)
@@ -310,22 +321,20 @@ namespace TerminalApi.Controllers
         #region refresh token
         [Route("refresh-token")]
         [AllowAnonymous]
-        [HttpPost]
-        public async Task<ActionResult<RefreshTokenOutput>> UpdateRefreshToken(
-            [FromBody] RefreshTokenBodyInput values
-        )
+        [HttpGet]
+        public async Task<ActionResult> UpdateRefreshToken()
         {
-            if (!ModelState.IsValid)
-                return BadRequest(
-                    new ResponseDTO
+            if (!Request.Cookies.TryGetValue("refreshToken", out var refreshToken))
+            {
+                return Unauthorized(
+                    new
                     {
-                        Data = ModelState,
-                        Status = 400,
-                        Message = "Demande refusée"
-                    }
-                );
+                        Message = "Refresh token non-existant",
+                        Status = 401
+                    });
+            }
 
-            var result = await authService.UpdateRefreshToken(values, HttpContext);
+            var result = await authService.UpdateRefreshToken(refreshToken, HttpContext);
 
             if (result.Status == 200 || result.Status == 201)
             {
@@ -335,24 +344,35 @@ namespace TerminalApi.Controllers
         }
         #endregion
 
-        //[HttpGet("all")]
-        //[Authorize(Roles = "Admin")]
-        //public async Task<ActionResult<ResponseDTO>> getAllUsers(
-        //    [FromQuery] int first,
-        //    [FromQuery] int rows
-        //)
-        //{
-        //    var users = await _context.Users.Skip(first).Take(rows).ToListAsync();
-        //    var totalCount = await _context.Users.CountAsync();
-        //    return Ok(
-        //        new ResponseDTO
-        //        {
-        //            Message = "Les utilisateurs",
-        //            Data = new { users, totalCount },
-        //            Status = 200
-        //        }
-        //    );
-        //}
+        [HttpGet("all")]
+        [Authorize(Roles = "Admin")]
+        public async Task<ActionResult<ResponseDTO>> getAllUsers(
+            [FromQuery] int first,
+            [FromQuery] int rows
+        )
+        {
+            var users = await _context.Users.Skip(first).Take(rows).ToListAsync();
+            var totalCount = await _context.Users.CountAsync();
+            return Ok(
+                new ResponseDTO
+                {
+                    Message = "Les utilisateurs",
+                    Data = new { users, totalCount },
+                    Status = 200
+                }
+            );
+        }
+
+        [HttpGet("logout")]
+        public async Task<ActionResult> Logout()
+        {
+            Response.Cookies.Delete("refreshToken");
+            return Ok(new
+            {
+                Message = "Vous êtes déconnecté",
+                Status = 200
+            });
+        }
 
         #region fixture
         [HttpGet("seed")]

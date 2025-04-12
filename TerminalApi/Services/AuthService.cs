@@ -1,4 +1,6 @@
-﻿using System.IdentityModel.Tokens.Jwt;
+﻿using System.ComponentModel;
+using System.Diagnostics;
+using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 using System.Web;
@@ -370,46 +372,36 @@ namespace TerminalApi.Services
         }
 
         public async Task<ResponseDTO> UpdateRefreshToken(
-            RefreshTokenBodyInput values,
+            string refreshToken,
             HttpContext httpContext
         )
         {
-            string? userEmail = httpContext
-                .User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.Email)
-                ?.Value?.ToLower();
-            if (userEmail == null)
+            var refreshTokenDB = await context
+                .RefreshTokens.Include(x => x.User)
+                .AsSplitQuery()
+                .FirstOrDefaultAsync(x => x.RefreshToken == refreshToken);
+
+            if (refreshTokenDB is null || refreshTokenDB.User is null || refreshTokenDB.IsExpired())
             {
-                var principal = GetPrincipalFromExpiredToken(values.Token);
-                userEmail = principal
-                    ?.Claims.FirstOrDefault(x => x.Type == ClaimTypes.Email)
-                    ?.Value?.ToLower();
+                return new ResponseDTO { Message = "Token expiré ou non valide", Status = 401, };
             }
 
-            if (userEmail == null)
-                return new ResponseDTO { Status = 401, Message = "Demande refusée" };
+            httpContext.Response.Headers.Add(
+                key: "Access-Control-Allow-Credentials",
+                value: "true"
+            );
 
-            UserApp? user = context.Users.FirstOrDefault(x => x.Email.ToLower() == userEmail);
-
-            if (user == null)
-                return new ResponseDTO { Status = 404, Message = "Demande refusée" };
-
-            if (values.RefreshToken == user.RefreshToken)
+            return new ResponseDTO
             {
-                httpContext.Response.Headers.Add(
-                    key: "Access-Control-Allow-Credentials",
-                    value: "true"
-                );
-                //HttpContext.Response.Headers.Add(key: "Authorization", value: accessToken);
-
-                return new ResponseDTO
+                Message = "Autorisation renouvelée",
+                Data = new LoginOutputDTO
                 {
-                    Message = "Autorisation renouvelée",
-                    Data = new RefreshTokenOutput(user, await GenerateAccessTokenAsync(user)),
-                    Status = 200
-                };
-            }
-
-            return new ResponseDTO { Status = 404, Message = "Demande refusée" };
+                    User = refreshTokenDB.User.ToUserResponseDTO(),
+                    Token = await GenerateAccessTokenAsync(refreshTokenDB.User),
+                    RefreshToken = refreshToken
+                },
+                Status = 200
+            };
         }
 
         public async Task<ResponseDTO> Login(UserLoginDTO model, HttpResponse response)
@@ -417,24 +409,53 @@ namespace TerminalApi.Services
             var user = await userManager.FindByEmailAsync(model.Email);
 
             if (user == null)
+            {
                 return new ResponseDTO { Message = "L'utilisateur n'existe pas ", Status = 404 };
+            }
 
             var result = await userManager.CheckPasswordAsync(user: user, password: model.Password);
             if (!userManager.CheckPasswordAsync(user: user, password: model.Password).Result)
                 return new ResponseDTO { Message = "Connexion échouée", Status = 401 };
 
-            //if (!await _userManager.IsEmailConfirmedAsync(user))
-            //    return Unauthorized();
-
-            if (user.RefreshToken == null) // a new refresh token has to be saved
-            {
-                user.RefreshToken = Guid.NewGuid().ToString();
-                
-            }
-
             // à la connection, je crée ou je met à jour le refreshtoken
-            var RefreshToken = context.RefreshTokens.FirstOrDefault(x => x.UserId == user.Id);
-            if (RefreshToken is null)
+            var refreshToken = await CreateOrUpdateTokenAsync(user);
+
+            user.LastLogginAt = DateTime.Now;
+            await context.SaveChangesAsync();
+            // to allow cookies sent from the front end
+            response.Headers.Add(key: "Access-Control-Allow-Credentials", value: "true");
+            var userRoles = await userManager.GetRolesAsync(user);
+
+            return new ResponseDTO
+            {
+                Message = "Connexion réussite",
+                Status = 200,
+                Data = new LoginOutputDTO
+                {
+                    Token = await GenerateAccessTokenAsync(user),
+                    RefreshToken = refreshToken?.RefreshToken,
+                    User = user.ToUserResponseDTO(userRoles),
+                },
+            };
+        }
+
+        private async Task<RefreshTokens?> CheckRefreshTokenAsync(UserApp user)
+        {
+            // à la connection, je crée ou je met à jour le refreshtoken
+            var refreshToken = context.RefreshTokens.FirstOrDefault(x => x.UserId == user.Id);
+            if (refreshToken is null || refreshToken.ExpirationDate < DateTimeOffset.UtcNow)
+            {
+                return null;
+            }
+            return refreshToken;
+        }
+
+        private async Task<RefreshTokens?> CreateOrUpdateTokenAsync(UserApp user)
+        {
+            // à la connection, je crée ou je met à jour le refreshtoken
+            var refreshToken = context.RefreshTokens.FirstOrDefault(x => x.UserId == user.Id);
+
+            if (refreshToken is null)
             {
                 context.RefreshTokens.Add(
                     new RefreshTokens
@@ -448,30 +469,14 @@ namespace TerminalApi.Services
             }
             else
             {
-                RefreshToken.RefreshToken = user.RefreshToken;
-                RefreshToken.ExpirationDate = DateTimeOffset.UtcNow.AddDays(7);
-                context.Entry(RefreshToken).State = EntityState.Modified;
+                refreshToken.RefreshToken = user.RefreshToken;
+                refreshToken.ExpirationDate = DateTimeOffset.UtcNow.AddDays(7);
+                context.Entry(refreshToken).State = EntityState.Modified;
             }
 
             await context.SaveChangesAsync();
 
-            user.LastLogginAt = DateTime.Now;
-            await context.SaveChangesAsync();
-            // to allow cookies sent from the front end
-            response.Headers.Add(key: "Access-Control-Allow-Credentials", value: "true");
-            var userRoles = await userManager.GetRolesAsync(user);
-
-            return new ResponseDTO
-            {
-                Message = "Connexion réussite",
-                Status = 200,
-                Data = new
-                {
-                    Token = await GenerateAccessTokenAsync(user),
-                    refreshToken = user.RefreshToken,
-                    User = user.ToUserResponseDTO(userRoles),
-                },
-            };
+            return refreshToken;
         }
 
         private async Task<string> GenerateAccessTokenAsync(UserApp user)
@@ -500,7 +505,7 @@ namespace TerminalApi.Services
                 issuer: EnvironmentVariables.API_BACK_URL,
                 audience: EnvironmentVariables.API_BACK_URL,
                 claims: authClaims,
-                expires: DateTime.Now.AddMinutes(15),
+                expires: DateTime.Now.AddMinutes(2),
                 signingCredentials: credentials
             );
 

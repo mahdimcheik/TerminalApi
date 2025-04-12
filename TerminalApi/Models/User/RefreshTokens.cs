@@ -17,4 +17,12 @@ namespace TerminalApi.Models.User
         public string? UserId { get; set; }
         public UserApp? User { get; set; }
     }
+
+    public static class RefreshTokenExtensions
+    {
+        public static bool IsExpired(this RefreshTokens refreshToken)
+        {
+            return refreshToken.ExpirationDate < DateTimeOffset.UtcNow;
+        }
+    }
 }
