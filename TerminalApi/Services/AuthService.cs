@@ -393,12 +393,14 @@ namespace TerminalApi.Services
                 value: "true"
             );
 
+            var userRoles = await userManager.GetRolesAsync(refreshTokenDB.User);
+
             return new ResponseDTO
             {
                 Message = "Autorisation renouvelée",
                 Data = new LoginOutputDTO
                 {
-                    User = refreshTokenDB.User.ToUserResponseDTO(),
+                    User = refreshTokenDB.User.ToUserResponseDTO(userRoles),
                     Token = await GenerateAccessTokenAsync(refreshTokenDB.User),
                     RefreshToken = refreshToken
                 },
