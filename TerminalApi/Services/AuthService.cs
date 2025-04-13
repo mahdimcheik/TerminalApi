@@ -3,10 +3,12 @@ using System.Diagnostics;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
+using System.Text.Json;
 using System.Web;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using PuppeteerSharp;
 using TerminalApi.Contexts;
 using TerminalApi.Models;
 using TerminalApi.Models.Adresse;
@@ -425,6 +427,25 @@ namespace TerminalApi.Services
             // to allow cookies sent from the front end
             response.Headers.Add(key: "Access-Control-Allow-Credentials", value: "true");
             var userRoles = await userManager.GetRolesAsync(user);
+            //var userJson = JsonSerializer.Serialize(user.ToUserResponseDTO());
+            //response.Cookies.Append("email", user.Email );
+            //response.Cookies.Append("firstName", user.FirstName );
+            //response.Cookies.Append("lastName", user.LastName );
+            //response.Cookies.Append("roles", JsonSerializer.Serialize(userRoles.ToList()) );
+
+            response.Cookies.Append(
+                "refreshToken",
+                refreshToken.RefreshToken,
+                new CookieOptions
+                {
+                    HttpOnly = true,
+                    Secure = false,
+                    SameSite = SameSiteMode.Lax,
+                    Expires = DateTimeOffset.UtcNow.AddDays(7),
+                }
+            );
+
+
 
             return new ResponseDTO
             {

@@ -161,17 +161,7 @@ namespace TerminalApi.Controllers
 
             if (result.Status == 200 || result.Status == 201)
             {
-                Response.Cookies.Append(
-                    "refreshToken",
-                    (result.Data as LoginOutputDTO).RefreshToken,
-                    new CookieOptions
-                    {
-                        HttpOnly = true,
-                        Secure = false,
-                        SameSite = SameSiteMode.Strict,
-                        Expires = DateTimeOffset.UtcNow.AddDays(7),
-                    }
-                );
+
                 return Ok(result);
             }
             return BadRequest(result);
