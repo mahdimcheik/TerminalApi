@@ -15,7 +15,7 @@ namespace TerminalApi.Controllers
 {
     [Route("[controller]")]
     [ApiController]
-    //[Authorize]
+    [Authorize]
     public class BookingController : ControllerBase
     {
         private readonly BookingService bookingService

@@ -1,11 +1,8 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using TerminalApi.Contexts;
 using TerminalApi.Models;
-using TerminalApi.Models.Bookings;
-using TerminalApi.Models.Payments;
 using TerminalApi.Models.Slots;
 using TerminalApi.Services;
 using TerminalApi.Utilities;
@@ -14,7 +11,7 @@ namespace TerminalApi.Controllers
 {
     [Route("[controller]")]
     [ApiController]
-    //[Authorize]
+    [Authorize]
     public class SlotController : ControllerBase
     {
         private readonly SlotService slotService;

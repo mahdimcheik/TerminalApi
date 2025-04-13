@@ -12,6 +12,7 @@ namespace TerminalApi.Controllers
 {
     [Route("[controller]")]
     [ApiController]
+    [Authorize]
     public class BillController : ControllerBase
     {
         private readonly PdfService pdfService;

@@ -1,15 +1,9 @@
-using System.Linq.Expressions;
-using System.Security.Cryptography.Xml;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.CodeAnalysis;
 using Stripe;
 using Stripe.Checkout;
 using TerminalApi.Contexts;
 using TerminalApi.Models;
-using TerminalApi.Models.Notification;
-using TerminalApi.Models.Payments;
 using TerminalApi.Services;
 using TerminalApi.Utilities;
 
@@ -17,6 +11,7 @@ namespace TerminalApi.Controllers
 {
     [Route("[controller]")]
     [ApiController]
+    [Authorize]
     public class PaymentsController : ControllerBase
     {
         private readonly ApiDefaultContext context;
@@ -112,15 +107,15 @@ namespace TerminalApi.Controllers
         {
             var json = await new StreamReader(HttpContext.Request.Body).ReadToEndAsync();
             var signatureHeader = Request.Headers["Stripe-Signature"];
-            Console.WriteLine("json : " + json +  "        signature " + signatureHeader);
+            Console.WriteLine("json : " + json + "        signature " + signatureHeader);
 
             bool result = await paymentsService.CheckPaymentAndUpdateOrder(json, signatureHeader);
 
-            if(result)
-            {                
+            if (result)
+            {
                 return Ok();
             }
-            return BadRequest();            
+            return BadRequest();
         }
     }
 

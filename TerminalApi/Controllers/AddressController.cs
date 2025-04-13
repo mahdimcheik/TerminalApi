@@ -1,10 +1,8 @@
 ﻿using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
-using System.Formats.Asn1;
 using TerminalApi.Contexts;
 using TerminalApi.Models;
 using TerminalApi.Models.Adresse;
@@ -63,9 +61,9 @@ namespace TerminalApi.Controllers
 
         [HttpPost]
         public async Task<ActionResult<ResponseDTO>> AddAddress([FromBody] AddressCreateDTO addressCreate)
-        
+
         {
-            if(addressCreate is null)
+            if (addressCreate is null)
             {
                 return BadRequest(new ResponseDTO { Status = 400, Message = "Demande refusée" });
             }
@@ -80,7 +78,8 @@ namespace TerminalApi.Controllers
                 var result = await addressService.AddAddress(addressCreate, user.Id);
                 return Ok(new ResponseDTO { Data = result, Message = "Addresse ajoutée", Status = 200 });
             }
-            catch (Exception ex) { 
+            catch (Exception ex)
+            {
                 return BadRequest(new ResponseDTO { Status = 400, Message = ex.Message });
             }
 
@@ -101,8 +100,8 @@ namespace TerminalApi.Controllers
                 return BadRequest(new ResponseDTO { Status = 400, Message = "Demande refusée" });
             }
 
-            var AddressFromDb = await context.Addresses.FirstOrDefaultAsync(x => x.Id == Guid.Parse(addressDTO.Id) && x.UserId == user.Id );
-            
+            var AddressFromDb = await context.Addresses.FirstOrDefaultAsync(x => x.Id == Guid.Parse(addressDTO.Id) && x.UserId == user.Id);
+
             if (AddressFromDb is null)
             {
                 return BadRequest(new ResponseDTO { Status = 400, Message = "Demande refusée" });
@@ -133,14 +132,15 @@ namespace TerminalApi.Controllers
                 {
                     return BadRequest(new ResponseDTO { Status = 400, Message = "Demande refusée" });
                 }
-                var resultDelete = await  addressService.DeleteAddress(user.Id,addressId);
+                var resultDelete = await addressService.DeleteAddress(user.Id, addressId);
                 return Ok(new ResponseDTO { Message = "l'addresse est supprimée", Status = 204 });
-            }catch(Exception ex)
+            }
+            catch (Exception ex)
             {
                 return BadRequest(new ResponseDTO { Status = 400, Message = ex.Message });
             }
         }
     }
 
-   
+
 }

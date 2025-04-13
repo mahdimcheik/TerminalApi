@@ -1,24 +1,15 @@
-﻿using System.IdentityModel.Tokens.Jwt;
-using System.Security.Claims;
-using System.Text;
-using System.Text.Json;
-using System.Text.Json.Serialization;
-using System.Web;
-using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.Authorization;
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using System.Text.Json.Serialization;
 using TerminalApi.Contexts;
 using TerminalApi.Models;
-using TerminalApi.Models.Notification;
-using TerminalApi.Models.Role;
 using TerminalApi.Models.User;
 using TerminalApi.Services;
 using TerminalApi.Utilities;
-using static System.Net.WebRequestMethods;
 
 namespace TerminalApi.Controllers
 {
@@ -32,34 +23,20 @@ namespace TerminalApi.Controllers
 
         private readonly ApiDefaultContext _context;
         private readonly UserManager<UserApp> _userManager;
-        private readonly RoleManager<Role> _roleManager;
-        private readonly SendMailService mailService;
-        private readonly IWebHostEnvironment _env;
+
         private readonly FakerService fakerService;
-        private readonly SignInManager<UserApp> signInManager;
-        private readonly NotificationService notificationService;
         private readonly AuthService authService;
 
         public UsersController(
             ApiDefaultContext context,
             UserManager<UserApp> userManager,
-            RoleManager<Role> roleManager,
-            SendMailService mailService,
-            IWebHostEnvironment env,
             FakerService fakerService,
-            SignInManager<UserApp> signInManager,
-            NotificationService notificationService,
             AuthService authService
         )
         {
             this._context = context;
             this._userManager = userManager;
-            this._roleManager = roleManager;
-            this.mailService = mailService;
-            this._env = env;
             this.fakerService = fakerService;
-            this.signInManager = signInManager;
-            this.notificationService = notificationService;
             this.authService = authService;
         }
 
@@ -118,7 +95,6 @@ namespace TerminalApi.Controllers
         }
 
         [HttpPost("upload-avatar")]
-        [Authorize]
         public async Task<IActionResult> OnPostUploadAsync(IFormFile file)
         {
             var result = await authService.UploadAvatar(
@@ -194,7 +170,6 @@ namespace TerminalApi.Controllers
 
         #region CurrentUser informations
         [HttpGet("my-informations")]
-        [Authorize]
         public async Task<ActionResult<ResponseDTO>> GetMyInformations()
         {
             var user = CheckUser.GetUserFromClaim(HttpContext.User, _context);
@@ -307,7 +282,7 @@ namespace TerminalApi.Controllers
             return BadRequest(result);
         }
         #endregion
-          
+
         #region refresh token
         [Route("refresh-token")]
         [AllowAnonymous]
@@ -352,7 +327,7 @@ namespace TerminalApi.Controllers
                 }
             );
         }
-
+        [AllowAnonymous]
         [HttpGet("logout")]
         public async Task<ActionResult> Logout()
         {

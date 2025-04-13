@@ -1,8 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using PuppeteerSharp;
 using TerminalApi.Contexts;
 using TerminalApi.Models;
 using TerminalApi.Models.Notification;
@@ -31,7 +29,7 @@ namespace TerminalApi.Controllers
             try
             {
                 var response = await _notificationService.AddNotification(notification);
-                return  Ok(
+                return Ok(
                     new ResponseDTO
                     {
                         Data = response,
@@ -96,8 +94,8 @@ namespace TerminalApi.Controllers
             {
                 return BadRequest(new ResponseDTO { Status = 400, Message = "Demande refusée" });
             }
-            var notification =  await context.Notifications.FirstOrDefaultAsync(x => x.Id == notificationId && x.RecipientId == user.Id);
-            if(notification is null)
+            var notification = await context.Notifications.FirstOrDefaultAsync(x => x.Id == notificationId && x.RecipientId == user.Id);
+            if (notification is null)
             {
                 return BadRequest(new ResponseDTO { Status = 400, Message = "Demande refusée" });
             }

@@ -1,9 +1,7 @@
-﻿using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
 using System.Security.Claims;
 using System.Text;
-using TerminalApi.Models;
 using TerminalApi.Services;
 using TerminalApi.Utilities;
 
@@ -21,9 +19,9 @@ namespace TerminalApi.Controllers
         }
 
         [HttpGet("{email}/{token}")]
-        public async Task Get(string email,string token, CancellationToken cancellationToken)
+        public async Task Get(string email, string token, CancellationToken cancellationToken)
         {
-            if(email is null || email.IsNullOrEmpty() || token.IsNullOrEmpty())
+            if (email is null || email.IsNullOrEmpty() || token.IsNullOrEmpty())
             {
                 return;
             }
@@ -32,11 +30,11 @@ namespace TerminalApi.Controllers
             {
 
                 var principal = UtilitiesUser.GetPrincipalFromToken(token);
-                
+
                 var userEmail = principal
                     ?.Claims.FirstOrDefault(x => x.Type == ClaimTypes.Email)
                     ?.Value?.ToLower();
-                if(userEmail.IsNullOrEmpty() || userEmail != email )
+                if (userEmail.IsNullOrEmpty() || userEmail != email)
                 {
                     return;
                 }
@@ -49,7 +47,7 @@ namespace TerminalApi.Controllers
             Response.Headers.Append("Connection", "keep-alive");
 
             var reader = _sseService.ConnectUser(email);
-             
+
             await using var writer = new StreamWriter(Response.Body, Encoding.UTF8, leaveOpen: true);
 
             try

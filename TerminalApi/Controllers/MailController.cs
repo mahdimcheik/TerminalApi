@@ -1,10 +1,5 @@
-using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
 using TerminalApi.Models;
 using TerminalApi.Models.Mail;
 using TerminalApi.Services;
@@ -12,6 +7,7 @@ using TerminalApi.Services;
 namespace TerminalApi.Controllers
 {
     [Route("[controller]")]
+    [Authorize]
     public class MailController : Controller
     {
         private readonly SendMailService mailService;

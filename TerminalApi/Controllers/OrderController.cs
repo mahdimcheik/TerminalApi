@@ -1,8 +1,7 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using TerminalApi.Contexts;
 using TerminalApi.Models;
-using TerminalApi.Models.Payments;
 using TerminalApi.Services;
 using TerminalApi.Utilities;
 
@@ -10,6 +9,7 @@ namespace TerminalApi.Controllers
 {
     [Route("[controller]")]
     [ApiController]
+    [Authorize]
     public class OrderController : ControllerBase
     {
         private readonly OrderService orderService;
@@ -21,7 +21,7 @@ namespace TerminalApi.Controllers
             this.context = context;
         }
         [HttpPost("student/all")]
-        public async Task<ActionResult<ResponseDTO>>  GetOrderForStudentPaginated(
+        public async Task<ActionResult<ResponseDTO>> GetOrderForStudentPaginated(
             [FromBody] OrderPagination query
         )
         {
@@ -75,7 +75,7 @@ namespace TerminalApi.Controllers
             );
         }
 
-        
+
 
         [HttpGet("teacher/{orderId}")]
         public async Task<ActionResult<ResponseDTO>> GetOrderByTeacher(Guid orderId)

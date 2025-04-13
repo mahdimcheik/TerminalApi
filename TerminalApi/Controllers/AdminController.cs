@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using TerminalApi.Models;
@@ -9,6 +10,7 @@ namespace TerminalApi.Controllers
 {
     [Route("[controller]")]
     [ApiController]
+    [Authorize(Roles ="Admin")]
     public class AdminController : ControllerBase
     {
         private readonly UsersService userService;

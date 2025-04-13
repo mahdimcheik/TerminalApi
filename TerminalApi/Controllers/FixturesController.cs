@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -12,6 +13,7 @@ namespace TerminalApi.Controllers
 {
     [Route("[controller]")]
     [ApiController]
+    [Authorize(Roles="Admin")]
     public class FixturesController : ControllerBase
     {
         private readonly ApiDefaultContext context;
