@@ -278,9 +278,11 @@ namespace TerminalApi.Services
                 newPassword: model.Password
             );
 
+            var newRefreshToken = await RenewRefreshTokenAsync(user);
+
             if (result.Succeeded)
             {
-                await context.SaveChangesAsync();
+                //await context.SaveChangesAsync();
                 await notificationService.AddNotification(
                     new Notification
                     {
@@ -422,18 +424,13 @@ namespace TerminalApi.Services
                 return new ResponseDTO { Message = "Connexion échouée", Status = 401 };
 
             // à la connection, je crée ou je met à jour le refreshtoken
-            var refreshToken = await CreateOrUpdateTokenAsync(user);
+            var refreshToken = await CreateOrUpdateTokenAsync(user, forceReset: true);
 
             user.LastLogginAt = DateTime.Now;
             await context.SaveChangesAsync();
             // to allow cookies sent from the front end
             response.Headers.Add(key: "Access-Control-Allow-Credentials", value: "true");
             var userRoles = await userManager.GetRolesAsync(user);
-            //var userJson = JsonSerializer.Serialize(user.ToUserResponseDTO());
-            //response.Cookies.Append("email", user.Email );
-            //response.Cookies.Append("firstName", user.FirstName );
-            //response.Cookies.Append("lastName", user.LastName );
-            //response.Cookies.Append("roles", JsonSerializer.Serialize(userRoles.ToList()) );
 
             response.Cookies.Append(
                 "refreshToken",
@@ -443,11 +440,9 @@ namespace TerminalApi.Services
                     HttpOnly = true,
                     Secure = false,
                     SameSite = SameSiteMode.Lax,
-                    Expires = DateTimeOffset.UtcNow.AddDays(7),
+                    Expires = DateTimeOffset.UtcNow.AddDays(EnvironmentVariables.COOKIES_VALIDITY_DAYS),
                 }
             );
-
-
 
             return new ResponseDTO
             {
@@ -462,18 +457,10 @@ namespace TerminalApi.Services
             };
         }
 
-        private async Task<RefreshTokens?> CheckRefreshTokenAsync(UserApp user)
-        {
-            // à la connection, je crée ou je met à jour le refreshtoken
-            var refreshToken = context.RefreshTokens.FirstOrDefault(x => x.UserId == user.Id);
-            if (refreshToken is null || refreshToken.ExpirationDate < DateTimeOffset.UtcNow)
-            {
-                return null;
-            }
-            return refreshToken;
-        }
-
-        private async Task<RefreshTokens?> CreateOrUpdateTokenAsync(UserApp user)
+        private async Task<RefreshTokens?> CreateOrUpdateTokenAsync(
+            UserApp user,
+            bool forceReset = false
+        )
         {
             // à la connection, je crée ou je met à jour le refreshtoken
             var refreshToken = context.RefreshTokens.FirstOrDefault(x => x.UserId == user.Id);
@@ -486,15 +473,43 @@ namespace TerminalApi.Services
                         Id = Guid.NewGuid(),
                         RefreshToken = user.RefreshToken,
                         UserId = user.Id,
-                        ExpirationDate = DateTimeOffset.UtcNow.AddDays(7),
+                        ExpirationDate = DateTimeOffset.UtcNow.AddDays(EnvironmentVariables.COOKIES_VALIDITY_DAYS),
+                    }
+                );
+            }
+            else if (forceReset)
+            {
+                refreshToken.RefreshToken = user.RefreshToken;
+                refreshToken.UserId = user.Id;
+                refreshToken.ExpirationDate = DateTimeOffset.UtcNow.AddDays(EnvironmentVariables.COOKIES_VALIDITY_DAYS);
+            }
+
+            await context.SaveChangesAsync();
+
+            return refreshToken;
+        }
+
+        private async Task<RefreshTokens?> RenewRefreshTokenAsync(UserApp user)
+        {
+            var refreshToken = context.RefreshTokens.FirstOrDefault(x => x.UserId == user.Id);
+
+            if (refreshToken is null)
+            {
+                context.RefreshTokens.Add(
+                    new RefreshTokens
+                    {
+                        Id = Guid.NewGuid(),
+                        RefreshToken = user.RefreshToken,
+                        UserId = user.Id,
+                        ExpirationDate = DateTimeOffset.UtcNow.AddDays(EnvironmentVariables.COOKIES_VALIDITY_DAYS),
                     }
                 );
             }
             else
             {
-                refreshToken.RefreshToken = user.RefreshToken;
-                refreshToken.ExpirationDate = DateTimeOffset.UtcNow.AddDays(7);
-                context.Entry(refreshToken).State = EntityState.Modified;
+                refreshToken.RefreshToken = Guid.NewGuid().ToString();
+                refreshToken.UserId = user.Id;
+                refreshToken.ExpirationDate = DateTimeOffset.UtcNow.AddDays(EnvironmentVariables.COOKIES_VALIDITY_DAYS);
             }
 
             await context.SaveChangesAsync();
@@ -528,7 +543,7 @@ namespace TerminalApi.Services
                 issuer: EnvironmentVariables.API_BACK_URL,
                 audience: EnvironmentVariables.API_BACK_URL,
                 claims: authClaims,
-                expires: DateTime.Now.AddMinutes(2),
+                expires: DateTime.Now.AddMinutes(EnvironmentVariables.TOKEN_VALIDATY_MINUTES),
                 signingCredentials: credentials
             );
 
@@ -556,37 +571,6 @@ namespace TerminalApi.Services
         {
             var existingUser = await userManager.FindByEmailAsync(email);
             return existingUser != null;
-        }
-
-        private ClaimsPrincipal? GetPrincipalFromExpiredToken(string? token)
-        {
-            var tokenValidationParameters = new TokenValidationParameters
-            {
-                ValidateAudience = false,
-                ValidateIssuer = false,
-                ValidateIssuerSigningKey = true,
-                IssuerSigningKey = new SymmetricSecurityKey(
-                    Encoding.UTF8.GetBytes(EnvironmentVariables.JWT_KEY)
-                ),
-                ValidateLifetime = false,
-            };
-
-            var tokenHandler = new JwtSecurityTokenHandler();
-            var principal = tokenHandler.ValidateToken(
-                token,
-                tokenValidationParameters,
-                out SecurityToken securityToken
-            );
-            if (
-                securityToken is not JwtSecurityToken jwtSecurityToken
-                || !jwtSecurityToken.Header.Alg.Equals(
-                    SecurityAlgorithms.HmacSha256,
-                    StringComparison.InvariantCultureIgnoreCase
-                )
-            )
-                throw new SecurityTokenException("Invalid token");
-
-            return principal;
         }
     }
 }

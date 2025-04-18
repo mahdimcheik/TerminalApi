@@ -61,5 +61,27 @@
         // hangfire
         public static string? HANGFIRE_ORDER_CLEANING_DELAY =>
             Environment.GetEnvironmentVariable("HANGFIRE_ORDER_CLEANING_DELAY");
+
+        // Authentification 
+        public static int COOKIES_VALIDITY_DAYS
+        {
+            get
+            {
+                int res = 7;
+                int.TryParse(Environment.GetEnvironmentVariable("COOKIES_VALIDITY_DAYS"), out res);
+                
+                return res <= 0 ? 7 : res;
+            }
+        } 
+        public static int TOKEN_VALIDATY_MINUTES
+        {
+            get
+            {
+                int res = 30;
+                int.TryParse(Environment.GetEnvironmentVariable("TOKEN_VALIDATY_MINUTES"), out res);
+                
+                return res <= 0 ? 60 : res;
+            }
+        }
     }
 }
