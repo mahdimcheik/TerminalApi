@@ -270,8 +270,7 @@ namespace TerminalApi.Services
             {
                 return new ResponseDTO { Message = "L'utilisateur n'existe pas", Status = 404 };
             }
-            // var decodedToken = HttpUtility.UrlDecode(model.ResetToken);
-            user.RefreshToken = Guid.NewGuid().ToString();
+
             IdentityResult result = await userManager.ResetPasswordAsync(
                 user: user,
                 token: model.ResetToken,
@@ -471,7 +470,7 @@ namespace TerminalApi.Services
                     new RefreshTokens
                     {
                         Id = Guid.NewGuid(),
-                        RefreshToken = user.RefreshToken,
+                        RefreshToken = Guid.NewGuid().ToString(),
                         UserId = user.Id,
                         ExpirationDate = DateTimeOffset.UtcNow.AddDays(EnvironmentVariables.COOKIES_VALIDITY_DAYS),
                     }
@@ -479,7 +478,6 @@ namespace TerminalApi.Services
             }
             else if (forceReset)
             {
-                refreshToken.RefreshToken = user.RefreshToken;
                 refreshToken.UserId = user.Id;
                 refreshToken.ExpirationDate = DateTimeOffset.UtcNow.AddDays(EnvironmentVariables.COOKIES_VALIDITY_DAYS);
             }
@@ -499,7 +497,7 @@ namespace TerminalApi.Services
                     new RefreshTokens
                     {
                         Id = Guid.NewGuid(),
-                        RefreshToken = user.RefreshToken,
+                        RefreshToken = Guid.NewGuid().ToString(),
                         UserId = user.Id,
                         ExpirationDate = DateTimeOffset.UtcNow.AddDays(EnvironmentVariables.COOKIES_VALIDITY_DAYS),
                     }

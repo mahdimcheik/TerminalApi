@@ -27,7 +27,7 @@ namespace TerminalApi.Models.User
         [Required]
         [Column(TypeName = "timestamp with time zone")]
         public DateTimeOffset DateOfBirth { get; set; }
-        public string? RefreshToken { get; set; }
+        //public string? RefreshToken { get; set; }
 
         [Column(TypeName = "timestamp with time zone")]
         public DateTimeOffset CreatedAt { get; set; }
