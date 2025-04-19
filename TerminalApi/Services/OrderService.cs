@@ -1,5 +1,6 @@
 ﻿using System.Diagnostics;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 using TerminalApi.Contexts;
 using TerminalApi.Models;
 using TerminalApi.Models.Payments;
@@ -119,7 +120,6 @@ namespace TerminalApi.Services
                 .Where(x => x.BookerId == user.Id)
                 .AsSplitQuery();
 
-            var count = await sqlQuery.CountAsync();
 
             if (query.FromDate.HasValue)
             {
@@ -129,6 +129,13 @@ namespace TerminalApi.Services
             {
                 sqlQuery = sqlQuery.Where(re => re.PaymentDate <= query.ToDate.Value);
             }
+            if(query.SearchField is not null && !query.SearchField.Trim().IsNullOrEmpty())
+            {
+                sqlQuery = sqlQuery.Where(x => EF.Functions.ILike( x.OrderNumber, $"%{query.SearchField}%"));
+            }
+
+            var count = await sqlQuery.CountAsync();
+
 
             List<OrderResponseForStudentDTO>? result = await sqlQuery
                 .Where(x => x.PaymentDate != null)
