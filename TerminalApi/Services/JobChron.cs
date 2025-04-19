@@ -16,19 +16,19 @@ namespace TerminalApi.Services
         {
             _context = context;
             this.notificationService = notificationService;
-            RecurringJob.AddOrUpdate("clean-database-orders", () => CleanOrders(), "*/2 * * * *");
+            RecurringJob.AddOrUpdate("clean-database-orders", () => CleanOrders(), "*/10 * * * *");
         }
 
         public async Task CleanOrders()
         {
-            int delay = 2; // default value
+            int delay = 30; // default value
             var gotDelayed = int.TryParse( EnvironmentVariables.HANGFIRE_ORDER_CLEANING_DELAY, out delay);
             try
             {
                 var orders = _context
                     .Orders.Include(x => x.Bookings)
                     .Where(x =>
-                        x.Status == EnumBookingStatus.Pending
+                        x.Status == EnumBookingStatus.Pending 
                         && x.Bookings.Count > 0
                         && (
                             x.UpdatedAt != null
@@ -38,7 +38,7 @@ namespace TerminalApi.Services
                     .ToList();
                 foreach (var order in orders)
                 {
-                    order.Status = EnumBookingStatus.Cancelled;
+                    order.Status = EnumBookingStatus.Pending;
                     if (order.UpdatedAt is null)
                     {
                         order.UpdatedAt = DateTimeOffset.UtcNow;
@@ -60,6 +60,7 @@ namespace TerminalApi.Services
                         }
                     );
                 }
+                
                 await _context.SaveChangesAsync();
             }
             catch (Exception e)

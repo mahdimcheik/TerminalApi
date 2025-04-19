@@ -420,7 +420,9 @@ namespace TerminalApi.Services
 
             var result = await userManager.CheckPasswordAsync(user: user, password: model.Password);
             if (!userManager.CheckPasswordAsync(user: user, password: model.Password).Result)
+            {
                 return new ResponseDTO { Message = "Connexion échouée", Status = 401 };
+            }       
 
             // à la connection, je crée ou je met à jour le refreshtoken
             var refreshToken = await CreateOrUpdateTokenAsync(user, forceReset: true);
@@ -515,7 +517,7 @@ namespace TerminalApi.Services
             return refreshToken;
         }
 
-        private async Task<string> GenerateAccessTokenAsync(UserApp user)
+        public async Task<string> GenerateAccessTokenAsync(UserApp user)
         {
             var securityKey = new SymmetricSecurityKey(
                 Encoding.UTF8.GetBytes(EnvironmentVariables.JWT_KEY)

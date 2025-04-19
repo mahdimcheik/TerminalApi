@@ -189,7 +189,7 @@ namespace TerminalApi.Controllers
                     Status = 200,
                     Data = new
                     {
-                        //Token = await GenerateAccessTokenAsync(user),
+                        Token = await authService.GenerateAccessTokenAsync(user),
                         User = user.ToUserResponseDTO(userRoles),
                     },
                 }

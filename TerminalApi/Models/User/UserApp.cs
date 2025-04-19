@@ -3,6 +3,7 @@ using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Text.Json.Serialization;
 using Microsoft.AspNetCore.Identity;
+using TerminalApi.Migrations;
 using TerminalApi.Models.Adresse;
 using TerminalApi.Models.Bookings;
 using TerminalApi.Models.Formations;
@@ -27,7 +28,6 @@ namespace TerminalApi.Models.User
         [Required]
         [Column(TypeName = "timestamp with time zone")]
         public DateTimeOffset DateOfBirth { get; set; }
-        //public string? RefreshToken { get; set; }
 
         [Column(TypeName = "timestamp with time zone")]
         public DateTimeOffset CreatedAt { get; set; }
@@ -37,8 +37,13 @@ namespace TerminalApi.Models.User
 
         [Column(TypeName = "timestamp with time zone")]
         public DateTimeOffset? LastLogginAt { get; set; }
+
+        // Bannir un utilisateur
+        public bool? IsBanned { get; set; } = false;
+        [Column(TypeName = "timestamp with time zone")]
+        public DateTimeOffset? BannedUntilDate { get; set; }
+        // navigations properties
         public ICollection<Address>? Adresses { get; set; }
-        // si le user est le prof. il a une liste de crenaux 
         public ICollection<Slot>? Slots { get; set; }
         public ICollection<Booking>? Bookings { get; set; }
         public ICollection<Formation>? Formations { get; set; }
@@ -83,6 +88,10 @@ namespace TerminalApi.Models.User
         public string? ImgUrl { get; set; }
         public string? Description { get; set; }
         public string? Title { get; set; }
+
+        public bool IsBanned { get; set; }
+        [Column(TypeName = "timestamp with time zone")]
+        public DateTimeOffset? BannedUntil { get; set; }
 
         public EnumGender Gender { get; set; }
         [Column(TypeName = "timestamp with time zone")]
@@ -144,6 +153,16 @@ namespace TerminalApi.Models.User
         public DateTimeOffset DateOfBirth { get; set; }
     }
 
+    public class UserBanDTO
+    {
+        [Required]
+        public string UserId { get; set; } = null!;
+        [Required]
+        public bool IsBanned { get; set; } = false;
+        [Column(TypeName = "timestamp with time zone")]
+        public DateTimeOffset? BannedUntilDate { get; set; }
+    }
+
     public static class UserExtension
     {
         public static UserApp ToUser(this UserCreateDTO userDTO)
@@ -191,6 +210,8 @@ namespace TerminalApi.Models.User
                 Title= user.Title,
                 Gender = user.Gender,
                 Id = user.Id,
+                IsBanned = user.IsBanned ?? false,
+                BannedUntil = user.BannedUntilDate,
                 EmailConfirmed = user.EmailConfirmed,
                 Roles = roles,
             };

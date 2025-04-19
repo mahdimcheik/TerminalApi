@@ -37,11 +37,11 @@ namespace TerminalApi.Controllers
                         new ResponseDTO { Status = 400, Message = "Demande refusée" }
                     );
                 }
-                var result = await paymentsService.Checkorder(request.OrderId, user.Id);
+                var result = await paymentsService.CheckOrder(request.OrderId, user.Id);
                 if (!result.isValid)
                 {
                     return BadRequest(
-                        new { Message = "Commande non valide, vérifiez la!", Status = 401 }
+                        new { Message = "Commande non valide, vérifiez la!", Status = 400 }
                     );
                 }
                 var domain = EnvironmentVariables.API_FRONT_URL;
@@ -84,6 +84,11 @@ namespace TerminalApi.Controllers
 
                 var service = new SessionService();
                 Session session = service.Create(options);
+
+                // Update the order in your database as Waiting for payment
+                result.order.Status = EnumBookingStatus.WaitingForPayment;
+
+                await context.SaveChangesAsync();
 
                 return Ok(
                     new

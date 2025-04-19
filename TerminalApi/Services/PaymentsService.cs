@@ -33,7 +33,8 @@ namespace TerminalApi.Services
             this.sseConnectionManager = sseConnectionManager;
         }
 
-        public async Task<(bool isValid, Order? order)> Checkorder(Guid orderId, string userId)
+        public async Task<(bool isValid, Order? order)> CheckOrder
+            (Guid orderId, string userId)
         {
             var order = await context
                 .Orders.Include(o => o.Booker)

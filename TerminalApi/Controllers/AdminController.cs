@@ -10,7 +10,7 @@ namespace TerminalApi.Controllers
 {
     [Route("[controller]")]
     [ApiController]
-    [Authorize(Roles ="Admin")]
+    //[Authorize(Roles ="Admin")]
     public class AdminController : ControllerBase
     {
         private readonly UsersService userService;
@@ -25,6 +25,13 @@ namespace TerminalApi.Controllers
         {
             var students = await userService.GetAllStudentsDTO( query);
             return Ok(students);
+        }
+
+        [HttpPut("ban-unban")]
+        public async Task<IActionResult> BanUnbanUser([FromBody] UserBanDTO userBanDTO )
+        {
+            var result = await userService.BanUnbanUser(userBanDTO);
+            return Ok(result);
         }
     }
 }

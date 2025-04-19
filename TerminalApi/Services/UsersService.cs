@@ -101,5 +101,46 @@ namespace TerminalApi.Services
                 Data = user.ToUserResponseDTO(),
             };
         }
+
+        public async Task<ResponseDTO> BanUnbanUser( UserBanDTO userBanDTO)
+        {
+            var user = await context.Users.FirstOrDefaultAsync(x => x.Id == userBanDTO.UserId);
+            if (user is null)
+            {
+                return new ResponseDTO
+                {
+                    Status = 404,
+                    Message = "Le compte n'existe pas ou ne correspond pas",
+                };
+            }
+            user.IsBanned = userBanDTO.IsBanned;
+            user.BannedUntilDate = (userBanDTO.BannedUntilDate is null) ? DateTimeOffset.UtcNow.AddDays(1) : userBanDTO.BannedUntilDate;
+            using var transaction = await context.Database.BeginTransactionAsync();
+            try
+            {
+                await context.SaveChangesAsync();
+                await notificationService.AddNotification(
+                    new Notification
+                    {
+                        Id = Guid.NewGuid(),
+                        RecipientId = user.Id,
+                        SenderId = user.Id,
+                        Type = EnumNotificationType.AccountUpdated
+                    }
+                );
+                await transaction.CommitAsync();
+            }
+            catch (Exception ex)
+            {
+                await transaction.RollbackAsync();
+                return new ResponseDTO { Status = 401, Message = ex.Message };
+            }
+            return new ResponseDTO
+            {
+                Message = userBanDTO.IsBanned ?  "Profil banni" : "Profil mis à jour",
+                Status = 200,
+                Data = user.ToUserResponseDTO(),
+            };
+        }
     }
 }
