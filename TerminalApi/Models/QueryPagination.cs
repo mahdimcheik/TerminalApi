@@ -9,6 +9,7 @@ namespace TerminalApi.Models
         public int Start { get; set; } = 0;
         public int PerPage { get; set; } = 10;
         public string? StudentId { get; set; }
+        public string? SearchWord { get; set; }
         public DateTimeOffset? FromDate { get; set; }
         public DateTimeOffset? ToDate { get; set; }
         public short? OrderByName { get; set; } = 0;

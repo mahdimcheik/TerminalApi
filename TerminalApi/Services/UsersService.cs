@@ -2,6 +2,7 @@
 using System.Security.Claims;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 using TerminalApi.Contexts;
 using TerminalApi.Models;
 using TerminalApi.Models.Notification;
@@ -38,17 +39,26 @@ namespace TerminalApi.Services
         {
             var querySql = context.Users.Where(x => x.EmailConfirmed && x.Id != HardCode.TeacherId);
 
-            var count = await querySql.CountAsync();
-
             if (query is null)
             {
+                var totalcount = await querySql.CountAsync();
                 return new ResponseDTO
                 {
                     Message = "Demande acceptée",
-                    Count = count,
+                    Count = totalcount,
                     Data = querySql.Skip(0).Take(10).ToList()
                 };
             }
+
+            if(!query.SearchWord.IsNullOrEmpty() && !query.SearchWord.Trim().IsNullOrEmpty())
+            {
+                query.SearchWord = query.SearchWord.ToLower();
+                querySql = querySql.Where(x => EF.Functions.ILike(x.FirstName.ToLower(), $"%{query.SearchWord}%") 
+                || EF.Functions.ILike(x.LastName.ToLower(), $"%{query.SearchWord}%")
+                || EF.Functions.ILike(x.Email.ToLower(), $"%{query.SearchWord}%")
+                );
+            }
+            var count = await querySql.CountAsync();
 
             querySql = querySql.Skip(query?.Start ?? 0).Take(query?.PerPage ?? 10);
 
