@@ -16,6 +16,7 @@ namespace TerminalApi.Controllers
     [Route("[controller]")]
     [ApiController]
     [Authorize]
+    [Authorize(Policy = "NotBanned")]
     public class BookingController : ControllerBase
     {
         private readonly BookingService bookingService
@@ -27,6 +28,7 @@ namespace TerminalApi.Controllers
             this.bookingService = bookingService;
             this.context = context;
         }
+        
         [HttpPost("book")]
         public async Task<ActionResult<ResponseDTO>> BookSlot([FromBody] BookingCreateDTO bookingCreateDTO)
         {
@@ -37,7 +39,7 @@ namespace TerminalApi.Controllers
                     return BadRequest(new ResponseDTO { Status = 400, Message = "Demande refusée" });
                 }
                 var user = CheckUser.GetUserFromClaim(HttpContext.User, context);
-                if (user is null)
+                if (user is null )
                 {
                     return BadRequest(new ResponseDTO { Status = 400, Message = "Demande refusée" });
                 }

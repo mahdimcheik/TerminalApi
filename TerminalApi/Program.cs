@@ -6,6 +6,7 @@ using System.Text;
 using Hangfire;
 using Hangfire.PostgreSql;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc.Razor;
 using Microsoft.EntityFrameworkCore;
@@ -16,6 +17,7 @@ using TerminalApi.Models.Role;
 using TerminalApi.Models.User;
 using TerminalApi.Services;
 using TerminalApi.Utilities;
+using TerminalApi.Utilities.Policies.NotBanned;
 
 namespace TerminalApi
 {
@@ -145,6 +147,7 @@ namespace TerminalApi
 
         private static void ConfigureAuthentication(IServiceCollection services)
         {
+            // authentication
             services
                 .AddAuthentication(options =>
                 {
@@ -173,6 +176,12 @@ namespace TerminalApi
                     options.ClientSecret = EnvironmentVariables.SECRET_CLIENT_GOOGLE;
                     options.CallbackPath = new PathString("/google-callback");
                 });
+            // authorization
+            services.AddAuthorization(options =>
+            {
+                options.AddPolicy("NotBanned", policy =>
+                    policy.Requirements.Add(new NotBannedRequirement()));
+            });
         }
 
         private static void ConfigureServices(IServiceCollection services)
@@ -192,6 +201,7 @@ namespace TerminalApi
             services.AddScoped<NotificationService>();
             services.AddScoped<UsersService>();
             services.AddScoped<AuthService>();
+            services.AddScoped<IAuthorizationHandler, NotBannedHandler>();
 
             // logger
             services.AddLogging(loggingBuilder =>

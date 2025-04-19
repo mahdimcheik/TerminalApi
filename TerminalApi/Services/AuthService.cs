@@ -132,6 +132,38 @@ namespace TerminalApi.Services
             }
         }
 
+        public async Task<ResponseDTO> ResendConfirmationMail(UserApp newUser)
+        {
+            try
+            {
+                var confirmationLink = await GenerateAccountConfirmationLink(newUser);
+                await mailService.ScheduleSendConfirmationEmail(
+                    new Models.Mail.Mail
+                    {
+                        MailBody = confirmationLink,
+                        MailSubject = "Mail de confirmation",
+                        MailTo = newUser.Email ?? "mahdi.mcheik@hotmail.fr",
+                    },
+                    confirmationLink ?? ""
+                );
+
+                // Retourne une réponse avec le statut déterminé, l'identifiant de l'utilisateur, le message de réponse et le statut complet
+                return new ResponseDTO
+                {
+                    Message = "Email envoyé",
+                    Status = 201,
+                    Data = newUser.ToUserResponseDTO(),
+                };
+                
+            }
+            catch (Exception e)
+            {
+                // En cas d'exception, afficher la trace et retourner une réponse avec le statut approprié
+                Console.WriteLine(e);
+                return new ResponseDTO { Status = 400, Message = "L'email n'est pas envoyé!!!" };
+            }
+        }
+
         public async Task<ResponseDTO> Update(UserUpdateDTO model, ClaimsPrincipal UserPrincipal)
         {
             var user = CheckUser.GetUserFromClaim(UserPrincipal, context);
@@ -185,7 +217,7 @@ namespace TerminalApi.Services
 
             if (result.Succeeded)
             {
-                new ResponseDTO
+                return new ResponseDTO
                 {
                     Message =
                         $"{EnvironmentVariables.API_FRONT_URL}/auth/email-confirmation-success",

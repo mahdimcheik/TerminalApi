@@ -166,6 +166,21 @@ namespace TerminalApi.Controllers
             }
             return BadRequest(result);
         }
+        [AllowAnonymous]
+        [HttpGet("resend-confirmation-link")]
+        public async Task<IActionResult> ResendConfirmationLink()
+        {
+            var user = CheckUser.GetUserFromClaim(HttpContext.User, _context);
+
+            if (user == null)
+                return BadRequest(
+                    new ResponseDTO { Message = "Vous n'êtes pas connecté", Status = 401 }
+                );
+
+            var res = await authService.ResendConfirmationMail(user);
+
+            return res.Status >= 400 ? BadRequest(res) : Ok(res);
+        }
         #endregion
 
         #region CurrentUser informations
