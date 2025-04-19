@@ -91,7 +91,7 @@ namespace TerminalApi.Models.User
 
         public bool IsBanned { get; set; }
         [Column(TypeName = "timestamp with time zone")]
-        public DateTimeOffset? BannedUntil { get; set; }
+        public DateTimeOffset? BannedUntilDate { get; set; }
 
         public EnumGender Gender { get; set; }
         [Column(TypeName = "timestamp with time zone")]
@@ -211,7 +211,7 @@ namespace TerminalApi.Models.User
                 Gender = user.Gender,
                 Id = user.Id,
                 IsBanned = user.IsBanned ?? false,
-                BannedUntil = user.BannedUntilDate,
+                BannedUntilDate = user.BannedUntilDate,
                 EmailConfirmed = user.EmailConfirmed,
                 Roles = roles,
             };
