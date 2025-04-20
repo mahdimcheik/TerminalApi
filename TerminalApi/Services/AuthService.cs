@@ -500,14 +500,15 @@ namespace TerminalApi.Services
 
             if (refreshToken is null)
             {
+                refreshToken = new RefreshTokens
+                {
+                    Id = Guid.NewGuid(),
+                    RefreshToken = Guid.NewGuid().ToString(),
+                    UserId = user.Id,
+                    ExpirationDate = DateTimeOffset.UtcNow.AddDays(EnvironmentVariables.COOKIES_VALIDITY_DAYS),
+                };
                 context.RefreshTokens.Add(
-                    new RefreshTokens
-                    {
-                        Id = Guid.NewGuid(),
-                        RefreshToken = Guid.NewGuid().ToString(),
-                        UserId = user.Id,
-                        ExpirationDate = DateTimeOffset.UtcNow.AddDays(EnvironmentVariables.COOKIES_VALIDITY_DAYS),
-                    }
+                   refreshToken
                 );
             }
             else if (forceReset)
