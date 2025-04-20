@@ -59,8 +59,16 @@
         public static string? STRIPE_SECRET_ENDPOINT_TEST = Environment.GetEnvironmentVariable("STRIPE_SECREt_ENDPOINT_TEST");
 
         // hangfire
-        public static string? HANGFIRE_ORDER_CLEANING_DELAY =>
-            Environment.GetEnvironmentVariable("HANGFIRE_ORDER_CLEANING_DELAY");
+        public static int HANGFIRE_ORDER_CLEANING_DELAY
+        {
+            get
+            {
+                int res = 30;
+                int.TryParse(Environment.GetEnvironmentVariable("HANGFIRE_ORDER_CLEANING_DELAY"), out res);
+
+                return res <= 0 ? 30 : res;
+            }
+        }
 
         // Authentification 
         public static int COOKIES_VALIDITY_DAYS

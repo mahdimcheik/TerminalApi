@@ -11,19 +11,19 @@ namespace TerminalApi.Services
 {
     public class BookingService
     {
-        private readonly SlotService slotService;
         private readonly ApiDefaultContext context;
         private readonly OrderService orderService;
         private readonly SseService sseService;
         private readonly NotificationService notificationService;
+        private readonly JobChron jobChron;
 
-        public BookingService(SlotService slotService, ApiDefaultContext context, OrderService orderService, SseService sseService, NotificationService notificationService)
+        public BookingService( ApiDefaultContext context, OrderService orderService, SseService sseService, NotificationService notificationService, JobChron jobChron)
         {
-            this.slotService = slotService;
             this.context = context;
             this.orderService = orderService;
             this.sseService = sseService;
             this.notificationService = notificationService;
+            this.jobChron = jobChron;
         }
 
         public async Task<bool> BookSlot(BookingCreateDTO newBookingCreateDTO, UserApp booker)
@@ -63,8 +63,10 @@ namespace TerminalApi.Services
                 await notificationService.AddNotification(notificationForTeacher);
                 var notificationDb =   await notificationService.AddNotification(notification);
 
-                var message = System.Text.Json.JsonSerializer.Serialize(notificationDb);
-                await sseService.SendMessageToUserAsync(booker.Email, message);
+                jobChron.SchedulerSingleOrderCleaning(order.Id.ToString());
+
+                //var message = System.Text.Json.JsonSerializer.Serialize(notificationDb);
+                //await sseService.SendMessageToUserAsync(booker.Email, message);
                 return true;
             }
             catch (Exception ex)

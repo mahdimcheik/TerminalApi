@@ -31,7 +31,7 @@ namespace TerminalApi
             ConfigureServices(services);
 
             var app = builder.Build();
-            ConfigureMiddlewarePipeline(app);           
+            ConfigureMiddlewarePipeline(app);
 
             app.Run();
         }
@@ -179,8 +179,10 @@ namespace TerminalApi
             // authorization
             services.AddAuthorization(options =>
             {
-                options.AddPolicy("NotBanned", policy =>
-                    policy.Requirements.Add(new NotBannedRequirement()));
+                options.AddPolicy(
+                    "NotBanned",
+                    policy => policy.Requirements.Add(new NotBannedRequirement())
+                );
             });
         }
 
@@ -264,14 +266,15 @@ namespace TerminalApi
                         }
                     )
             );
-            services.AddHangfireServer();
 
+            services.AddHangfireServer();
             ConfigureCors(services);
             ConfigureControllers(services);
             ConfigureSwagger(services);
             ConfigureIdentity(services);
             ConfigureAuthentication(services);
         }
+
         private static void ConfigureMiddlewarePipeline(WebApplication app)
         {
             // Configure localization for supported cultures.
@@ -334,7 +337,6 @@ namespace TerminalApi
                 }
             );
         }
-       
     }
 }
 

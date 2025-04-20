@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks.Dataflow;
+﻿using System.Collections;
+using System.Threading.Tasks.Dataflow;
 using Hangfire;
 using Microsoft.EntityFrameworkCore;
 using TerminalApi.Contexts;
@@ -12,23 +13,25 @@ namespace TerminalApi.Services
         private readonly ApiDefaultContext _context;
         private readonly NotificationService notificationService;
 
+        public static Hashtable ScheduleJobOrderTable { get; set; } = new();
+
         public JobChron(ApiDefaultContext context, NotificationService notificationService)
         {
             _context = context;
             this.notificationService = notificationService;
-            RecurringJob.AddOrUpdate("clean-database-orders", () => CleanOrders(), "*/10 * * * *");
+            //RecurringJob.AddOrUpdate("clean-database-orders", () => CleanOrders(), "*/10 * * * *");
+            RecurringJob.AddOrUpdate("delete-passed-jobs", () => RemoveFinishedJobs(), "*/10 * * * *");
         }
 
         public async Task CleanOrders()
         {
-            int delay = 30; // default value
-            var gotDelayed = int.TryParse( EnvironmentVariables.HANGFIRE_ORDER_CLEANING_DELAY, out delay);
+            int delay = EnvironmentVariables.HANGFIRE_ORDER_CLEANING_DELAY;
             try
             {
                 var orders = _context
                     .Orders.Include(x => x.Bookings)
                     .Where(x =>
-                        x.Status == EnumBookingStatus.Pending 
+                        x.Status == EnumBookingStatus.Pending
                         && x.Bookings.Count > 0
                         && (
                             x.UpdatedAt != null
@@ -60,13 +63,88 @@ namespace TerminalApi.Services
                         }
                     );
                 }
-                
+
                 await _context.SaveChangesAsync();
             }
             catch (Exception e)
             {
                 throw new Exception(e.Message);
             }
+        }
+
+        public  void SchedulerSingleOrderCleaning(string orderId)
+        {
+            // j'annule l'ancien job avant de planifier un nouveau
+            CancelScheuledJob(orderId);
+            int delay = EnvironmentVariables.HANGFIRE_ORDER_CLEANING_DELAY;
+
+            var jobId = BackgroundJob.Schedule(() => TrackOrder(orderId), TimeSpan.FromMinutes(delay));
+            ScheduleJobOrderTable.Add(orderId, jobId);
+        }
+
+        public void CancelScheuledJob(string orderId)
+        {
+            if (ScheduleJobOrderTable.Contains(orderId))
+            {
+                BackgroundJob.Delete(ScheduleJobOrderTable[orderId] as string);
+                ScheduleJobOrderTable.Remove(orderId);
+            }
+        }
+
+        public void RemoveFinishedJobs()
+        {
+            using (var connection = JobStorage.Current.GetConnection())
+            {
+                var keys = ScheduleJobOrderTable.Keys;
+
+                var copy = DeepCopyScheduleJobOrderTable();
+
+                foreach (DictionaryEntry item in copy)
+                {
+                    var jobId = ScheduleJobOrderTable[item.Key];
+                    var jobData = connection.GetJobData(jobId as string);
+
+                    if (jobData != null && jobData.State != "Scheduled" && jobData.State != "Processing")
+                    {
+                        ScheduleJobOrderTable.Remove(item.Key);
+                        BackgroundJob.Delete(jobId as string);
+                    }
+                }
+            }
+           
+        }
+
+        public void TrackOrder(string orderId)
+        {
+            try
+            {
+                Guid.TryParse(orderId, out Guid orderGuid);
+                var order = _context
+                    .Orders.Include(x => x.Bookings)
+                    .FirstOrDefault(x => x.Id == orderGuid);
+
+                if (order is not null)
+                {
+                    _context.RemoveRange(
+                       order.Bookings.Where(x => x.OrderId == orderGuid
+                       )
+                   );
+                    _context.SaveChanges();
+                }
+            }
+            catch (Exception e)
+            {
+                throw new Exception(e.Message);
+            }
+        }
+        public Hashtable DeepCopyScheduleJobOrderTable()
+        {
+            var deepCopy = new Hashtable();
+            foreach (DictionaryEntry entry in ScheduleJobOrderTable)
+            {
+                deepCopy.Add(entry.Key, entry.Value);
+            }
+            return deepCopy;
         }
     }
 }
