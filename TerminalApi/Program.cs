@@ -236,10 +236,10 @@ namespace TerminalApi
                 //options.UseSqlite("Data Source = d:\\terminal.db;");
                 string POSTGRES_CONNECTION_STRING =
                     "Server={0};Port={1};Database={2};User Id={3};Password={4}";
-                //options.UseNpgsql("Host=localhost;Port=5432;Database=leprojet;Username=postgres;Password=beecoming;");
-                options.UseNpgsql(
-                    "Host=localhost;Port=8081;Database=base;Username=postgres;Password=mahdimcheik;"
-                );
+                options.UseNpgsql("Host=localhost;Port=5432;Database=leprojet;Username=postgres;Password=beecoming;");
+                //options.UseNpgsql(
+                //    "Host=localhost;Port=8081;Database=base;Username=postgres;Password=mahdimcheik;"
+                //);
 
                 //options.UseNpgsql(
                 //            string.Format(POSTGRES_CONNECTION_STRING, EnvironmentVariables.DB_HOST ,EnvironmentVariables.DB_PORT, EnvironmentVariables.DB_NAME, EnvironmentVariables.DB_USER, EnvironmentVariables.DB_PASSWORD));
@@ -261,7 +261,7 @@ namespace TerminalApi
                         (options) =>
                         {
                             options.UseNpgsqlConnection(
-                                "Host=localhost;Port=8081;Database=base;Username=postgres;Password=mahdimcheik;"
+                                "Host=localhost;Port=5432;Database=leprojet;Username=postgres;Password=beecoming;"
                             );
                         }
                     )
