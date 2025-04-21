@@ -29,6 +29,10 @@ namespace TerminalApi.Models.Payments
 
         public string? PaymentIntent { get; set; }
 
+        public string? CheckoutID { get; set; }
+        [Column(TypeName = "timestamp with time zone")]
+        public DateTimeOffset? CheckoutExpiredAt { get; set; }
+
         // Calculated fields
         [JsonIgnore]
         [NotMapped]

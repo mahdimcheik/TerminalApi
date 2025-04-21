@@ -44,11 +44,10 @@ namespace TerminalApi.Services
         )
         {
             Order? order;
-            //Stopwatch stopwatch = Stopwatch.StartNew();
             try
             {
                 order = await context
-                    .Orders.AsSplitQuery()
+                    .Orders
                     .Include(x => x.Bookings)
                     .ThenInclude(x => x.Slot)
                     .FirstOrDefaultAsync(o =>
@@ -59,30 +58,28 @@ namespace TerminalApi.Services
             {
                 throw new Exception(e.Message);
             }
-            //Console.WriteLine("Times : " + stopwatch.ElapsedMilliseconds + "ms" );
             if (order == null)
             {
                 Order newOrder = new Order
                 {
                     BookerId = user.Id,
                     Status = Utilities.EnumBookingStatus.Pending,
-                    CreatedAt = DateTimeOffset.Now,
-                    UpdatedAt = DateTimeOffset.Now,
+                    CreatedAt = DateTimeOffset.UtcNow,
+                    UpdatedAt = DateTimeOffset.UtcNow,
                     PaymentMethod = "card"
                 };
                 newOrder.OrderNumber = await GenerateOrderNumberAsync();
 
-                context.Orders.Add(newOrder);
-                context.SaveChanges();
+                context.Orders.Add(newOrder);                
                 newOrder.Booker = user;
-                return newOrder.ToOrderResponseForStudentDTO();
             }
             else
             {
                 order.Booker = user;
-                order.UpdatedAt = DateTimeOffset.Now;
-                return order.ToOrderResponseForStudentDTO();
+                order.UpdatedAt = DateTimeOffset.UtcNow;
             }
+            await context.SaveChangesAsync();
+            return order.ToOrderResponseForStudentDTO();
         }
 
         public async Task<bool> UpdateOrderStatus(

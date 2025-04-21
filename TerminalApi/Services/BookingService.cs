@@ -36,15 +36,15 @@ namespace TerminalApi.Services
                 .Include(x => x.Booking)
                 .FirstOrDefaultAsync();
 
-            OrderResponseForStudentDTO order = await orderService.GetOrCreateCurrentOrderByUserAsync(booker);
+            OrderResponseForStudentDTO orderDTO = await orderService.GetOrCreateCurrentOrderByUserAsync(booker);
 
-            if (slot is null || slot.Booking is not null || order is null)
+            if (slot is null || slot.Booking is not null || orderDTO is null)
             {
                 return false;
             }
             //newBookingCreateDTO.O
 
-            Booking newBooking = newBookingCreateDTO.ToBooking(booker.Id, order.Id);
+            Booking newBooking = newBookingCreateDTO.ToBooking(booker.Id, orderDTO.Id);
             try
             {
                 var res = await context.Bookings.AddAsync(newBooking);
@@ -63,7 +63,7 @@ namespace TerminalApi.Services
                 await notificationService.AddNotification(notificationForTeacher);
                 var notificationDb =   await notificationService.AddNotification(notification);
 
-                jobChron.SchedulerSingleOrderCleaning(order.Id.ToString());
+                jobChron.SchedulerSingleOrderCleaning(orderDTO.Id.ToString());
 
                 //var message = System.Text.Json.JsonSerializer.Serialize(notificationDb);
                 //await sseService.SendMessageToUserAsync(booker.Email, message);

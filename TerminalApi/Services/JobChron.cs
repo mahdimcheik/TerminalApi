@@ -1,7 +1,6 @@
-﻿using System.Collections;
-using System.Threading.Tasks.Dataflow;
-using Hangfire;
+﻿using Hangfire;
 using Microsoft.EntityFrameworkCore;
+using System.Collections;
 using TerminalApi.Contexts;
 using TerminalApi.Models.Notification;
 using TerminalApi.Utilities;
@@ -72,7 +71,7 @@ namespace TerminalApi.Services
             }
         }
 
-        public  void SchedulerSingleOrderCleaning(string orderId)
+        public void SchedulerSingleOrderCleaning(string orderId)
         {
             // j'annule l'ancien job avant de planifier un nouveau
             CancelScheuledJob(orderId);
@@ -111,7 +110,7 @@ namespace TerminalApi.Services
                     }
                 }
             }
-           
+
         }
 
         public void TrackOrder(string orderId)
@@ -129,8 +128,15 @@ namespace TerminalApi.Services
                        order.Bookings.Where(x => x.OrderId == orderGuid
                        )
                    );
+
+                    if (order.PaymentIntent is not null)
+                    {
+
+                    }
+
                     _context.SaveChanges();
                 }
+
             }
             catch (Exception e)
             {

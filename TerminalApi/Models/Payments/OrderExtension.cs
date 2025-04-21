@@ -21,8 +21,8 @@ namespace TerminalApi.Models.Payments
                 CreatedAt = order.CreatedAt,
                 Status = order.Status,
                 PaymentMethod = order.PaymentMethod,
-
-
+                CheckoutExpiredAt = order.CheckoutExpiredAt,
+                CheckoutID = order.CheckoutID
             };
             if(order.Bookings is not null && order.Bookings.Any())
             {
