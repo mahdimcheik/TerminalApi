@@ -30,6 +30,8 @@
                     "http://localhost:5001",
                     "https://localhost:4200",
                     "http://localhost:4200",
+                    "https://localhost:4201",
+                    "http://localhost:4201",
                     "https://localhost:8100",
                     "http://localhost:8100",
                     "http://localhost:8082",
