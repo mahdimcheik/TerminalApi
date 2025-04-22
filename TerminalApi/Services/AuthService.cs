@@ -1,26 +1,20 @@
-﻿using System.ComponentModel;
-using System.Diagnostics;
-using System.IdentityModel.Tokens.Jwt;
+﻿using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
-using System.Text.Json;
 using System.Web;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
-using PuppeteerSharp;
 using TerminalApi.Contexts;
 using TerminalApi.Models;
-using TerminalApi.Models.Adresse;
-using TerminalApi.Models.Bookings;
 using TerminalApi.Models.Notification;
 using TerminalApi.Models.Role;
 using TerminalApi.Models.User;
 using TerminalApi.Utilities;
-using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace TerminalApi.Services
 {
+
     public class AuthService
     {
         private readonly ApiDefaultContext context;
@@ -154,7 +148,7 @@ namespace TerminalApi.Services
                     Status = 201,
                     Data = newUser.ToUserResponseDTO(),
                 };
-                
+
             }
             catch (Exception e)
             {
@@ -454,7 +448,7 @@ namespace TerminalApi.Services
             if (!userManager.CheckPasswordAsync(user: user, password: model.Password).Result)
             {
                 return new ResponseDTO { Message = "Connexion échouée", Status = 401 };
-            }       
+            }
 
             // à la connection, je crée ou je met à jour le refreshtoken
             var refreshToken = await CreateOrUpdateTokenAsync(user, forceReset: true);
