@@ -91,7 +91,6 @@ namespace TerminalApi
                 options.AddDefaultPolicy(builder =>
                 {
                     builder
-                        //.AllowAnyOrigin()
                         .SetIsOriginAllowed(CorsHelper.IsOriginAllowed)
                         .AllowAnyMethod()
                         .AllowAnyHeader()
@@ -220,11 +219,8 @@ namespace TerminalApi
                 );
             });
             services.AddTransient<PdfService>();
-
-            //Lowercase routing
             services.AddRouting(opt => opt.LowercaseUrls = true);
 
-            // Set the active provider via configuration
             var configuration = services.BuildServiceProvider().GetService<IConfiguration>();
             string? provider = configuration?.GetValue(
                 "Provider",
@@ -233,21 +229,11 @@ namespace TerminalApi
 
             services.AddDbContext<ApiDefaultContext>(options =>
             {
-                //options.UseSqlite("Data Source = d:\\terminal.db;");
-                string POSTGRES_CONNECTION_STRING =
-                    "Server={0};Port={1};Database={2};User Id={3};Password={4}";
-                options.UseNpgsql("Host=localhost;Port=5432;Database=leprojet;Username=postgres;Password=beecoming;");
-                //options.UseNpgsql(
-                //    "Host=localhost;Port=8081;Database=base;Username=postgres;Password=mahdimcheik;"
-                //);
-
-                //options.UseNpgsql(
-                //            string.Format(POSTGRES_CONNECTION_STRING, EnvironmentVariables.DB_HOST ,EnvironmentVariables.DB_PORT, EnvironmentVariables.DB_NAME, EnvironmentVariables.DB_USER, EnvironmentVariables.DB_PASSWORD));
+                options.UseNpgsql("Host=localhost;Port=5432;Database=leprojet;Username=postgres;Password=beecoming;");               
             });
 
             services.Configure<DataProtectionTokenProviderOptions>(options =>
             {
-                // timespan pour les les tokens de password rest- email confirmation ....
                 options.TokenLifespan = TimeSpan.FromHours(1);
             });
 
@@ -306,8 +292,6 @@ namespace TerminalApi
             });
             // hangfire
             app.UseHangfireDashboard("/hangfire");
-
-            //backgroundJobs.Enqueue(() => Console.WriteLine("Hello world from Hangfire!"));
 
             // Enable routing.
             app.UseRouting();

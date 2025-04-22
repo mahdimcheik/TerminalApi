@@ -13,20 +13,43 @@ using TerminalApi.Utilities;
 
 namespace TerminalApi.Controllers
 {
+    /// <summary>
+    /// Contrôleur pour gérer les utilisateurs.
+    /// </summary>
     [Route("[controller]")]
     [Authorize]
     [ApiController]
-    //[ResponseCache(Duration = 30, Location = ResponseCacheLocation.Client, NoStore = false)]
     public class UsersController : ControllerBase
     {
         #region Attributes
 
+        /// <summary>
+        /// Contexte de la base de données.
+        /// </summary>
         private readonly ApiDefaultContext _context;
+
+        /// <summary>
+        /// Gestionnaire des utilisateurs.
+        /// </summary>
         private readonly UserManager<UserApp> _userManager;
 
+        /// <summary>
+        /// Service pour générer des données fictives.
+        /// </summary>
         private readonly FakerService fakerService;
+
+        /// <summary>
+        /// Service d'authentification.
+        /// </summary>
         private readonly AuthService authService;
 
+        /// <summary>
+        /// Constructeur du contrôleur des utilisateurs.
+        /// </summary>
+        /// <param name="context">Contexte de la base de données.</param>
+        /// <param name="userManager">Gestionnaire des utilisateurs.</param>
+        /// <param name="fakerService">Service pour générer des données fictives.</param>
+        /// <param name="authService">Service d'authentification.</param>
         public UsersController(
             ApiDefaultContext context,
             UserManager<UserApp> userManager,
@@ -43,24 +66,20 @@ namespace TerminalApi.Controllers
         #endregion
 
         #region Register update upload
+
         /// <summary>
-        /// Register a new user
+        /// Enregistre un nouvel utilisateur.
         /// </summary>
-        /// <response code="200">The mail address was already used but wasn't confirmed. A mail confirmation request has been sent. The account informations are untouched</response>
-        /// <response code="201">The user has been created and a email address confirmation request has been sent</response>
-        /// <response code="400">User hasn't been created (Invalid form)</response>
-        /// <response code="409">The mail address was already used and was confirmed. Nothing happened</response>
-        /// <response code="417">The user is registered but the mail hasn't been sent</response>
+        /// <param name="model">Données de création de l'utilisateur.</param>
+        /// <returns>Résultat de l'opération.</returns>
         [AllowAnonymous]
         [EnableCors]
         [Route("register")]
         [HttpPost]
         public async Task<IActionResult> Register([FromBody] UserCreateDTO model)
         {
-            // Vérifier si le modèle de données reçu est valide
             if (!ModelState.IsValid)
             {
-                // Si le modèle n'est pas valide, renvoyer une réponse BadRequest avec le modèle d'état non valide
                 return BadRequest(
                     new ResponseDTO { Status = 404, Message = "problème de validation" }
                 );
@@ -75,6 +94,11 @@ namespace TerminalApi.Controllers
             return BadRequest(response);
         }
 
+        /// <summary>
+        /// Met à jour les informations d'un utilisateur.
+        /// </summary>
+        /// <param name="model">Données de mise à jour de l'utilisateur.</param>
+        /// <returns>Résultat de l'opération.</returns>
         [EnableCors]
         [Route("update")]
         [HttpPatch]
@@ -94,6 +118,11 @@ namespace TerminalApi.Controllers
             return BadRequest(result);
         }
 
+        /// <summary>
+        /// Télécharge un avatar (image) pour l'utilisateur.
+        /// </summary>
+        /// <param name="file">Fichier de l'avatar.</param>
+        /// <returns>Résultat de l'opération.</returns>
         [HttpPost("upload-avatar")]
         public async Task<IActionResult> OnPostUploadAsync(IFormFile file)
         {
@@ -109,16 +138,16 @@ namespace TerminalApi.Controllers
             }
             return BadRequest(result);
         }
+
         #endregion
 
         #region POST Login
+
         /// <summary>
-        /// Log the user in
+        /// Connecte un utilisateur.
         /// </summary>
-        /// <remarks>Create an JWT with the user roles as its claims</remarks>
-        /// <response code="200">Return the user's informations</response>
-        /// <response code="400">User not found or bad login informations</response>
-        /// <response code="401">User has not confirmed his mail address</response>
+        /// <param name="model">Données de connexion de l'utilisateur.</param>
+        /// <returns>Résultat de l'opération.</returns>
         [AllowAnonymous]
         [Route("login")]
         [HttpPost]
@@ -137,19 +166,21 @@ namespace TerminalApi.Controllers
 
             if (result.Status == 200 || result.Status == 201)
             {
-
                 return Ok(result);
             }
             return BadRequest(result);
         }
+
         #endregion
 
         #region Confirm account
+
         /// <summary>
-        /// Validate a mail address
+        /// Valide une adresse e-mail.
         /// </summary>
-        /// <response code="302">User mail has been confirmed. Redirected to the corresponding page</response>
-        /// <response code="400">Confirmation unsuccessful</response>
+        /// <param name="userId">Identifiant de l'utilisateur.</param>
+        /// <param name="confirmationToken">Token de confirmation.</param>
+        /// <returns>Résultat de l'opération.</returns>
         [AllowAnonymous]
         [Route("email-confirmation")]
         [HttpGet]
@@ -166,6 +197,11 @@ namespace TerminalApi.Controllers
             }
             return BadRequest(result);
         }
+
+        /// <summary>
+        /// Récupère un nouveau lien de confirmation.
+        /// </summary>
+        /// <returns>Résultat de l'opération.</returns>
         [AllowAnonymous]
         [HttpGet("resend-confirmation-link")]
         public async Task<IActionResult> ResendConfirmationLink()
@@ -181,9 +217,15 @@ namespace TerminalApi.Controllers
 
             return res.Status >= 400 ? BadRequest(res) : Ok(res);
         }
+
         #endregion
 
         #region CurrentUser informations
+
+        /// <summary>
+        /// Récupère les informations de l'utilisateur connecté.
+        /// </summary>
+        /// <returns>Informations de l'utilisateur.</returns>
         [HttpGet("my-informations")]
         public async Task<ActionResult<ResponseDTO>> GetMyInformations()
         {
@@ -211,6 +253,11 @@ namespace TerminalApi.Controllers
             );
         }
 
+        /// <summary>
+        /// Récupère les informations publiques d'un utilisateur.
+        /// </summary>
+        /// <param name="userId">Identifiant de l'utilisateur.</param>
+        /// <returns>Informations publiques de l'utilisateur.</returns>
         [AllowAnonymous]
         [HttpGet("public-informations")]
         public async Task<ActionResult<ResponseDTO>> GetPublicInformations(
@@ -249,9 +296,16 @@ namespace TerminalApi.Controllers
                 }
             );
         }
+
         #endregion
 
         #region POST AskForPasswordRecoveryMail
+
+        /// <summary>
+        /// Demande un e-mail de récupération de mot de passe.
+        /// </summary>
+        /// <param name="model">Données pour la récupération du mot de passe.</param>
+        /// <returns>Résultat de l'opération.</returns>
         [AllowAnonymous]
         [Route("forgot-password")]
         [HttpPost]
@@ -276,6 +330,12 @@ namespace TerminalApi.Controllers
         #endregion
 
         #region PasswordChange after recovery
+
+        /// <summary>
+        /// Change le mot de passe après une récupération.
+        /// </summary>
+        /// <param name="model">Données pour changer le mot de passe.</param>
+        /// <returns>Résultat de l'opération.</returns>
         [AllowAnonymous]
         [Route("reset-password")]
         [HttpPost]
@@ -296,9 +356,15 @@ namespace TerminalApi.Controllers
             }
             return BadRequest(result);
         }
+
         #endregion
 
         #region refresh token
+
+        /// <summary>
+        /// Met à jour le token de rafraîchissement.
+        /// </summary>
+        /// <returns>Résultat de l'opération.</returns>
         [Route("refresh-token")]
         [AllowAnonymous]
         [HttpGet]
@@ -322,8 +388,15 @@ namespace TerminalApi.Controllers
             }
             return BadRequest(result);
         }
+
         #endregion
 
+        /// <summary>
+        /// Récupère tous les utilisateurs avec pagination.
+        /// </summary>
+        /// <param name="first">Index de départ.</param>
+        /// <param name="rows">Nombre d'utilisateurs à récupérer.</param>
+        /// <returns>Liste des utilisateurs.</returns>
         [HttpGet("all")]
         [Authorize(Roles = "Admin")]
         public async Task<ActionResult<ResponseDTO>> getAllUsers(
@@ -342,6 +415,11 @@ namespace TerminalApi.Controllers
                 }
             );
         }
+
+        /// <summary>
+        /// Déconnecte l'utilisateur.
+        /// </summary>
+        /// <returns>Résultat de l'opération.</returns>
         [AllowAnonymous]
         [HttpGet("logout")]
         public async Task<ActionResult> Logout()
@@ -355,6 +433,11 @@ namespace TerminalApi.Controllers
         }
 
         #region fixture
+
+        /// <summary>
+        /// Génère des utilisateurs fictifs pour les tests.
+        /// </summary>
+        /// <returns>Liste des utilisateurs générés.</returns>
         [HttpGet("seed")]
         [Authorize(Roles = "Admin")]
         public async Task<ActionResult> SeedUsers()
@@ -362,10 +445,8 @@ namespace TerminalApi.Controllers
             var usersDTO = fakerService
                 .GenerateUserCreateDTO()
                 .Generate(500)
-                //.Select(x => x.ToUser())
                 .ToList();
             var users = usersDTO.Select(x => x.ToUser()).ToList();
-            //_context.Users.AddRange(users);
             for (int i = 0; i < 500; i++)
             {
                 IdentityResult result = await _userManager.CreateAsync(
@@ -373,7 +454,6 @@ namespace TerminalApi.Controllers
                     usersDTO[i].Password
                 );
 
-                // Tenter d'ajouter l'utilisateur aux rôles spécifiés dans le modèle
                 IdentityResult roleResult = await _userManager.AddToRolesAsync(
                     user: users[i],
                     roles: ["Student"]
@@ -383,6 +463,7 @@ namespace TerminalApi.Controllers
             _context.SaveChanges();
             return Ok(users.Take(10));
         }
+
         #endregion
     }
 

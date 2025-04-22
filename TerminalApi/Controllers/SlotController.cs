@@ -9,6 +9,10 @@ using TerminalApi.Utilities;
 
 namespace TerminalApi.Controllers
 {
+    /// <summary>
+    /// Contrôleur responsable de la gestion des créneaux horaires (Slots).
+    /// Permet de récupérer, ajouter, mettre à jour et supprimer des créneaux.
+    /// </summary>
     [Route("[controller]")]
     [ApiController]
     [Authorize]
@@ -17,11 +21,24 @@ namespace TerminalApi.Controllers
         private readonly SlotService slotService;
         private readonly ApiDefaultContext context;
 
+        /// <summary>
+        /// Initialise une nouvelle instance du contrôleur avec les services nécessaires.
+        /// </summary>
+        /// <param name="slotService">Service pour la gestion des créneaux.</param>
+        /// <param name="context">Contexte de base de données.</param>
         public SlotController(SlotService slotService, ApiDefaultContext context)
         {
             this.slotService = slotService;
             this.context = context;
         }
+
+        /// <summary>
+        /// Récupère un créneau spécifique par son identifiant.
+        /// </summary>
+        /// <param name="slotId">Identifiant du créneau.</param>
+        /// <returns>Un objet <see cref="ResponseDTO"/> contenant les détails du créneau.</returns>
+        /// <response code="200">Créneau trouvé et retourné avec succès.</response>
+        /// <response code="400">Requête invalide ou erreur interne.</response>
         [HttpGet("slotId/{slotId}")]
         [Authorize]
         public async Task<ActionResult<ResponseDTO>> GetSlotsForStudent([FromRoute] string slotId)
@@ -46,6 +63,16 @@ namespace TerminalApi.Controllers
             }
         }
 
+        /// <summary>
+        /// Récupère les créneaux créés par un utilisateur spécifique dans une plage de dates.
+        /// </summary>
+        /// <param name="userId">Identifiant de l'utilisateur créateur.</param>
+        /// <param name="fromDate">Date de début de la plage.</param>
+        /// <param name="toDate">Date de fin de la plage.</param>
+        /// <returns>Une liste de créneaux sous forme de <see cref="ResponseDTO"/>.</returns>
+        /// <response code="200">Liste des créneaux retournée avec succès.</response>
+        /// <response code="404">Utilisateur non trouvé.</response>
+        /// <response code="400">Requête invalide ou erreur interne.</response>
         [HttpGet]
         [Authorize(Roles = "Admin")]
         public async Task<ActionResult<ResponseDTO>> GetSlotsByCreatorId([FromQuery] string userId, [FromQuery] DateTimeOffset fromDate, [FromQuery] DateTimeOffset toDate)
@@ -75,6 +102,14 @@ namespace TerminalApi.Controllers
             }
         }
 
+        /// <summary>
+        /// Récupère les créneaux associés à un étudiant dans une plage de dates.
+        /// </summary>
+        /// <param name="fromDate">Date de début de la plage.</param>
+        /// <param name="toDate">Date de fin de la plage.</param>
+        /// <returns>Une liste de créneaux sous forme de <see cref="ResponseDTO"/>.</returns>
+        /// <response code="200">Liste des créneaux retournée avec succès.</response>
+        /// <response code="400">Requête invalide ou erreur interne.</response>
         [HttpGet("student")]
         public async Task<ActionResult<ResponseDTO>> GetSlotsForStudent([FromQuery] DateTimeOffset fromDate, [FromQuery] DateTimeOffset toDate)
         {
@@ -98,6 +133,13 @@ namespace TerminalApi.Controllers
             }
         }
 
+        /// <summary>
+        /// Ajoute un nouveau créneau.
+        /// </summary>
+        /// <param name="slotCreateDTO">Données du créneau à créer.</param>
+        /// <returns>Le créneau créé sous forme de <see cref="ResponseDTO"/>.</returns>
+        /// <response code="200">Créneau ajouté avec succès.</response>
+        /// <response code="400">Requête invalide ou erreur interne.</response>
         [Authorize(Roles = "Admin")]
         [HttpPost]
         public async Task<ActionResult<ResponseDTO>> AddSlot([FromBody] SlotCreateDTO slotCreateDTO)
@@ -123,6 +165,13 @@ namespace TerminalApi.Controllers
             }
         }
 
+        /// <summary>
+        /// Met à jour un créneau existant.
+        /// </summary>
+        /// <param name="slotUpdateDTO">Données du créneau à mettre à jour.</param>
+        /// <returns>Le créneau mis à jour sous forme de <see cref="ResponseDTO"/>.</returns>
+        /// <response code="200">Créneau mis à jour avec succès.</response>
+        /// <response code="400">Requête invalide ou erreur interne.</response>
         [HttpPut]
         [Authorize(Roles = "Admin")]
         public async Task<ActionResult<ResponseDTO>> UpdateSlot([FromBody] SlotUpdateDTO slotUpdateDTO)
@@ -145,6 +194,13 @@ namespace TerminalApi.Controllers
             }
         }
 
+        /// <summary>
+        /// Supprime un créneau existant.
+        /// </summary>
+        /// <param name="slotId">Identifiant du créneau à supprimer.</param>
+        /// <returns>Un message de confirmation sous forme de <see cref="ResponseDTO"/>.</returns>
+        /// <response code="204">Créneau supprimé avec succès.</response>
+        /// <response code="400">Requête invalide ou erreur interne.</response>
         [HttpDelete]
         [Authorize(Roles = "Admin")]
         public async Task<ActionResult<ResponseDTO>> DeleteSlot([FromQuery] string slotId)
@@ -168,7 +224,5 @@ namespace TerminalApi.Controllers
                 return BadRequest(new ResponseDTO { Status = 400, Message = ex.Message });
             }
         }
-
-
     }
 }

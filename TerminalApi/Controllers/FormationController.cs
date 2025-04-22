@@ -10,6 +10,10 @@ using TerminalApi.Utilities;
 
 namespace TerminalApi.Controllers
 {
+    /// <summary>
+    /// Contrôleur responsable de la gestion des formations des utilisateurs.
+    /// Permet de récupérer, ajouter, mettre à jour et supprimer des formations.
+    /// </summary>
     [Route("[controller]")]
     [Authorize]
     [ApiController]
@@ -18,12 +22,25 @@ namespace TerminalApi.Controllers
         private readonly ApiDefaultContext context;
         private readonly FormationService formationService;
 
+        /// <summary>
+        /// Initialise une nouvelle instance du contrôleur avec les services nécessaires.
+        /// </summary>
+        /// <param name="context">Contexte de base de données injecté.</param>
+        /// <param name="formationService">Service de gestion des formations injecté.</param>
         public FormationController(ApiDefaultContext context, FormationService formationService)
         {
             this.context = context;
             this.formationService = formationService;
         }
 
+        /// <summary>
+        /// Récupère toutes les formations associées à un utilisateur donné.
+        /// </summary>
+        /// <param name="userId">Identifiant de l'utilisateur.</param>
+        /// <returns>
+        /// Un objet <see cref="ResponseDTO"/> contenant la liste des formations (200),
+        /// ou un message d'erreur si l'utilisateur n'existe pas (404) ou en cas d'erreur (400).
+        /// </returns>
         [HttpGet("all")]
         public async Task<ActionResult<ResponseDTO>> GetFormationsByUserId([FromQuery] string userId)
         {
@@ -51,7 +68,14 @@ namespace TerminalApi.Controllers
             }
         }
 
-
+        /// <summary>
+        /// Ajoute une nouvelle formation pour l'utilisateur connecté.
+        /// </summary>
+        /// <param name="formation">Données de la formation à ajouter.</param>
+        /// <returns>
+        /// Un objet <see cref="ResponseDTO"/> contenant la formation ajoutée (200),
+        /// ou un message d'erreur en cas de données invalides (400).
+        /// </returns>
         [HttpPost]
         public async Task<ActionResult<ResponseDTO>> AddFormation([FromBody] FormationCreateDTO formation)
         {
@@ -75,9 +99,17 @@ namespace TerminalApi.Controllers
                 return BadRequest(new ResponseDTO { Status = 400, Message = ex.Message });
             }
         }
+
+        /// <summary>
+        /// Met à jour une formation existante pour l'utilisateur connecté.
+        /// </summary>
+        /// <param name="formationDTO">Données de la formation à mettre à jour.</param>
+        /// <returns>
+        /// Un objet <see cref="ResponseDTO"/> contenant la formation mise à jour (200),
+        /// ou un message d'erreur en cas de données invalides ou si la formation n'existe pas (400).
+        /// </returns>
         [HttpPut]
         public async Task<ActionResult<ResponseDTO>> UpdateFormation([FromBody] FormationUpdateDTO formationDTO)
-
         {
             if (formationDTO is null)
             {
@@ -106,9 +138,16 @@ namespace TerminalApi.Controllers
             {
                 return BadRequest(new ResponseDTO { Status = 400, Message = ex.Message });
             }
-
         }
 
+        /// <summary>
+        /// Supprime une formation existante pour l'utilisateur connecté.
+        /// </summary>
+        /// <param name="formationId">Identifiant de la formation à supprimer.</param>
+        /// <returns>
+        /// Un objet <see cref="ResponseDTO"/> indiquant le succès de l'opération (204),
+        /// ou un message d'erreur en cas de données invalides ou d'erreur (400).
+        /// </returns>
         [HttpDelete]
         public async Task<ActionResult<ResponseDTO>> DeleteFormation([FromQuery] string formationId)
         {
