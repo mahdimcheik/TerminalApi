@@ -129,6 +129,12 @@ namespace TerminalApi.Services
                        )
                    );
 
+                    order.PaymentIntent = null;
+                    order.PaymentMethod = "";
+                    order.CheckoutID = "";
+                    order.Status = EnumBookingStatus.Pending;
+                    order.UpdatedAt = DateTimeOffset.Now;
+
                     if (order.PaymentIntent is not null)
                     {
 

@@ -5,6 +5,7 @@ using System;
 using TerminalApi.Models.Bookings;
 using TerminalApi.Models.TVA;
 using TerminalApi.Models.User;
+using TerminalApi.Utilities;
 
 namespace TerminalApi.Models.Payments
 {
@@ -22,7 +23,9 @@ namespace TerminalApi.Models.Payments
                 Status = order.Status,
                 PaymentMethod = order.PaymentMethod,
                 CheckoutExpiredAt = order.CheckoutExpiredAt,
-                CheckoutID = order.CheckoutID
+                CheckoutID = order.CheckoutID,
+                UpdatedAt = order.UpdatedAt,
+                
             };
             if(order.Bookings is not null && order.Bookings.Any())
             {
@@ -32,6 +35,19 @@ namespace TerminalApi.Models.Payments
                 response.TotalReduction = order.TotalReduction;
                 response.PaymentIntent = order.PaymentIntent;
             }
+           
+           
+                var timeToPay = EnvironmentVariables.HANGFIRE_ORDER_CLEANING_DELAY;
+                if (order.UpdatedAt is null || (order.UpdatedAt + TimeSpan.FromMinutes(timeToPay)) < DateTimeOffset.UtcNow)
+                {
+                    response.LeftTimeToPay = new TimespanDTO(0, 0);
+                }
+                else
+                {
+                    var res = (order.UpdatedAt + TimeSpan.FromMinutes(timeToPay) - DateTimeOffset.UtcNow) ?? TimeSpan.Zero;
+                    response.LeftTimeToPay = new TimespanDTO(res.Minutes, res.Seconds);
+                }
+            
             return response;
         }
         public static OrderResponseForTeacherDTO ToOrderResponseForTeacherDTO(this Order order)
@@ -42,7 +58,8 @@ namespace TerminalApi.Models.Payments
                 PaymentDate = order.PaymentDate,
                 CreatedAt = order.CreatedAt,
                 Status = order.Status,
-                PaymentMethod = order.PaymentMethod
+                PaymentMethod = order.PaymentMethod,
+                UpdatedAt = order.UpdatedAt
             };
             if (order.Bookings is not null && order.Bookings.Any())
             {

@@ -39,6 +39,32 @@ namespace TerminalApi.Services
             return null;
         }
 
+        public async Task<OrderResponseForStudentDTO> UpdateOrderAsync(UserApp user, Guid orderId)
+        {
+            Order? order;
+            try
+            {
+                order = await context
+                    .Orders                    
+                    .FirstOrDefaultAsync(o =>
+                        o.BookerId == user.Id && o.Id == orderId
+                    );
+
+                if(order == null)
+                {
+                    throw new Exception("La commande n'existe pas");
+                }
+
+                order.UpdatedAt = DateTimeOffset.UtcNow;
+                await context.SaveChangesAsync();
+                return order.ToOrderResponseForStudentDTO();
+            }
+            catch (Exception e)
+            {
+                throw new Exception(e.Message);
+            }
+        }
+
         public async Task<OrderResponseForStudentDTO> GetOrCreateCurrentOrderByUserAsync(
             UserApp user
         )
@@ -66,7 +92,7 @@ namespace TerminalApi.Services
                     Status = Utilities.EnumBookingStatus.Pending,
                     CreatedAt = DateTimeOffset.UtcNow,
                     UpdatedAt = DateTimeOffset.UtcNow,
-                    PaymentMethod = "card"
+                    PaymentMethod = "card",
                 };
                 newOrder.OrderNumber = await GenerateOrderNumberAsync();
 
@@ -75,8 +101,7 @@ namespace TerminalApi.Services
             }
             else
             {
-                order.Booker = user;
-                order.UpdatedAt = DateTimeOffset.UtcNow;
+                order.Booker = user;                
             }
             await context.SaveChangesAsync();
             return order.ToOrderResponseForStudentDTO();

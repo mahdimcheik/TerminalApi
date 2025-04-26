@@ -1,7 +1,5 @@
 using System.Data;
-using System.IdentityModel.Tokens.Jwt;
 using System.Reflection;
-using System.Security.Claims;
 using System.Text;
 using Hangfire;
 using Hangfire.PostgreSql;
@@ -229,7 +227,7 @@ namespace TerminalApi
 
             services.AddDbContext<ApiDefaultContext>(options =>
             {
-                options.UseNpgsql("Host=localhost;Port=5432;Database=leprojet;Username=postgres;Password=beecoming;");               
+                options.UseNpgsql("Host=localhost;Port=5432;Database=leprojet;Username=postgres;Password=beecoming;");
             });
 
             services.Configure<DataProtectionTokenProviderOptions>(options =>

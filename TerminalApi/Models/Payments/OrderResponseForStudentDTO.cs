@@ -32,5 +32,24 @@ namespace TerminalApi.Models.Payments
 
         public string? CheckoutID { get; set; }
         public DateTimeOffset? CheckoutExpiredAt { get; set; }
+
+        public DateTimeOffset? UpdatedAt  { get; set; }
+
+        public TimespanDTO? LeftTimeToPay
+        {
+            get; set;
+        }
+    }
+
+    public class TimespanDTO
+    {
+        public int Minutes { get; set; }
+        public int Seconds { get; set; }
+
+        public TimespanDTO(int minutes, int seconds)
+        {
+            Minutes = minutes;
+            Seconds = seconds;
+        }
     }
 }

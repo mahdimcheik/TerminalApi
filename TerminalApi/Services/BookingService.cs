@@ -42,7 +42,6 @@ namespace TerminalApi.Services
             {
                 return false;
             }
-            //newBookingCreateDTO.O
 
             Booking newBooking = newBookingCreateDTO.ToBooking(booker.Id, orderDTO.Id);
             try
@@ -62,11 +61,10 @@ namespace TerminalApi.Services
                 };
                 await notificationService.AddNotification(notificationForTeacher);
                 var notificationDb =   await notificationService.AddNotification(notification);
+                await orderService.UpdateOrderAsync(booker, orderDTO.Id);
 
                 jobChron.SchedulerSingleOrderCleaning(orderDTO.Id.ToString());
 
-                //var message = System.Text.Json.JsonSerializer.Serialize(notificationDb);
-                //await sseService.SendMessageToUserAsync(booker.Email, message);
                 return true;
             }
             catch (Exception ex)
