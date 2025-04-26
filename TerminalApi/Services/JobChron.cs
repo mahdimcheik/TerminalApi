@@ -135,7 +135,7 @@ namespace TerminalApi.Services
                     order.Status = EnumBookingStatus.Pending;
                     order.UpdatedAt = DateTimeOffset.Now;
 
-                    if (order.PaymentIntent is not null)
+                    if (order.CheckoutID is not null)
                     {
 
                     }
