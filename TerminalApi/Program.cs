@@ -10,6 +10,7 @@ using Microsoft.AspNetCore.Mvc.Razor;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using PuppeteerSharp;
 using TerminalApi.Contexts;
 using TerminalApi.Models.Role;
 using TerminalApi.Models.User;
@@ -27,6 +28,13 @@ namespace TerminalApi
             var services = builder.Services;
 
             ConfigureServices(services);
+            var toto = new BrowserFetcher().DownloadAsync().Result;
+
+            // browser execution configs
+            var launchOptions = new LaunchOptions
+            {
+                Headless = true, // = false for testing
+            };
 
             var app = builder.Build();
             ConfigureMiddlewarePipeline(app);
