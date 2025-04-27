@@ -116,7 +116,7 @@ namespace TerminalApi.Services
         )
         {
             var order = await context.Orders.FirstOrDefaultAsync(o =>
-                o.Id == orderId && o.Status == Utilities.EnumBookingStatus.Pending
+                o.Id == orderId && o.Status == Utilities.EnumBookingStatus.WaitingForPayment
             );
             if (order is null)
             {

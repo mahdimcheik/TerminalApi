@@ -143,6 +143,7 @@ namespace TerminalApi.Controllers
         /// Cette méthode utilise le service PaymentsService pour valider et mettre à jour les commandes en fonction des événements Stripe.
         /// </remarks>
         [HttpPost("webhook")]
+        [AllowAnonymous]
         public async Task<IActionResult> HandleWebHook()
         {
             var json = await new StreamReader(HttpContext.Request.Body).ReadToEndAsync();

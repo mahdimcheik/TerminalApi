@@ -119,7 +119,7 @@ namespace TerminalApi.Services
                                         Type = EnumNotificationType.PaymentAccepted
                                     }
                                 );
-                                await sseConnectionManager.SendMessageToUserAsync(newOrder.Booker.Id, "Test after payment");
+                            //await sseConnectionManager.SendMessageToUserAsync(newOrder.Booker.Id, "Test after payment");
                                 // réservation enregistrée
                                 await notificationService.AddNotification(
                                     new Notification
