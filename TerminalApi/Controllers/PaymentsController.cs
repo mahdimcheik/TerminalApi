@@ -109,6 +109,9 @@ namespace TerminalApi.Controllers
 
                 // Met à jour le statut de la commande dans la base de données
                 result.order.Status = EnumBookingStatus.WaitingForPayment;
+                result.order.CheckoutID = session.Id;
+                result.order.CheckoutExpiredAt = session.ExpiresAt;
+                result.order.UpdatedAt = DateTimeOffset.Now;
 
                 await context.SaveChangesAsync();
 

@@ -43,6 +43,18 @@ namespace TerminalApi.Services
                 return false;
             }
 
+            if(orderDTO.Status == Utilities.EnumBookingStatus.WaitingForPayment && orderDTO.CheckoutID is not null)
+            {
+                try
+                {
+                    await jobChron.ExpireCheckout(orderDTO.CheckoutID);
+                }
+                catch (Exception ex)
+                {
+                    throw new Exception("Réservation non créée");
+                }
+            }
+
             Booking newBooking = newBookingCreateDTO.ToBooking(booker.Id, orderDTO.Id);
             try
             {

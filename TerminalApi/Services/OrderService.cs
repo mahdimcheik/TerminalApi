@@ -44,18 +44,18 @@ namespace TerminalApi.Services
             Order? order;
             try
             {
-                order = await context
-                    .Orders                    
-                    .FirstOrDefaultAsync(o =>
-                        o.BookerId == user.Id && o.Id == orderId
-                    );
+                order = await context.Orders.FirstOrDefaultAsync(o =>
+                    o.BookerId == user.Id && o.Id == orderId
+                );
 
-                if(order == null)
+                if (order == null)
                 {
                     throw new Exception("La commande n'existe pas");
                 }
 
                 order.UpdatedAt = DateTimeOffset.UtcNow;
+                order.CheckoutID = null;
+                order.Status = Utilities.EnumBookingStatus.Pending;
                 await context.SaveChangesAsync();
                 return order.ToOrderResponseForStudentDTO();
             }
@@ -73,12 +73,12 @@ namespace TerminalApi.Services
             try
             {
                 order = await context
-                    .Orders
+                    .Orders.Where(o =>
+                        o.BookerId == user.Id && (o.Status == Utilities.EnumBookingStatus.Pending || o.Status == Utilities.EnumBookingStatus.WaitingForPayment)
+                    )
                     .Include(x => x.Bookings)
                     .ThenInclude(x => x.Slot)
-                    .FirstOrDefaultAsync(o =>
-                        o.BookerId == user.Id && o.Status == Utilities.EnumBookingStatus.Pending
-                    );
+                    .FirstOrDefaultAsync();
             }
             catch (Exception e)
             {
@@ -96,15 +96,17 @@ namespace TerminalApi.Services
                 };
                 newOrder.OrderNumber = await GenerateOrderNumberAsync();
 
-                context.Orders.Add(newOrder);                
+                context.Orders.Add(newOrder);
                 newOrder.Booker = user;
+                await context.SaveChangesAsync();
+                return newOrder.ToOrderResponseForStudentDTO();
             }
             else
             {
-                order.Booker = user;                
+                order.Booker = user;
+                await context.SaveChangesAsync();
+                return order.ToOrderResponseForStudentDTO();
             }
-            await context.SaveChangesAsync();
-            return order.ToOrderResponseForStudentDTO();
         }
 
         public async Task<bool> UpdateOrderStatus(
@@ -137,11 +139,11 @@ namespace TerminalApi.Services
         )
         {
             var sqlQuery = context
-                .Orders.Include(x => x.Bookings)
-                .ThenInclude(x => x.Slot)
+                .Orders.Where(x => x.PaymentDate != null)
                 .Where(x => x.BookerId == user.Id)
+                .Include(x => x.Bookings)
+                .ThenInclude(x => x.Slot)
                 .AsSplitQuery();
-
 
             if (query.FromDate.HasValue)
             {
@@ -151,16 +153,16 @@ namespace TerminalApi.Services
             {
                 sqlQuery = sqlQuery.Where(re => re.PaymentDate <= query.ToDate.Value);
             }
-            if(query.SearchField is not null && !query.SearchField.Trim().IsNullOrEmpty())
+            if (query.SearchField is not null && !query.SearchField.Trim().IsNullOrEmpty())
             {
-                sqlQuery = sqlQuery.Where(x => EF.Functions.ILike( x.OrderNumber, $"%{query.SearchField}%"));
+                sqlQuery = sqlQuery.Where(x =>
+                    EF.Functions.ILike(x.OrderNumber, $"%{query.SearchField}%")
+                );
             }
 
             var count = await sqlQuery.CountAsync();
 
-
             List<OrderResponseForStudentDTO>? result = await sqlQuery
-                .Where(x => x.PaymentDate != null)
                 .OrderByDescending(x => x.PaymentDate)
                 .Skip(query.Start)
                 .Take(query.PerPage)
@@ -171,7 +173,7 @@ namespace TerminalApi.Services
                 Count = count,
                 Message = "Demande acceptée",
                 Data = result,
-                Status = 200
+                Status = 200,
             };
         }
 

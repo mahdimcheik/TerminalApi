@@ -1,5 +1,7 @@
 ﻿using Hangfire;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
+using Stripe;
 using System.Collections;
 using TerminalApi.Contexts;
 using TerminalApi.Models.Notification;
@@ -113,7 +115,7 @@ namespace TerminalApi.Services
 
         }
 
-        public void TrackOrder(string orderId)
+        public async Task TrackOrder(string orderId)
         {
             try
             {
@@ -134,19 +136,47 @@ namespace TerminalApi.Services
                     order.CheckoutID = "";
                     order.Status = EnumBookingStatus.Pending;
                     order.UpdatedAt = DateTimeOffset.Now;
+                    order.CheckoutID = null;
 
-                    if (order.CheckoutID is not null)
+                    await _context.SaveChangesAsync();
+
+                    try
                     {
-
+                        if (order.CheckoutID.IsNullOrEmpty())
+                        {
+                            await ExpireCheckout(order.CheckoutID);
+                        }
                     }
-
-                    _context.SaveChanges();
+                    catch
+                    {
+                        throw;
+                    }
                 }
-
             }
             catch (Exception e)
             {
                 throw new Exception(e.Message);
+            }
+        }
+
+        public async Task ExpireCheckout(string checkoutId)
+        {
+            try
+            {
+                if(checkoutId.IsNullOrEmpty())
+                {
+                    throw new Exception("checkout est null");
+                }
+
+                StripeConfiguration.ApiKey = EnvironmentVariables.STRIPE_SECRETKEY;
+                var service = new Stripe.Checkout.SessionService();
+                Stripe.Checkout.Session session = service.Expire(checkoutId);
+
+                var toto = session;
+            }
+            catch
+            {
+                throw;
             }
         }
         public Hashtable DeepCopyScheduleJobOrderTable()

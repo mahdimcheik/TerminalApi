@@ -61,7 +61,6 @@ namespace TerminalApi.Controllers
                 var resultBooking = await bookingService.BookSlot(bookingCreateDTO, user);
                 if (resultBooking)
                 {
-
                     return Ok(new ResponseDTO { Message = "La résérvation est enregistrée", Status = 204 });
                 }
                 return BadRequest(new ResponseDTO { Status = 400, Message = "Demande refusée, créneau déjà résérvé ?" });
@@ -70,11 +69,7 @@ namespace TerminalApi.Controllers
             {
                 return BadRequest(new ResponseDTO { Status = 400, Message = ex.Message });
             }
-        }
-    
-
-
-        
+        } 
 
         /// <summary>
         /// Permet à un administrateur d'annuler une réservation pour un créneau spécifique.
