@@ -6,6 +6,7 @@ using Microsoft.EntityFrameworkCore;
 using TerminalApi.Models.Payments;
 using TerminalApi.Models.Notification;
 using TerminalApi.Utilities;
+using Microsoft.IdentityModel.Tokens;
 
 namespace TerminalApi.Services
 {
@@ -36,26 +37,27 @@ namespace TerminalApi.Services
                 .Include(x => x.Booking)
                 .FirstOrDefaultAsync();
 
-            OrderResponseForStudentDTO orderDTO = await orderService.GetOrCreateCurrentOrderByUserAsync(booker);
+            Order order = await orderService.GetOrCreateCurrentOrderByUserAsync(booker);
+            
 
-            if (slot is null || slot.Booking is not null || orderDTO is null)
+            if (slot is null || slot.Booking is not null || order is null)
             {
                 return false;
             }
 
-            if(orderDTO.Status == Utilities.EnumBookingStatus.WaitingForPayment && orderDTO.CheckoutID is not null)
+            if(order.CheckoutID is not null)
             {
                 try
                 {
-                    await jobChron.ExpireCheckout(orderDTO.CheckoutID);
+                    order.ResetCheckout();
+                    await jobChron.ExpireCheckout(order.CheckoutID);
                 }
-                catch (Exception ex)
+                catch
                 {
-                    throw new Exception("Réservation non créée");
                 }
             }
 
-            Booking newBooking = newBookingCreateDTO.ToBooking(booker.Id, orderDTO.Id);
+            Booking newBooking = newBookingCreateDTO.ToBooking(booker.Id, order.Id);
             try
             {
                 var res = await context.Bookings.AddAsync(newBooking);
@@ -73,9 +75,9 @@ namespace TerminalApi.Services
                 };
                 await notificationService.AddNotification(notificationForTeacher);
                 var notificationDb =   await notificationService.AddNotification(notification);
-                await orderService.UpdateOrderAsync(booker, orderDTO.Id);
+                await orderService.UpdateOrderAsync(booker, order.Id);
 
-                jobChron.SchedulerSingleOrderCleaning(orderDTO.Id.ToString());
+                jobChron.SchedulerSingleOrderCleaning(order.Id.ToString());
 
                 return true;
             }
@@ -119,9 +121,21 @@ namespace TerminalApi.Services
             {
                 return false;
             }
+
             try
             {
+                var orderId = slot.Booking.OrderId;
                 var res = context.Bookings.Remove(slot.Booking);
+
+                var order = context.Orders
+                    .FirstOrDefault(x => x.Id == orderId);
+
+                if(order is not null && !order.CheckoutID.IsNullOrEmpty())
+                {
+                    await jobChron.ExpireCheckout(order.CheckoutID);
+                    order.ResetCheckout();
+                }
+
                 await context.SaveChangesAsync();
                 return true;
             }

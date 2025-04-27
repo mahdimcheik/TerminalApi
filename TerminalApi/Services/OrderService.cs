@@ -65,7 +65,7 @@ namespace TerminalApi.Services
             }
         }
 
-        public async Task<OrderResponseForStudentDTO> GetOrCreateCurrentOrderByUserAsync(
+        public async Task<Order> GetOrCreateCurrentOrderByUserAsync(
             UserApp user
         )
         {
@@ -99,13 +99,13 @@ namespace TerminalApi.Services
                 context.Orders.Add(newOrder);
                 newOrder.Booker = user;
                 await context.SaveChangesAsync();
-                return newOrder.ToOrderResponseForStudentDTO();
+                return newOrder;
             }
             else
             {
                 order.Booker = user;
                 await context.SaveChangesAsync();
-                return order.ToOrderResponseForStudentDTO();
+                return order;
             }
         }
 

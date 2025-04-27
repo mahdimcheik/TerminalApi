@@ -5,6 +5,7 @@ using Stripe;
 using System.Collections;
 using TerminalApi.Contexts;
 using TerminalApi.Models.Notification;
+using TerminalApi.Models.Payments;
 using TerminalApi.Utilities;
 
 namespace TerminalApi.Services
@@ -42,17 +43,7 @@ namespace TerminalApi.Services
                     .ToList();
                 foreach (var order in orders)
                 {
-                    order.Status = EnumBookingStatus.Pending;
-                    if (order.UpdatedAt is null)
-                    {
-                        order.UpdatedAt = DateTimeOffset.UtcNow;
-                    }
-
-                    _context.RemoveRange(
-                        order.Bookings.Where(x =>
-                            x.CreatedAt < DateTimeOffset.UtcNow.AddMinutes(-1 * delay)
-                        )
-                    );
+                    order.Reset();
 
                     await notificationService.AddNotification(
                         new Notification
@@ -131,12 +122,7 @@ namespace TerminalApi.Services
                        )
                    );
 
-                    order.PaymentIntent = null;
-                    order.PaymentMethod = "";
-                    order.CheckoutID = "";
-                    order.Status = EnumBookingStatus.Pending;
-                    order.UpdatedAt = DateTimeOffset.Now;
-                    order.CheckoutID = null;
+                    order.Reset();
 
                     await _context.SaveChangesAsync();
 
@@ -163,6 +149,7 @@ namespace TerminalApi.Services
         {
             try
             {
+                
                 if(checkoutId.IsNullOrEmpty())
                 {
                     throw new Exception("checkout est null");
@@ -170,13 +157,11 @@ namespace TerminalApi.Services
 
                 StripeConfiguration.ApiKey = EnvironmentVariables.STRIPE_SECRETKEY;
                 var service = new Stripe.Checkout.SessionService();
+                
                 Stripe.Checkout.Session session = service.Expire(checkoutId);
-
-                var toto = session;
             }
             catch
-            {
-                throw;
+            {                
             }
         }
         public Hashtable DeepCopyScheduleJobOrderTable()

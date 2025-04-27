@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using TerminalApi.Contexts;
 using TerminalApi.Models;
+using TerminalApi.Models.Payments;
 using TerminalApi.Services;
 using TerminalApi.Utilities;
 
@@ -156,7 +157,7 @@ namespace TerminalApi.Controllers
                 {
                     Message = "Demande acceptée",
                     Status = 200,
-                    Data = order
+                    Data = order.ToOrderResponseForStudentDTO()
                 }
             );
         }

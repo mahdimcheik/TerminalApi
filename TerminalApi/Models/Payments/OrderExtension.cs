@@ -2,6 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using PuppeteerSharp;
 using Stripe;
+using TerminalApi.Contexts;
 using TerminalApi.Models.Bookings;
 using TerminalApi.Models.TVA;
 using TerminalApi.Models.User;
@@ -75,6 +76,27 @@ namespace TerminalApi.Models.Payments
                 response.PaymentIntent = order.PaymentIntent;
             }
             return response;
+        }
+
+        public static void Reset(this Order order)
+        {
+            order.Bookings.Clear();
+            order.UpdatedAt = DateTimeOffset.Now;
+            order.CheckoutExpiredAt = null;
+            order.CheckoutID = null;
+            order.PaymentIntent = null;
+            order.PaymentMethod = "";
+            order.Status = EnumBookingStatus.Pending;
+        }
+
+        public static void ResetCheckout(this Order order)
+        {
+            order.UpdatedAt = DateTimeOffset.Now;
+            order.CheckoutExpiredAt = null;
+            order.CheckoutID = null;
+            order.PaymentIntent = null;
+            order.PaymentMethod = "";
+            order.Status = EnumBookingStatus.Pending;
         }
     }
 }
