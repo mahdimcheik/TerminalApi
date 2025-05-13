@@ -350,8 +350,8 @@ namespace TerminalApi.Services
                 return new ResponseDTO { Status = 400, Message = "Demande refusée" };
             }
             //verifier si le type est image
-            var allowedMimeTypes = new[] { "image/jpeg", "image/png", "image/gif", "image/bmp" };
-            var allowedExtensions = new[] { ".jpg", ".jpeg", ".png", ".gif", ".bmp" };
+            var allowedMimeTypes = new[] { "image/jpeg", "image/png", "image/gif", "image/bmp", "image/webp" };
+            var allowedExtensions = new[] { ".jpg", ".jpeg", ".png", ".gif", ".bmp", ".webp" };
 
             var fileExtension = Path.GetExtension(file.FileName).ToLowerInvariant();
             if (
