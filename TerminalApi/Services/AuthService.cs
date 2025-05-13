@@ -11,6 +11,9 @@ using TerminalApi.Models.Notification;
 using TerminalApi.Models.Role;
 using TerminalApi.Models.User;
 using TerminalApi.Utilities;
+using SixLabors.ImageSharp;
+using SixLabors.ImageSharp.Processing;
+using SixLabors.ImageSharp.Formats.Jpeg;
 
 namespace TerminalApi.Services
 {
@@ -379,13 +382,26 @@ namespace TerminalApi.Services
             }
             //
 
+            using var inputStream = file.OpenReadStream();
+            using var image = await Image.LoadAsync(inputStream);
+
+            image.Mutate(x => x.Resize(new ResizeOptions
+            {
+                Size = new Size(400, 600),
+                Mode = ResizeMode.Max // Garde les proportions
+            }));
+
+            using var outputStream = new MemoryStream();
+            await image.SaveAsJpegAsync(outputStream, new JpegEncoder { Quality = 85 });
+            outputStream.Seek(0, SeekOrigin.Begin);
 
             string fileName = Guid.NewGuid() + "_avatar" + Path.GetExtension(file.FileName);
             var filePath = Path.Combine(_env.WebRootPath, "images", fileName); // wwwroot + images + filename ???
 
             using (var stream = System.IO.File.Create(filePath))
             {
-                await file.CopyToAsync(stream);
+                await outputStream.CopyToAsync(stream);
+                //await file.CopyToAsync(stream);
             }
 
             var url = $"{request.Scheme}://{request.Host}/images/{fileName}";
