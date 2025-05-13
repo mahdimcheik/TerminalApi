@@ -22,6 +22,8 @@ namespace TerminalApi.Contexts
         protected override void OnModelCreating(ModelBuilder builder)
         {
             base.OnModelCreating(builder);
+
+            // Valeurs initiales
             var roles = new List<Role>()
             {
                 new Role()
@@ -58,9 +60,21 @@ namespace TerminalApi.Contexts
             {
                 Id = Guid.NewGuid(),
                 Rate = 0.2m,
-                StartAt = DateTimeOffset.Now
+                StartAt = DateTimeOffset.Now,
             };
             builder.Entity<TVARate>().HasData(tVARate);
+
+            // relations
+            builder
+                .Entity<UserApp>()
+                .HasMany<Formation>(u => u.Formations)
+                .WithOne(f => f.User)
+                .HasForeignKey(f => f.UserId);
+            builder
+                .Entity<UserApp>()
+                .HasMany<Address>(u => u.Adresses)
+                .WithOne(f => f.user)
+                .HasForeignKey(f => f.UserId);
         }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
@@ -70,9 +84,12 @@ namespace TerminalApi.Contexts
 
         protected override void ConfigureConventions(ModelConfigurationBuilder configurationBuilder)
         {
-            configurationBuilder.Properties<DateTimeOffset>().HaveConversion<CustomDateTimeConversion>();
+            configurationBuilder
+                .Properties<DateTimeOffset>()
+                .HaveConversion<CustomDateTimeConversion>();
             base.ConfigureConventions(configurationBuilder);
         }
+
         // Override SaveChangesAsync
         //public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
         //{
@@ -89,7 +106,7 @@ namespace TerminalApi.Contexts
         //    }
 
         //    return await base.SaveChangesAsync(cancellationToken);
-        //}        
+        //}
 
         public DbSet<Address> Addresses { get; set; }
         public DbSet<Booking> Bookings { get; set; }
@@ -101,7 +118,5 @@ namespace TerminalApi.Contexts
         public DbSet<TVARate> TVARates { get; set; }
         public DbSet<Notification> Notifications { get; set; }
         public DbSet<RefreshTokens> RefreshTokens { get; set; }
-
     }
-
 }
