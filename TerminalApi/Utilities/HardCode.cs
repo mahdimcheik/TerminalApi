@@ -38,7 +38,5 @@ namespace TerminalApi.Utilities
                 NormalizedName = "CLIENT",
                 ConcurrencyStamp = "12ccaa16-0d50-491e-8157-ec1b133cf120",
             };
-
-        public static string TeacherId = "1577fcf3-35a3-42fb-add1-daffcc56f640";
     }
 }

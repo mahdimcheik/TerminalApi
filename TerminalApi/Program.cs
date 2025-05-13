@@ -1,5 +1,6 @@
 using System.Data;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using System.Text;
 using Hangfire;
 using Hangfire.PostgreSql;
@@ -7,6 +8,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc.Razor;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
@@ -22,7 +24,7 @@ namespace TerminalApi
 {
     public class Program
     {
-        public static void Main(string[] args)
+        public static async Task Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
             var services = builder.Services;
@@ -38,6 +40,19 @@ namespace TerminalApi
 
             var app = builder.Build();
             ConfigureMiddlewarePipeline(app);
+            using (var scope = app.Services.CreateScope())
+            {
+                var service = scope.ServiceProvider;
+                try
+                {
+                    await SeedAdminUserAsync(service);
+                }
+                catch (Exception ex)
+                {
+                    // Log l'erreur si nécessaire
+                    Console.WriteLine($"Erreur lors du seed de l'utilisateur admin : {ex.Message}");
+                }
+            }
 
             app.Run();
         }
@@ -208,7 +223,7 @@ namespace TerminalApi
             services.AddScoped<NotificationService>();
             services.AddScoped<UsersService>();
             services.AddScoped<AuthService>();
-            services.AddScoped<IAuthorizationHandler, NotBannedHandler>();
+            services.AddScoped<IAuthorizationHandler, NotBannedHandler>();            
 
             // logger
             services.AddLogging(loggingBuilder =>
@@ -327,7 +342,59 @@ namespace TerminalApi
                 }
             );
         }
+
+        public static async Task SeedAdminUserAsync(IServiceProvider serviceProvider)
+        {
+            var userManager = serviceProvider.GetRequiredService<UserManager<UserApp>>();
+            var roleManager = serviceProvider.GetRequiredService<RoleManager<Role>>();
+
+            string adminEmail = "teacher@skillhive.fr";
+            string adminPassword = "Admin123!"; // à stocker dans une configuration sécurisée
+
+            string adminRole = "Admin";
+
+            // Créer le rôle s'il n'existe pas
+            if (!await roleManager.RoleExistsAsync(adminRole))
+            {
+                await roleManager.CreateAsync(new Role
+                {
+                    Id = Guid.NewGuid().ToString(),
+                    Name = "Admin",
+                    NormalizedName = "ADMIN",
+                    ConcurrencyStamp = Guid.NewGuid().ToString()
+                });
+            }
+
+            // Vérifier si l'utilisateur existe
+            var adminUser = await userManager.FindByEmailAsync(adminEmail);
+            if (adminUser == null)
+            {
+                adminUser = new UserApp
+                {
+                    Id = EnvironmentVariables.TEACHER_ID,
+                    UserName = adminEmail,
+                    Email = adminEmail,
+                    EmailConfirmed = true,
+                    FirstName = "Admin",
+                    LastName = "Admin",
+                    PhoneNumber = "0606060606",
+                };
+
+                var result = await userManager.CreateAsync(adminUser, adminPassword);
+                if (result.Succeeded)
+                {
+                    await userManager.AddToRoleAsync(adminUser, adminRole);
+                }
+                else
+                {
+                    // Gérer les erreurs ici
+                    throw new Exception($"Erreur lors de la création de l'admin: {string.Join(", ", result.Errors.Select(e => e.Description))}");
+                }
+            }
+        }
     }
+
+   
 }
 
 

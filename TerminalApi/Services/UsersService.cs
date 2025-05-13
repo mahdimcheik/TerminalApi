@@ -37,7 +37,7 @@ namespace TerminalApi.Services
 
         public async Task<ResponseDTO> GetAllStudentsDTO(QueryPagination query)
         {
-            var querySql = context.Users.Where(x => x.EmailConfirmed && x.Id != HardCode.TeacherId);
+            var querySql = context.Users.Where(x => x.EmailConfirmed && x.Id != EnvironmentVariables.TEACHER_ID);
 
             if (query is null)
             {

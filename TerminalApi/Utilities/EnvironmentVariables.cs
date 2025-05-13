@@ -55,7 +55,8 @@
             Environment.GetEnvironmentVariable("SECRET_CLIENT_GOOGLE");
         public static string? GOOGLE_REDIRECT_URL =>
             Environment.GetEnvironmentVariable("GOOGLE_REDIRECT_URL");
-        public static string? TEACHER_ID => Environment.GetEnvironmentVariable("TEACHER_ID");
+        //public static string TEACHER_ID => Environment.GetEnvironmentVariable("TEACHER_ID");
+        public static string TEACHER_ID => Environment.GetEnvironmentVariable("Teacher_Guid") ?? "44ea5267-31c5-44a6-94a3-bac6efd009c7";
 
         //stripe
         public static string? STRIPE_PUBLISHABLEKEY =>
