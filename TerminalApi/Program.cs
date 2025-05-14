@@ -250,6 +250,12 @@ namespace TerminalApi
                 options.UseNpgsql("Host=localhost;Port=5432;Database=leprojet;Username=postgres;Password=beecoming;");
             });
 
+            using (var scope = services.BuildServiceProvider().CreateScope())
+            {
+                var context = scope.ServiceProvider.GetRequiredService<ApiDefaultContext>();
+                context.Database.Migrate();
+            }
+
             services.Configure<DataProtectionTokenProviderOptions>(options =>
             {
                 options.TokenLifespan = TimeSpan.FromHours(1);
