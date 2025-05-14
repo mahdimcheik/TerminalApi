@@ -35,10 +35,12 @@ namespace TerminalApi.Services
             (Guid orderId, string userId)
         {
             var order = await context
-                .Orders.Include(o => o.Booker)
+                .Orders
+                .Where(o => o.Id == orderId)
+                .Include(o => o.Booker)
                 .Include(o => o.Bookings)
                 .ThenInclude(b => b.Slot)
-                .FirstOrDefaultAsync(o => o.Id == orderId);
+                .FirstOrDefaultAsync();
 
             if (order == null)
             {
@@ -46,11 +48,11 @@ namespace TerminalApi.Services
             }
             if (order.BookerId != userId || order.Status != EnumBookingStatus.Pending)
             {
-                return (false, null);
+                return (false, order);
             }
             if (order.Bookings is null || order.TotalOriginalPrice == 0)
             {
-                return (false, null);
+                return (false, order);
             }
             return (true, order);
         }

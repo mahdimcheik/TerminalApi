@@ -1,7 +1,9 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.IdentityModel.Tokens;
 using Stripe;
 using Stripe.Checkout;
+using Stripe.Climate;
 using TerminalApi.Contexts;
 using TerminalApi.Models;
 using TerminalApi.Services;
@@ -20,17 +22,19 @@ namespace TerminalApi.Controllers
     {
         private readonly ApiDefaultContext context;
         private readonly PaymentsService paymentsService;
+        private readonly JobChron jobChron;
 
         /// <summary>
         /// Initialise une nouvelle instance du contrôleur PaymentsController.
         /// </summary>
         /// <param name="context">Contexte de base de données utilisé pour accéder aux entités.</param>
         /// <param name="paymentsService">Service de gestion des paiements injecté.</param>
-        public PaymentsController(ApiDefaultContext context, PaymentsService paymentsService)
+        public PaymentsController(ApiDefaultContext context, PaymentsService paymentsService, JobChron jobChron)
         {
             StripeConfiguration.ApiKey = EnvironmentVariables.STRIPE_SECRETKEY;
             this.context = context;
             this.paymentsService = paymentsService;
+            this.jobChron = jobChron;
         }
 
         /// <summary>
@@ -60,11 +64,20 @@ namespace TerminalApi.Controllers
                 }
 
                 var result = await paymentsService.CheckOrder(request.OrderId, user.Id);
-                if (!result.isValid)
+                //if (!result.isValid)
+                //{
+                //    return BadRequest(
+                //        new { Message = "Commande non valide, vérifiez la!", Status = 400 }
+                //    );
+                //}
+
+                if(result.order is not null && !result.order.CheckoutID.IsNullOrEmpty())
                 {
-                    return BadRequest(
-                        new { Message = "Commande non valide, vérifiez la!", Status = 400 }
-                    );
+                    await jobChron.ExpireCheckout(result.order?.CheckoutID ?? "");
+                    result.order.CheckoutID = null;
+                    result.order.PaymentIntent = null;
+                    result.order.Status = EnumBookingStatus.Pending;
+                    await context.SaveChangesAsync();
                 }
 
                 var domain = EnvironmentVariables.API_FRONT_URL;
