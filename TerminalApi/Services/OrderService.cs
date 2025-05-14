@@ -244,12 +244,13 @@ namespace TerminalApi.Services
         {
             string datePart = DateTime.UtcNow.ToString("yyyyMMdd");
 
-            int count = await context.Orders.CountAsync(o =>
-                o.CreatedAt.Value.Date == DateTimeOffset.UtcNow
-            );
-            int nextNumber = count + 1;
+            //int count = await context.Orders.CountAsync(o =>
+            //    o.CreatedAt.Value.Date == DateTimeOffset.UtcNow.Date
+            //);
+            //int nextNumber = count + 1;
+            var id = Guid.NewGuid().ToString()[..8];
 
-            return $"SKILLHIVE-{datePart}-{nextNumber:D5}";
+            return $"SKILLHIVE-{datePart}-{id:D8}";
         }
 
         private TVARate GetTVARate()
