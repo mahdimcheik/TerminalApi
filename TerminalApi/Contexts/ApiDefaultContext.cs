@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+﻿using System.Xml;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using TerminalApi.Models;
 using TerminalApi.Utilities;
@@ -64,7 +65,6 @@ namespace TerminalApi.Contexts
                 e.Property(e => e.IsBanned).IsRequired().HasDefaultValue(false);
 
                 e.Property(e => e.BannedUntilDate).HasColumnType("timestamp with time zone");
-               
             });
 
             builder
@@ -134,15 +134,14 @@ namespace TerminalApi.Contexts
                     .IsRequired()
                     .HasColumnType("timestamp with time zone");
 
-                entity.Property(e => e.CreatedById)
-                 .IsRequired();
+                entity.Property(e => e.CreatedById).IsRequired();
 
-                entity.HasOne(e => e.Creator)
-                      .WithMany( u => u.Slots)
-                      .HasForeignKey(e => e.CreatedById);
+                entity
+                    .HasOne(e => e.Creator)
+                    .WithMany(u => u.Slots)
+                    .HasForeignKey(e => e.CreatedById);
 
-                entity.HasOne(x => x.Booking)
-                        .WithOne(x => x.Slot);
+                entity.HasOne(x => x.Booking).WithOne(x => x.Slot);
 
                 entity.Property(e => e.Price).HasColumnType("decimal(18,2)").IsRequired();
 
@@ -151,7 +150,39 @@ namespace TerminalApi.Contexts
                 entity.Property(e => e.Type);
             });
 
+            // Booking
+            builder.Entity<Booking>(entity =>
+            {
+                entity.HasKey(x => x.Id);
 
+                entity.Property(x => x.Id).ValueGeneratedOnAdd();
+                entity.Property(x => x.Subject).HasMaxLength(128);
+                entity.Property(x => x.Description).HasColumnType("text");
+                entity
+                    .Property(e => e.CreatedAt)
+                    .IsRequired()
+                    .HasColumnType("timestamp with time zone");
+                entity.Property(x => x.TypeHelp);
+
+                entity
+                    .HasOne(x => x.Slot)
+                    .WithOne(x => x.Booking)
+                    .HasForeignKey<Booking>(x => x.SlotId)
+                    .IsRequired();
+
+                entity.Property(e => e.BookedById).IsRequired();
+
+                entity
+                    .HasOne(e => e.Booker)
+                    .WithMany(u => u.Bookings)
+                    .HasForeignKey(e => e.BookedById)
+                    .OnDelete(DeleteBehavior.Restrict);
+
+                entity.HasOne(x => x.Order)
+                    .WithMany(x => x.Bookings)
+                    .HasForeignKey(x => x.OrderId)
+                    .OnDelete(DeleteBehavior.Restrict);
+            });
         }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
