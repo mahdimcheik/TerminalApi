@@ -282,7 +282,7 @@ namespace TerminalApi.Contexts
                     .IsRequired();
 
                 entity.HasOne(o => o.Booker)
-                    .WithMany()
+                    .WithMany(b => b.Orders)
                     .HasForeignKey(o => o.BookerId)
                     .OnDelete(DeleteBehavior.Restrict);
             });

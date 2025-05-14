@@ -8,33 +8,27 @@ namespace TerminalApi.Models
 {
     public class UserApp : IdentityUser
     {
-        [Required]
         public string FirstName { get; set; }
-        [Required]
+     
         public string LastName { get; set; }
         public EnumGender Gender { get; set; }
         public string? ImgUrl { get; set; }
-        [Column(TypeName = "Text")]
+
         public string? Description { get; set; }
         public string? Title { get; set; }
 
-        [Required]
-        [Column(TypeName = "timestamp with time zone")]
         public DateTimeOffset DateOfBirth { get; set; }
 
-        [Column(TypeName = "timestamp with time zone")]
         public DateTimeOffset CreatedAt { get; set; }
 
-        [Column(TypeName = "timestamp with time zone")]
         public DateTimeOffset LastModifiedAt { get; set; }
 
-        [Column(TypeName = "timestamp with time zone")]
         public DateTimeOffset? LastLogginAt { get; set; }
 
         // Bannir un utilisateur
         public bool? IsBanned { get; set; } = false;
-        [Column(TypeName = "timestamp with time zone")]
         public DateTimeOffset? BannedUntilDate { get; set; }
+
         // navigations properties
         public ICollection<Address>? Adresses { get; set; }
         public ICollection<Slot>? Slots { get; set; }
@@ -42,6 +36,8 @@ namespace TerminalApi.Models
         public ICollection<Formation>? Formations { get; set; }
         public ICollection<Notification>? NotificationsRecieved { get; set; }
         public ICollection<Notification>? NotificationsCreated { get; set; }
+        public ICollection<Order>? Orders { get; set; }
+
     }
 
     public class LoginOutputDTO
@@ -83,13 +79,10 @@ namespace TerminalApi.Models
         public string? Title { get; set; }
 
         public bool IsBanned { get; set; }
-        [Column(TypeName = "timestamp with time zone")]
         public DateTimeOffset? BannedUntilDate { get; set; }
 
         public EnumGender Gender { get; set; }
-        [Column(TypeName = "timestamp with time zone")]
         public DateTimeOffset? LastLogginAt { get; set; }
-        [Column(TypeName = "timestamp with time zone")]
         public DateTimeOffset? DateOfBirth { get; set; }
         public string? PhoneNumber { get; set; }
         public bool EmailConfirmed { get; set; } = false;
@@ -100,6 +93,7 @@ namespace TerminalApi.Models
         public ICollection<Booking>? Bookings { get; set; }
         public ICollection<Formation>? Formations { get; set; }
         public ICollection<Notification>? Notifications { get; set; }
+        public ICollection<Order>? Orders { get; set; }
 
     }
 
