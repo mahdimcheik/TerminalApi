@@ -124,7 +124,7 @@ namespace TerminalApi.Services
                 var res = context.Bookings.Remove(slot.Booking);
 
                 var order = context.Orders
-                    .FirstOrDefault(x => x.Id == orderId);
+                    .Where(x => x.Id == orderId).Include(x => x.Bookings).FirstOrDefault();
 
                 if (order is not null && !order.CheckoutID.IsNullOrEmpty())
                 {
@@ -132,7 +132,15 @@ namespace TerminalApi.Services
                     order.ResetCheckout();
                 }
 
-                await context.SaveChangesAsync();
+                var affectedLines = await context.SaveChangesAsync();
+
+                if(affectedLines != 0)
+                {
+                    if(order.Bookings is not null && order.Bookings.Count == 0)
+                    {
+                        jobChron.CancelScheuledJob(order.Id.ToString());
+                    }
+                }
                 return true;
             }
             catch (Exception ex)
