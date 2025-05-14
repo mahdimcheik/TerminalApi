@@ -96,6 +96,74 @@ namespace TerminalApi.Contexts
                 .WithOne(b => b.Booker)
                 .HasForeignKey(b => b.BookedById);
 
+            // Address entity configuration
+            builder.Entity<Address>(entity =>
+            {
+                entity.HasKey(a => a.Id);
+
+                entity.Property(a => a.Id).ValueGeneratedOnAdd();
+
+                entity.Property(a => a.Street)
+                    .IsRequired()
+                    .HasMaxLength(100);
+
+                entity.Property(a => a.City)
+                    .IsRequired()
+                    .HasMaxLength(50);
+
+                entity.Property(a => a.PostalCode)
+                    .IsRequired()
+                    .HasMaxLength(20);
+
+                entity.Property(a => a.Country)
+                    .IsRequired()
+                    .HasMaxLength(50);
+
+                entity.Property(a => a.AddressType)
+                    .IsRequired();
+
+                entity.Property(a => a.UserId)
+                    .IsRequired();
+
+                entity.HasOne(a => a.user)
+                    .WithMany(u => u.Adresses)
+                    .HasForeignKey(a => a.UserId)
+                    .OnDelete(DeleteBehavior.Cascade);
+            });
+
+            // Formation entity configuration
+            builder.Entity<Formation>(entity =>
+            {
+                entity.HasKey(f => f.Id);
+
+                entity.Property(f => f.Id)
+                    .ValueGeneratedOnAdd();
+
+                entity.Property(f => f.Title)
+                    .IsRequired()
+                    .HasMaxLength(255);
+
+                entity.Property(f => f.StartAt)
+                    .HasColumnType("timestamp with time zone");
+
+                entity.Property(f => f.EndAt)
+                    .HasColumnType("timestamp with time zone");
+
+                entity.Property(f => f.UserId)
+                    .IsRequired();
+
+                entity.Property(f => f.City)
+                    .HasMaxLength(255);
+
+                entity.Property(f => f.Country)
+                    .HasMaxLength(255);
+
+                entity.HasOne(f => f.User)
+                    .WithMany(u => u.Formations)
+                    .HasForeignKey(f => f.UserId)
+                    .OnDelete(DeleteBehavior.Cascade);
+            });
+
             // TVA
             builder.Entity<TVARate>(entity =>
             {
@@ -182,6 +250,86 @@ namespace TerminalApi.Contexts
                     .WithMany(x => x.Bookings)
                     .HasForeignKey(x => x.OrderId)
                     .OnDelete(DeleteBehavior.Restrict);
+            });
+
+            // Order entity configuration
+            builder.Entity<Order>(entity =>
+            {
+                entity.HasKey(o => o.Id);
+
+                entity.Property(o => o.Id).ValueGeneratedOnAdd();
+
+                entity.Property(o => o.OrderNumber)
+                    .IsRequired();
+
+                entity.Property(o => o.PaymentDate)
+                    .HasColumnType("timestamp with time zone");
+
+                entity.Property(o => o.CreatedAt)
+                    .HasColumnType("timestamp with time zone");
+
+                entity.Property(o => o.UpdatedAt)
+                    .HasColumnType("timestamp with time zone");
+
+                entity.Property(o => o.TVARate)
+                    .HasColumnType("decimal(18,2)")
+                    .IsRequired();
+
+                entity.Property(o => o.CheckoutExpiredAt)
+                    .HasColumnType("timestamp with time zone");
+
+                entity.Property(o => o.BookerId)
+                    .IsRequired();
+
+                entity.HasOne(o => o.Booker)
+                    .WithMany()
+                    .HasForeignKey(o => o.BookerId)
+                    .OnDelete(DeleteBehavior.Restrict);
+            });
+
+            // Notification entity configuration
+            builder.Entity<Notification>(entity =>
+            {
+                entity.HasKey(n => n.Id);
+
+                entity.Property(n => n.Id).ValueGeneratedOnAdd();
+
+                entity.Property(n => n.Description)
+                    .HasMaxLength(255);
+
+                entity.Property(n => n.Type);
+
+                entity.Property(n => n.CreatedAt)
+                    .HasColumnType("timestamp with time zone")
+                    .IsRequired();
+
+                entity.Property(n => n.SenderId);
+
+                entity.Property(n => n.RecipientId);
+
+                entity.Property(n => n.BookingId);
+
+                entity.Property(n => n.OrderId);
+
+                entity.HasOne(n => n.Sender)
+                    .WithMany(u => u.NotificationsCreated)
+                    .HasForeignKey(n => n.SenderId)
+                    .OnDelete(DeleteBehavior.Restrict);
+
+                entity.HasOne(n => n.Recipient)
+                    .WithMany(u => u.NotificationsRecieved)
+                    .HasForeignKey(n => n.RecipientId)
+                    .OnDelete(DeleteBehavior.Restrict);
+
+                entity.HasOne(n => n.Booking)
+                    .WithMany()
+                    .HasForeignKey(n => n.BookingId)
+                    .OnDelete(DeleteBehavior.SetNull);
+
+                entity.HasOne(n => n.Order)
+                    .WithMany()
+                    .HasForeignKey(n => n.OrderId)
+                    .OnDelete(DeleteBehavior.SetNull);
             });
         }
 
