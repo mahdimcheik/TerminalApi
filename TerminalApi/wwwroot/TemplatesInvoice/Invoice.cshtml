@@ -23,6 +23,7 @@
         <div class="invoice-header">
             <h1>Facture</h1>
         </div>
+
         <div class="company-info">
             <p><strong>Entreprise:</strong> Skill Hive </p>
             <p><strong>Numéro Siret:</strong> 123-5845-859 </p>
@@ -52,13 +53,13 @@
                     <td>@(i + 1)</td>
                     <td>@items[i].Subject</td>
                     <td>@items[i].StartAt.ToString("yyyy-MM-dd")</td>
-                    <td>@items[i].Price</td>
-                    <td>@items[i].DiscountedPrice</td>
+                    <td>@items[i].Price.ToString("F2")</td>
+                    <td>@items[i].DiscountedPrice.ToString("F2")</td>
                 </tr>
             }
             <tr>
                 <td colspan="4" class="total">Total payé:</td>
-                <td><strong>@Model.Bookings?.Sum(i => i.DiscountedPrice) €</strong></td>   
+                <td><strong>@Model.Bookings?.Sum(i => i.DiscountedPrice).ToString("F2") €</strong></td>
             </tr>
             <tr>
                 <td colspan="4" class="total">Dont TVA :</td>
@@ -70,3 +71,4 @@
     </div>
 </body>
 </html>
+
