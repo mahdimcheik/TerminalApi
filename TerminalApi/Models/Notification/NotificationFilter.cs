@@ -1,4 +1,4 @@
-﻿namespace TerminalApi.Models.Notification
+﻿namespace TerminalApi.Models
 {
     public class NotificationFilter
     {

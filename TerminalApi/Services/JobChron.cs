@@ -1,11 +1,10 @@
-﻿using Hangfire;
+﻿using System.Collections;
+using Hangfire;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Stripe;
-using System.Collections;
 using TerminalApi.Contexts;
-using TerminalApi.Models.Notification;
-using TerminalApi.Models.Payments;
+using TerminalApi.Models;
 using TerminalApi.Utilities;
 
 namespace TerminalApi.Services
@@ -149,19 +148,19 @@ namespace TerminalApi.Services
         {
             try
             {
-                
-                if(checkoutId.IsNullOrEmpty())
+
+                if (checkoutId.IsNullOrEmpty())
                 {
                     throw new Exception("checkout est null");
                 }
 
                 StripeConfiguration.ApiKey = EnvironmentVariables.STRIPE_SECRETKEY;
                 var service = new Stripe.Checkout.SessionService();
-                
+
                 Stripe.Checkout.Session session = service.Expire(checkoutId);
             }
             catch
-            {                
+            {
             }
         }
         public Hashtable DeepCopyScheduleJobOrderTable()

@@ -4,7 +4,6 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using TerminalApi.Contexts;
 using TerminalApi.Models;
-using TerminalApi.Models.Formations;
 using TerminalApi.Services;
 using TerminalApi.Utilities;
 

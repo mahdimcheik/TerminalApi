@@ -1,14 +1,9 @@
-﻿using Bogus.Bson;
-using Microsoft.AspNetCore.Http.HttpResults;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Primitives;
-using Microsoft.IdentityModel.Tokens;
 using Stripe;
 using Stripe.Checkout;
 using TerminalApi.Contexts;
-using TerminalApi.Models.Notification;
-using TerminalApi.Models.Payments;
-using TerminalApi.Models.User;
+using TerminalApi.Models;
 using TerminalApi.Utilities;
 
 namespace TerminalApi.Services
@@ -23,7 +18,7 @@ namespace TerminalApi.Services
         public PaymentsService(
             ApiDefaultContext context,
             OrderService orderService,
-            NotificationService notificationService,  
+            NotificationService notificationService,
             SseService sseConnectionManager
         )
         {
@@ -74,7 +69,7 @@ namespace TerminalApi.Services
                     var session = stripeEvent.Data.Object as Session;
                     Console.WriteLine("********** {0} ********", json);
 
-                    if (session.PaymentStatus == "paid") 
+                    if (session.PaymentStatus == "paid")
                     {
                         (string? bookerId, string? orderId, string? orderNumber) orderIds;
                         if (session.Metadata.TryGetValue("order_id", out string orderId))
@@ -119,7 +114,7 @@ namespace TerminalApi.Services
                                         Type = EnumNotificationType.PaymentAccepted
                                     }
                                 );
-                            //await sseConnectionManager.SendMessageToUserAsync(newOrder.Booker.Id, "Test after payment");
+                                //await sseConnectionManager.SendMessageToUserAsync(newOrder.Booker.Id, "Test after payment");
                                 // réservation enregistrée
                                 await notificationService.AddNotification(
                                     new Notification
@@ -133,7 +128,7 @@ namespace TerminalApi.Services
                                 await notificationService.AddNotification(
                                     new Notification
                                     {
-                                        Id = Guid.NewGuid(),                                        
+                                        Id = Guid.NewGuid(),
                                         SenderId = newOrder.Booker.Id,
                                         RecipientId = EnvironmentVariables.TEACHER_ID,
                                         Type = EnumNotificationType.NewReservation
@@ -161,6 +156,6 @@ namespace TerminalApi.Services
             {
                 return false;
             }
-        }       
+        }
     }
 }

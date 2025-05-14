@@ -1,10 +1,5 @@
-﻿using System.Security.Claims;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http.HttpResults;
-using Microsoft.AspNetCore.Identity;
+﻿using Microsoft.AspNetCore.Authorization;
 using TerminalApi.Contexts;
-using TerminalApi.Models;
-using TerminalApi.Models.User;
 
 namespace TerminalApi.Utilities.Policies.NotBanned
 {

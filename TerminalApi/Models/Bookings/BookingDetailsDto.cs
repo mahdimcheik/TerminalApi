@@ -1,4 +1,4 @@
-﻿namespace TerminalApi.Models.Bookings
+﻿namespace TerminalApi.Models
 {
     public class BookingDetailsDto
     {

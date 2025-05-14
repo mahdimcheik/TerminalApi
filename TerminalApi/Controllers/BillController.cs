@@ -1,11 +1,9 @@
 ﻿using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using TerminalApi.Contexts;
 using TerminalApi.Models;
-using TerminalApi.Models.Payments;
 using TerminalApi.Services;
 
 namespace TerminalApi.Controllers

@@ -1,14 +1,6 @@
-﻿using System;
-using Microsoft.EntityFrameworkCore;
-using PuppeteerSharp;
-using Stripe;
-using TerminalApi.Contexts;
-using TerminalApi.Models.Bookings;
-using TerminalApi.Models.TVA;
-using TerminalApi.Models.User;
-using TerminalApi.Utilities;
+﻿using TerminalApi.Utilities;
 
-namespace TerminalApi.Models.Payments
+namespace TerminalApi.Models
 {
     public static class OrderExtension
     {

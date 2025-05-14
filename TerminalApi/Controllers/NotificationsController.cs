@@ -3,7 +3,6 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using TerminalApi.Contexts;
 using TerminalApi.Models;
-using TerminalApi.Models.Notification;
 using TerminalApi.Services;
 using TerminalApi.Utilities;
 

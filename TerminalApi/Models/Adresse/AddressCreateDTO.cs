@@ -1,4 +1,4 @@
-﻿namespace TerminalApi.Models.Adresse
+﻿namespace TerminalApi.Models
 {
     public class AddressCreateDTO
     {

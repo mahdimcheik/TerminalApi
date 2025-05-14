@@ -2,7 +2,6 @@
 using Microsoft.AspNetCore.Identity;
 using TerminalApi.Contexts;
 using TerminalApi.Models;
-using TerminalApi.Models.User;
 
 namespace TerminalApi.Utilities
 {

@@ -1,11 +1,7 @@
-﻿using System.Diagnostics;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using TerminalApi.Contexts;
 using TerminalApi.Models;
-using TerminalApi.Models.Payments;
-using TerminalApi.Models.TVA;
-using TerminalApi.Models.User;
 using TerminalApi.Utilities;
 
 namespace TerminalApi.Services

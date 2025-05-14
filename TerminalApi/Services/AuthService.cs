@@ -5,15 +5,12 @@ using System.Web;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using SixLabors.ImageSharp;
+using SixLabors.ImageSharp.Formats.Jpeg;
+using SixLabors.ImageSharp.Processing;
 using TerminalApi.Contexts;
 using TerminalApi.Models;
-using TerminalApi.Models.Notification;
-using TerminalApi.Models.Role;
-using TerminalApi.Models.User;
 using TerminalApi.Utilities;
-using SixLabors.ImageSharp;
-using SixLabors.ImageSharp.Processing;
-using SixLabors.ImageSharp.Formats.Jpeg;
 
 namespace TerminalApi.Services
 {
@@ -103,7 +100,7 @@ namespace TerminalApi.Services
             {
                 var confirmationLink = await GenerateAccountConfirmationLink(newUser);
                 await mailService.ScheduleSendConfirmationEmail(
-                    new Models.Mail.Mail
+                    new Mail
                     {
                         MailBody = confirmationLink,
                         MailSubject = "Mail de confirmation",
@@ -135,7 +132,7 @@ namespace TerminalApi.Services
             {
                 var confirmationLink = await GenerateAccountConfirmationLink(newUser);
                 await mailService.ScheduleSendConfirmationEmail(
-                    new Models.Mail.Mail
+                    new Mail
                     {
                         MailBody = confirmationLink,
                         MailSubject = "Mail de confirmation",
@@ -244,7 +241,7 @@ namespace TerminalApi.Services
 
                     // Tentative d'envoi de l'e-mail pour la regénération du mot de passe
                     await mailService.ScheduleSendResetEmail(
-                        new Models.Mail.Mail
+                        new Mail
                         {
                             MailSubject = "Mail de réinitialisation",
                             MailTo = user.Email,

@@ -1,13 +1,12 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using System.Text.Json.Serialization;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
-using System.Text.Json.Serialization;
 using TerminalApi.Contexts;
 using TerminalApi.Models;
-using TerminalApi.Models.User;
 using TerminalApi.Services;
 using TerminalApi.Utilities;
 

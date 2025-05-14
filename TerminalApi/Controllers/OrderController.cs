@@ -2,7 +2,6 @@
 using Microsoft.AspNetCore.Mvc;
 using TerminalApi.Contexts;
 using TerminalApi.Models;
-using TerminalApi.Models.Payments;
 using TerminalApi.Services;
 using TerminalApi.Utilities;
 

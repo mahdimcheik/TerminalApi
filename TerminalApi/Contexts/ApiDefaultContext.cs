@@ -1,16 +1,6 @@
-﻿using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
-using TerminalApi.Models.Adresse;
-using TerminalApi.Models.Bookings;
-using TerminalApi.Models.Formations;
-using TerminalApi.Models.Layout;
-using TerminalApi.Models.Notification;
-using TerminalApi.Models.Payments;
-using TerminalApi.Models.Role;
-using TerminalApi.Models.Slots;
-using TerminalApi.Models.TVA;
-using TerminalApi.Models.User;
+using TerminalApi.Models;
 using TerminalApi.Utilities;
 
 namespace TerminalApi.Contexts
@@ -42,6 +32,41 @@ namespace TerminalApi.Contexts
             builder.Entity<TVARate>().HasData(tVARate);
 
             // relations
+            // user
+            builder.Entity<UserApp>(e =>
+            {
+                e.HasKey(u => u.Id);
+
+                e.Property(u => u.Id).IsRequired().HasMaxLength(64);
+
+                e.Property(u => u.LastName).IsRequired().HasMaxLength(64);
+
+                e.Property(u => u.Gender);
+
+                e.Property(u => u.ImgUrl).HasMaxLength(256);
+
+                e.Property(u => u.Title).HasMaxLength(256);
+
+                e.Property(u => u.Description).HasMaxLength(512).HasColumnType("text");
+
+                e.Property(e => e.DateOfBirth)
+                    .IsRequired()
+                    .HasColumnType("timestamp with time zone");
+
+                e.Property(e => e.CreatedAt).IsRequired().HasColumnType("timestamp with time zone");
+
+                e.Property(e => e.LastModifiedAt)
+                    .IsRequired()
+                    .HasColumnType("timestamp with time zone");
+
+                e.Property(e => e.LastLogginAt).HasColumnType("timestamp with time zone");
+
+                e.Property(e => e.IsBanned).IsRequired().HasDefaultValue(false);
+
+                e.Property(e => e.BannedUntilDate).HasColumnType("timestamp with time zone");
+               
+            });
+
             builder
                 .Entity<UserApp>()
                 .HasMany<Formation>(u => u.Formations)
@@ -52,6 +77,80 @@ namespace TerminalApi.Contexts
                 .HasMany<Address>(u => u.Adresses)
                 .WithOne(f => f.user)
                 .HasForeignKey(f => f.UserId);
+
+            builder
+                .Entity<UserApp>()
+                .HasMany<Slot>(u => u.Slots)
+                .WithOne(f => f.Creator)
+                .HasForeignKey(f => f.CreatedById);
+
+            builder
+                .Entity<UserApp>()
+                .HasMany<Booking>(u => u.Bookings)
+                .WithOne(b => b.Booker)
+                .HasForeignKey(b => b.BookedById);
+
+            builder
+                .Entity<UserApp>()
+                .HasMany<Booking>(u => u.Bookings)
+                .WithOne(b => b.Booker)
+                .HasForeignKey(b => b.BookedById);
+
+            // TVA
+            builder.Entity<TVARate>(entity =>
+            {
+                entity.HasKey(e => e.Id);
+
+                entity.Property(e => e.Id).ValueGeneratedOnAdd();
+
+                entity
+                    .Property(e => e.StartAt)
+                    .IsRequired()
+                    .HasColumnType("timestamp with time zone");
+
+                entity.Property(e => e.Rate).HasColumnType("decimal(18,2)").IsRequired();
+            });
+
+            // Slot
+
+            builder.Entity<Slot>(entity =>
+            {
+                entity.HasKey(s => s.Id);
+
+                entity.Property(u => u.Id).ValueGeneratedOnAdd().IsRequired();
+
+                entity
+                    .Property(e => e.StartAt)
+                    .IsRequired()
+                    .HasColumnType("timestamp with time zone");
+
+                entity
+                    .Property(e => e.EndAt)
+                    .IsRequired()
+                    .HasColumnType("timestamp with time zone");
+
+                entity
+                    .Property(e => e.CreatedAt)
+                    .IsRequired()
+                    .HasColumnType("timestamp with time zone");
+
+                entity.Property(e => e.CreatedById)
+                 .IsRequired();
+
+                entity.HasOne(e => e.Creator)
+                      .WithMany( u => u.Slots)
+                      .HasForeignKey(e => e.CreatedById);
+
+                entity.HasOne(x => x.Booking)
+                        .WithOne(x => x.Slot);
+
+                entity.Property(e => e.Price).HasColumnType("decimal(18,2)").IsRequired();
+
+                entity.Property(e => e.Price).HasDefaultValue(0m);
+
+                entity.Property(e => e.Type);
+            });
+
 
         }
 

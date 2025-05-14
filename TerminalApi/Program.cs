@@ -1,6 +1,5 @@
 using System.Data;
 using System.Reflection;
-using System.Runtime.CompilerServices;
 using System.Text;
 using Hangfire;
 using Hangfire.PostgreSql;
@@ -8,14 +7,12 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc.Razor;
-using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using PuppeteerSharp;
 using TerminalApi.Contexts;
-using TerminalApi.Models.Role;
-using TerminalApi.Models.User;
+using TerminalApi.Models;
 using TerminalApi.Services;
 using TerminalApi.Utilities;
 using TerminalApi.Utilities.Policies.NotBanned;
@@ -223,7 +220,7 @@ namespace TerminalApi
             services.AddScoped<NotificationService>();
             services.AddScoped<UsersService>();
             services.AddScoped<AuthService>();
-            services.AddScoped<IAuthorizationHandler, NotBannedHandler>();            
+            services.AddScoped<IAuthorizationHandler, NotBannedHandler>();
 
             // logger
             services.AddLogging(loggingBuilder =>
@@ -394,7 +391,7 @@ namespace TerminalApi
         }
     }
 
-   
+
 }
 
 

@@ -1,5 +1,5 @@
 ﻿using TerminalApi.Migrations;
-using TerminalApi.Models.Slots;
+using TerminalApi.Models;
 
 namespace TerminalApi.Models.Slots
 {

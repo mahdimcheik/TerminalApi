@@ -1,11 +1,8 @@
-﻿using System.ComponentModel.DataAnnotations.Schema;
-using System.ComponentModel.DataAnnotations;
-using TerminalApi.Models.User;
-using TerminalApi.Models.Slots;
-using TerminalApi.Models.Payments;
+﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 using TerminalApi.Utilities;
 
-namespace TerminalApi.Models.Bookings
+namespace TerminalApi.Models
 {
     public class Booking
     {

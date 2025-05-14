@@ -1,7 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace TerminalApi.Models.Formations
+namespace TerminalApi.Models
 {
     public class FormationUpdateDTO
     {

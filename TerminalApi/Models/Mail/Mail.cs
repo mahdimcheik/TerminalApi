@@ -1,9 +1,4 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-
-namespace TerminalApi.Models.Mail
+namespace TerminalApi.Models
 {
     /// <summary>
     /// Class minimaliste, contient les variables nécessaires à l'envoi de mail

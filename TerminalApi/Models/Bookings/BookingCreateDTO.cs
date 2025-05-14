@@ -1,7 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using TerminalApi.Utilities;
 
-namespace TerminalApi.Models.Bookings
+namespace TerminalApi.Models
 {
     public class BookingCreateDTO
     {

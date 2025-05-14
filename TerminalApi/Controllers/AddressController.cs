@@ -5,8 +5,6 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using TerminalApi.Contexts;
 using TerminalApi.Models;
-using TerminalApi.Models.Adresse;
-using TerminalApi.Models.User;
 using TerminalApi.Services;
 using TerminalApi.Utilities;
 

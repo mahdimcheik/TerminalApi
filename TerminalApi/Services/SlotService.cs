@@ -1,10 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using TerminalApi.Contexts;
 using TerminalApi.Models;
-using TerminalApi.Models.Bookings;
 using TerminalApi.Models.Slots;
-using TerminalApi.Models.User;
-using TerminalApi.Utilities;
 
 namespace TerminalApi.Services
 {
@@ -22,6 +19,7 @@ namespace TerminalApi.Services
             try
             {
                 var slot = slotCreateDTO.ToSlot(userId);
+                slot.Type = Utilities.EnumSlotType.Presentiel;
                 context.Slots.Add(slot);
                 await context.SaveChangesAsync();
                 return slot.ToResponseDTO();
@@ -104,8 +102,8 @@ namespace TerminalApi.Services
                 .AsNoTracking()
                 .Include(x => x.Booking)
                 .ThenInclude(y => y.Booker)
-                .Include(a => a.Booking.Order )
-                
+                .Include(a => a.Booking.Order)
+
                 .Where(ad =>
                     (
                         //ad.CreatedById == EnvironmentVariables.TEACHER_ID && 
@@ -126,7 +124,7 @@ namespace TerminalApi.Services
 
                 .ToListAsync();
         }
- 
+
         public async Task<bool> DeleteSlot(string userId, string slotId)
         {
             try

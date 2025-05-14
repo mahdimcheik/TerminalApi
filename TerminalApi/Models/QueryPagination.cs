@@ -1,6 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations.Schema;
-using TerminalApi.Models.User;
-using TerminalApi.Utilities;
+﻿using TerminalApi.Utilities;
 
 namespace TerminalApi.Models
 {

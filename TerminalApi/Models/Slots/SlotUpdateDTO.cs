@@ -1,9 +1,9 @@
-﻿using System.ComponentModel.DataAnnotations.Schema;
-using System.ComponentModel.DataAnnotations;
-using TerminalApi.Utilities;
+﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 using Microsoft.EntityFrameworkCore;
+using TerminalApi.Utilities;
 
-namespace TerminalApi.Models.Slots
+namespace TerminalApi.Models
 {
     public class SlotUpdateDTO
     {

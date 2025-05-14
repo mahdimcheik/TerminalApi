@@ -1,5 +1,4 @@
-﻿using System.Xml.Linq;
-using TerminalApi.Models.Role;
+﻿using TerminalApi.Models;
 
 namespace TerminalApi.Utilities
 {

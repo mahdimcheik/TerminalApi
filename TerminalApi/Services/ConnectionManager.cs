@@ -1,8 +1,5 @@
-﻿using Hangfire.Storage;
-using PuppeteerSharp;
-using System.Collections.Concurrent;
+﻿using System.Collections.Concurrent;
 using System.Text;
-using System.Threading;
 using TerminalApi.Utilities;
 namespace TerminalApi.Services
 {
@@ -31,7 +28,7 @@ namespace TerminalApi.Services
         {
             return _connections.Values;
         }
-        public async Task Subscribe( HttpResponse Response,string clientId, CancellationToken cancellationToken, HttpContext context)
+        public async Task Subscribe(HttpResponse Response, string clientId, CancellationToken cancellationToken, HttpContext context)
         {
             Response.ContentType = "text/event-stream";
             Response.Headers["Cache-Control"] = "no-cache";
@@ -66,12 +63,12 @@ namespace TerminalApi.Services
             }
         }
 
-        public async Task<bool> NotifyUserById(string clientId, EnumEventSSEType type, object? messageBody, CancellationToken cancellationToken )
+        public async Task<bool> NotifyUserById(string clientId, EnumEventSSEType type, object? messageBody, CancellationToken cancellationToken)
         {
             var response = GetConnection(clientId);
             if (response != null)
             {
-                string jsonData = System.Text.Json.JsonSerializer.Serialize(messageBody );
+                string jsonData = System.Text.Json.JsonSerializer.Serialize(messageBody);
                 var eventName = type;
 
                 var message = $"event: {eventName}\ndata: {jsonData}\n\n";
@@ -83,7 +80,7 @@ namespace TerminalApi.Services
             return false;
         }
 
-        public async Task NotifyAllUsers(EnumEventSSEType type,  object? messageBody,CancellationToken cancellationToken )
+        public async Task NotifyAllUsers(EnumEventSSEType type, object? messageBody, CancellationToken cancellationToken)
         {
             var eventName = type;
             foreach (var response in GetAllConnections())

@@ -1,10 +1,8 @@
 ﻿using System.ComponentModel.DataAnnotations.Schema;
 using Microsoft.EntityFrameworkCore;
-using TerminalApi.Models.Bookings;
-using TerminalApi.Models.User;
 using TerminalApi.Utilities;
 
-namespace TerminalApi.Models.Payments
+namespace TerminalApi.Models
 {
     public class OrderResponseForStudentDTO
     {
@@ -33,7 +31,7 @@ namespace TerminalApi.Models.Payments
         public string? CheckoutID { get; set; }
         public DateTimeOffset? CheckoutExpiredAt { get; set; }
 
-        public DateTimeOffset? UpdatedAt  { get; set; }
+        public DateTimeOffset? UpdatedAt { get; set; }
 
         public TimespanDTO? LeftTimeToPay
         {

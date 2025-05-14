@@ -2,20 +2,18 @@
 using PuppeteerSharp.Media;
 using RazorLight;
 using TerminalApi.Contexts;
-using TerminalApi.Models.Payments;
+using TerminalApi.Models;
 
 namespace TerminalApi.Services
 {
     public class PdfService
     {
         private readonly IWebHostEnvironment _env;
-        private readonly ApiDefaultContext context;
         private readonly IRazorLightEngine _razorLightEngine;
 
-        public PdfService(IWebHostEnvironment env, ApiDefaultContext context)
+        public PdfService(IWebHostEnvironment env)
         {
             _env = env;
-            this.context = context;
 
             // Initialize RazorLightEngine
             _razorLightEngine = new RazorLightEngineBuilder()

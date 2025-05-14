@@ -1,6 +1,6 @@
-﻿using TerminalApi.Models.User;
+﻿using TerminalApi.Models;
 
-namespace TerminalApi.Models.Bookings
+namespace TerminalApi.Models
 {
     public static class BookingExtension
     {

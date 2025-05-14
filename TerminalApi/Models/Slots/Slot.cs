@@ -1,12 +1,10 @@
-﻿using Microsoft.EntityFrameworkCore;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Text.Json.Serialization;
-using TerminalApi.Models.Bookings;
-using TerminalApi.Models.User;
+using Microsoft.EntityFrameworkCore;
 using TerminalApi.Utilities;
 
-namespace TerminalApi.Models.Slots
+namespace TerminalApi.Models
 {
     public class Slot
     {
@@ -40,6 +38,6 @@ namespace TerminalApi.Models.Slots
         [Precision(18, 2)]
         [JsonIgnore]
         [NotMapped]
-        public decimal DiscountedPrice => Price * (decimal)(1.0 -  0.01 * (Reduction ?? 0));
+        public decimal DiscountedPrice => Price * (decimal)(1.0 - 0.01 * (Reduction ?? 0));
     }
 }

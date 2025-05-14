@@ -1,6 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using TerminalApi.Models;
-using TerminalApi.Models.User;
 using TerminalApi.Services;
 
 namespace TerminalApi.Controllers

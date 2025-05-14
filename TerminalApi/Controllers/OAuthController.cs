@@ -9,7 +9,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using TerminalApi.Contexts;
-using TerminalApi.Models.User;
+using TerminalApi.Models;
 using TerminalApi.Utilities;
 
 namespace TerminalApi.Controllers

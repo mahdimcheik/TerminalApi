@@ -1,8 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using TerminalApi.Contexts;
-using TerminalApi.Models.Adresse;
-using TerminalApi.Models.Formations;
+using TerminalApi.Models;
 using TerminalApi.Models.Slots;
 using TerminalApi.Services;
 

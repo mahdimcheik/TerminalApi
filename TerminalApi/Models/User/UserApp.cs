@@ -1,17 +1,10 @@
-﻿using System.ComponentModel;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using System.Text.Json.Serialization;
 using Microsoft.AspNetCore.Identity;
-using TerminalApi.Migrations;
-using TerminalApi.Models.Adresse;
-using TerminalApi.Models.Bookings;
-using TerminalApi.Models.Formations;
-using TerminalApi.Models.Notification;
-using TerminalApi.Models.Slots;
+using TerminalApi.Models;
 using TerminalApi.Utilities;
 
-namespace TerminalApi.Models.User
+namespace TerminalApi.Models
 {
     public class UserApp : IdentityUser
     {
@@ -19,7 +12,7 @@ namespace TerminalApi.Models.User
         public string FirstName { get; set; }
         [Required]
         public string LastName { get; set; }
-        public EnumGender Gender { get; set; } 
+        public EnumGender Gender { get; set; }
         public string? ImgUrl { get; set; }
         [Column(TypeName = "Text")]
         public string? Description { get; set; }
@@ -47,8 +40,8 @@ namespace TerminalApi.Models.User
         public ICollection<Slot>? Slots { get; set; }
         public ICollection<Booking>? Bookings { get; set; }
         public ICollection<Formation>? Formations { get; set; }
-        public ICollection<Notification.Notification>? NotificationsRecieved { get; set; }
-        public ICollection<Notification.Notification>? NotificationsCreated { get; set; }
+        public ICollection<Notification>? NotificationsRecieved { get; set; }
+        public ICollection<Notification>? NotificationsCreated { get; set; }
     }
 
     public class LoginOutputDTO
@@ -56,7 +49,7 @@ namespace TerminalApi.Models.User
         public string Token { get; set; } = null!;
         public string RefreshToken { get; set; } = null!;
         public UserResponseDTO User { get; set; } = null!;
-    }  
+    }
     public class UserUpdateDTO
     {
         [Required]
@@ -67,7 +60,7 @@ namespace TerminalApi.Models.User
 
         [Required]
         public string? LastName { get; set; }
-        public string? PhoneNumber { get;set; }
+        public string? PhoneNumber { get; set; }
         [Column(TypeName = "Text")]
         public string? Description { get; set; }
         public string? Title { get; set; }
@@ -106,7 +99,7 @@ namespace TerminalApi.Models.User
         public ICollection<Slot>? Slots { get; set; }
         public ICollection<Booking>? Bookings { get; set; }
         public ICollection<Formation>? Formations { get; set; }
-        public ICollection<Notification.Notification>? Notifications { get; set; }
+        public ICollection<Notification>? Notifications { get; set; }
 
     }
 
@@ -207,7 +200,7 @@ namespace TerminalApi.Models.User
                 LastLogginAt = user.LastLogginAt,
                 ImgUrl = user.ImgUrl,
                 Description = user.Description,
-                Title= user.Title,
+                Title = user.Title,
                 Gender = user.Gender,
                 Id = user.Id,
                 IsBanned = user.IsBanned ?? false,

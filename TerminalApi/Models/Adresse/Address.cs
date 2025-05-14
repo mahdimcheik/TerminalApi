@@ -1,8 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using TerminalApi.Models.User;
 
-namespace TerminalApi.Models.Adresse
+namespace TerminalApi.Models
 {
     public class Address
     {

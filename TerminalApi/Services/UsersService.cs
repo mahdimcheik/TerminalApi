@@ -1,12 +1,9 @@
-﻿using System.ComponentModel;
-using System.Security.Claims;
+﻿using System.Security.Claims;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using TerminalApi.Contexts;
 using TerminalApi.Models;
-using TerminalApi.Models.Notification;
-using TerminalApi.Models.User;
 using TerminalApi.Utilities;
 
 namespace TerminalApi.Services
@@ -14,17 +11,14 @@ namespace TerminalApi.Services
     public class UsersService
     {
         private readonly ApiDefaultContext context;
-        private readonly UserManager<UserApp> _userManager;
         private readonly NotificationService notificationService;
 
         public UsersService(
             ApiDefaultContext context,
-            UserManager<UserApp> userManager,
             NotificationService notificationService
         )
         {
             this.context = context;
-            _userManager = userManager;
             this.notificationService = notificationService;
         }
 
@@ -50,10 +44,10 @@ namespace TerminalApi.Services
                 };
             }
 
-            if(!query.SearchWord.IsNullOrEmpty() && !query.SearchWord.Trim().IsNullOrEmpty())
+            if (!query.SearchWord.IsNullOrEmpty() && !query.SearchWord.Trim().IsNullOrEmpty())
             {
                 query.SearchWord = query.SearchWord.ToLower();
-                querySql = querySql.Where(x => EF.Functions.ILike(x.FirstName.ToLower(), $"%{query.SearchWord}%") 
+                querySql = querySql.Where(x => EF.Functions.ILike(x.FirstName.ToLower(), $"%{query.SearchWord}%")
                 || EF.Functions.ILike(x.LastName.ToLower(), $"%{query.SearchWord}%")
                 || EF.Functions.ILike(x.Email.ToLower(), $"%{query.SearchWord}%")
                 );
@@ -112,7 +106,7 @@ namespace TerminalApi.Services
             };
         }
 
-        public async Task<ResponseDTO> BanUnbanUser( UserBanDTO userBanDTO)
+        public async Task<ResponseDTO> BanUnbanUser(UserBanDTO userBanDTO)
         {
             var user = await context.Users.FirstOrDefaultAsync(x => x.Id == userBanDTO.UserId);
             if (user is null)
@@ -147,7 +141,7 @@ namespace TerminalApi.Services
             }
             return new ResponseDTO
             {
-                Message = userBanDTO.IsBanned ?  "Profil banni" : "Profil mis à jour",
+                Message = userBanDTO.IsBanned ? "Profil banni" : "Profil mis à jour",
                 Status = 200,
                 Data = user.ToUserResponseDTO(),
             };

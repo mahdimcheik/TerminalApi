@@ -2,12 +2,8 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
-using System.Linq;
 using TerminalApi.Contexts;
 using TerminalApi.Models;
-using TerminalApi.Models.Bookings;
-using TerminalApi.Models.Payments;
-using TerminalApi.Models.User;
 using TerminalApi.Services;
 using TerminalApi.Utilities;
 
@@ -69,7 +65,7 @@ namespace TerminalApi.Controllers
             {
                 return BadRequest(new ResponseDTO { Status = 400, Message = ex.Message });
             }
-        } 
+        }
 
         /// <summary>
         /// Permet à un administrateur d'annuler une réservation pour un créneau spécifique.
@@ -102,7 +98,7 @@ namespace TerminalApi.Controllers
         }
 
 
-    
+
 
         /// <summary>
         /// Permet à un étudiant d'annuler sa propre réservation.
@@ -114,34 +110,34 @@ namespace TerminalApi.Controllers
         [HttpDelete("student/unbook")]
         public async Task<ActionResult<ResponseDTO>> RemoveReservationByStudent([FromQuery] string slotId)
         {
-    try
-    {
-        var user = CheckUser.GetUserFromClaim(HttpContext.User, context);
-        if (user is null)
-        {
-            return BadRequest(new ResponseDTO { Status = 400, Message = "Demande refusée" });
+            try
+            {
+                var user = CheckUser.GetUserFromClaim(HttpContext.User, context);
+                if (user is null)
+                {
+                    return BadRequest(new ResponseDTO { Status = 400, Message = "Demande refusée" });
+                }
+
+                if (slotId.IsNullOrEmpty())
+                {
+                    return BadRequest(new ResponseDTO { Status = 400, Message = "Demande refusée" });
+                }
+
+                var resultRemove = await bookingService.RemoveReservationByStudent(slotId, user.Id);
+                if (resultRemove)
+                {
+                    return Ok(new ResponseDTO { Message = "La résérvation est annulée", Status = 204 });
+                }
+                return BadRequest(new ResponseDTO { Status = 400, Message = "Demande refusée ?" });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new ResponseDTO { Status = 400, Message = ex.Message });
+            }
         }
 
-        if (slotId.IsNullOrEmpty())
-        {
-            return BadRequest(new ResponseDTO { Status = 400, Message = "Demande refusée" });
-        }
-
-        var resultRemove = await bookingService.RemoveReservationByStudent(slotId, user.Id);
-        if (resultRemove)
-        {
-            return Ok(new ResponseDTO { Message = "La résérvation est annulée", Status = 204 });
-        }
-        return BadRequest(new ResponseDTO { Status = 400, Message = "Demande refusée ?" });
-    }
-    catch (Exception ex)
-    {
-        return BadRequest(new ResponseDTO { Status = 400, Message = ex.Message });
-    }
-}
 
 
-        
 
         /// <summary>
         /// Permet à un utilisateur de réserver plusieurs créneaux payants.
@@ -216,7 +212,7 @@ namespace TerminalApi.Controllers
         /// <response code="200">Réservations récupérées avec succès.</response>
         /// <response code="400">Demande invalide.</response>
         [HttpPost("reservations-teacher")]
-        [Authorize(Roles ="Admin")]
+        [Authorize(Roles = "Admin")]
         public async Task<ActionResult<ResponseDTO>> GetTeacherReservations([FromBody] QueryPagination query)
         {
             try
@@ -241,7 +237,7 @@ namespace TerminalApi.Controllers
         }
 
 
-    
+
 
         /// <summary>
         /// Récupère les réservations associées à un étudiant.

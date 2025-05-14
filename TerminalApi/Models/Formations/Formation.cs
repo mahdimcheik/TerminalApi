@@ -1,8 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using TerminalApi.Models.User;
 
-namespace TerminalApi.Models.Formations
+namespace TerminalApi.Models
 {
     public class Formation
     {
@@ -18,7 +17,7 @@ namespace TerminalApi.Models.Formations
         public DateTimeOffset EndAt { get; set; }
         public string UserId { get; set; }
         [MaxLength(255)]
-        public string?  City { get; set; }
+        public string? City { get; set; }
         [MaxLength(255)]
         public string? Country { get; set; }
 

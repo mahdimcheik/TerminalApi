@@ -1,7 +1,6 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using TerminalApi.Models;
-using TerminalApi.Models.Mail;
 using TerminalApi.Services;
 
 namespace TerminalApi.Controllers

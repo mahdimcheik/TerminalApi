@@ -1,12 +1,8 @@
-﻿using TerminalApi.Contexts;
-using TerminalApi.Models.Bookings;
-using TerminalApi.Models.User;
-using TerminalApi.Models;
-using Microsoft.EntityFrameworkCore;
-using TerminalApi.Models.Payments;
-using TerminalApi.Models.Notification;
-using TerminalApi.Utilities;
+﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using TerminalApi.Contexts;
+using TerminalApi.Models;
+using TerminalApi.Utilities;
 
 namespace TerminalApi.Services
 {
@@ -18,7 +14,7 @@ namespace TerminalApi.Services
         private readonly NotificationService notificationService;
         private readonly JobChron jobChron;
 
-        public BookingService( ApiDefaultContext context, OrderService orderService, SseService sseService, NotificationService notificationService, JobChron jobChron)
+        public BookingService(ApiDefaultContext context, OrderService orderService, SseService sseService, NotificationService notificationService, JobChron jobChron)
         {
             this.context = context;
             this.orderService = orderService;
@@ -38,14 +34,14 @@ namespace TerminalApi.Services
                 .FirstOrDefaultAsync();
 
             Order order = await orderService.GetOrCreateCurrentOrderByUserAsync(booker);
-            
+
 
             if (slot is null || slot.Booking is not null || order is null)
             {
                 return false;
             }
 
-            if(order.CheckoutID is not null)
+            if (order.CheckoutID is not null)
             {
                 try
                 {
@@ -74,7 +70,7 @@ namespace TerminalApi.Services
                     Type = Utilities.EnumNotificationType.NewReservation
                 };
                 await notificationService.AddNotification(notificationForTeacher);
-                var notificationDb =   await notificationService.AddNotification(notification);
+                var notificationDb = await notificationService.AddNotification(notification);
                 await orderService.UpdateOrderAsync(booker, order.Id);
 
                 jobChron.SchedulerSingleOrderCleaning(order.Id.ToString());
@@ -130,7 +126,7 @@ namespace TerminalApi.Services
                 var order = context.Orders
                     .FirstOrDefault(x => x.Id == orderId);
 
-                if(order is not null && !order.CheckoutID.IsNullOrEmpty())
+                if (order is not null && !order.CheckoutID.IsNullOrEmpty())
                 {
                     await jobChron.ExpireCheckout(order.CheckoutID);
                     order.ResetCheckout();
