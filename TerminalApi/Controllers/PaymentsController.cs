@@ -120,11 +120,14 @@ namespace TerminalApi.Controllers
                 var service = new SessionService();
                 Session session = service.Create(options);
 
+                var tvaRate = context.TVARates.LastOrDefault()?.Rate ?? 0.2m;
+
                 // Met à jour le statut de la commande dans la base de données
                 result.order.Status = EnumBookingStatus.WaitingForPayment;
                 result.order.CheckoutID = session.Id;
                 result.order.CheckoutExpiredAt = session.ExpiresAt;
                 result.order.UpdatedAt = DateTimeOffset.Now;
+                result.order.TVARate = tvaRate;
 
                 await context.SaveChangesAsync();
 
