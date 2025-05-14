@@ -14,18 +14,21 @@ namespace TerminalApi.Services
         private readonly OrderService orderService;
         private readonly NotificationService notificationService;
         private readonly SseService sseConnectionManager;
+        private readonly JobChron jobChron;
 
         public PaymentsService(
             ApiDefaultContext context,
             OrderService orderService,
             NotificationService notificationService,
-            SseService sseConnectionManager
+            SseService sseConnectionManager,
+            JobChron jobChron
         )
         {
             this.context = context;
             this.orderService = orderService;
             this.notificationService = notificationService;
             this.sseConnectionManager = sseConnectionManager;
+            this.jobChron = jobChron;
         }
 
         public async Task<(bool isValid, Order? order)> CheckOrder
@@ -134,6 +137,8 @@ namespace TerminalApi.Services
                                         Type = EnumNotificationType.NewReservation
                                     }
                                 );
+
+                                jobChron.CancelScheuledJob(newOrder.Id.ToString());
 
                                 return await orderService.UpdateOrderStatus(
                                     orderGuid,

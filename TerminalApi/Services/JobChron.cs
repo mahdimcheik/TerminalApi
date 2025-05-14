@@ -78,7 +78,11 @@ namespace TerminalApi.Services
             if (ScheduleJobOrderTable.Contains(orderId))
             {
                 BackgroundJob.Delete(ScheduleJobOrderTable[orderId] as string);
-                ScheduleJobOrderTable.Remove(orderId);
+                object _lock = new object();
+                lock (_lock)
+                {
+                    ScheduleJobOrderTable.Remove(orderId);
+                }
             }
         }
 
