@@ -350,6 +350,7 @@ namespace TerminalApi
         {
             var userManager = serviceProvider.GetRequiredService<UserManager<UserApp>>();
             var roleManager = serviceProvider.GetRequiredService<RoleManager<Role>>();
+            var context = serviceProvider.GetRequiredService<ApiDefaultContext>();
 
             string adminEmail = "teacher@skillhive.fr";
             string adminPassword = "Admin123!"; // à stocker dans une configuration sécurisée
@@ -393,6 +394,18 @@ namespace TerminalApi
                     // Gérer les erreurs ici
                     throw new Exception($"Erreur lors de la création de l'admin: {string.Join(", ", result.Errors.Select(e => e.Description))}");
                 }
+            }
+
+            var countTVA = context.TVARates.Count();
+            if(countTVA == 0)
+            {
+                TVARate defaultRate = new TVARate
+                {
+                    Rate = 0.2m,
+                    StartAt = DateTimeOffset.UtcNow
+                };
+                context.TVARates.Add(defaultRate);
+                context.SaveChanges();
             }
         }
     }

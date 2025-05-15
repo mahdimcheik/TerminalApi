@@ -45,8 +45,8 @@ namespace TerminalApi.Services
             {
                 try
                 {
-                    order.ResetCheckout();
                     await jobChron.ExpireCheckout(order.CheckoutID);
+                    order.ResetCheckout();
                 }
                 catch
                 {

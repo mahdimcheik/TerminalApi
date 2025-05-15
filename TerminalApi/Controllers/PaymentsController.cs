@@ -120,7 +120,7 @@ namespace TerminalApi.Controllers
                 var service = new SessionService();
                 Session session = service.Create(options);
 
-                var tvaRate = context.TVARates.LastOrDefault()?.Rate ?? 0.2m;
+                var tvaRate = context.TVARates.OrderBy(x => x.StartAt).LastOrDefault()?.Rate ?? 0.2m;
 
                 // Met à jour le statut de la commande dans la base de données
                 result.order.Status = EnumBookingStatus.WaitingForPayment;
