@@ -1,0 +1,69 @@
+﻿@using TerminalApi.Models
+@model Mail
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title>@Model.MailSubject</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 20px;
+        }
+
+        .container {
+            /* max-width: 600px; */
+            width: 100%;
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+
+        .btn {
+            display: inline-block;
+            background-color: #007bff;
+            color: white;
+            padding: 10px 20px;
+            text-decoration: none;
+            border-radius: 5px;
+            margin-top: 20px;
+        }
+
+        .footer {
+            margin-top: 20px;
+            font-size: 0.9em;
+            color: #666;
+        }
+    </style>
+</head>
+<body>
+    @* <div class="container"> *@
+    @*     <h2>@Model.MailSubject</h2> *@
+
+    @*     <div class="sender-info"> *@
+    @*         <strong>De :</strong> @Model.Sender.FirstName @Model.Sender.LastName, email :@Model.Sender.Email *@
+    @*     </div> *@
+    @*     <div class="sender-info"> *@
+    @*         <strong>Id :</strong> @Model.Sender.Id *@
+    @*     </div> *@
+    @*     <div class="message-body"> *@
+    @*         @Model.MailBody *@
+    @*     </div> *@
+    @* </div> *@
+
+    <div class="container">
+        <h2>@Model.MailSubject</h2>
+        <p>Demande effectuée par :</p>
+        <strong>De :</strong> @Model.Sender.FirstName @Model.Sender.LastName, email :@Model.Sender.Email
+        <p>Message</p>
+        <p>@Model.MailBody</p>
+        <hr>
+        <p class="footer">Visiter Notre site <a href="https://www.SkillHive.fr">SkillHive.fr</a> </p>
+    </div>
+</body>
+</html>

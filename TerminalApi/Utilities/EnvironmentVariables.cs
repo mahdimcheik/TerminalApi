@@ -58,6 +58,8 @@
         //public static string TEACHER_ID => Environment.GetEnvironmentVariable("TEACHER_ID");
         public static string TEACHER_ID => Environment.GetEnvironmentVariable("Teacher_Guid") ?? "44ea5267-31c5-44a6-94a3-bac6efd009c7";
 
+        public static string TEACHER_EMAIL => Environment.GetEnvironmentVariable("Teacher_Email") ?? "teacher@skillhive.fr";
+
         //stripe
         public static string? STRIPE_PUBLISHABLEKEY =>
             Environment.GetEnvironmentVariable("STRIPE_PUBLISHABLEKEY");
