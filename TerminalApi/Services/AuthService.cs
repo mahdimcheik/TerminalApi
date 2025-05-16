@@ -191,11 +191,12 @@ namespace TerminalApi.Services
                 return new ResponseDTO { Status = 401, Message = ex.Message };
             }
 
+            var userRoles = await userManager.GetRolesAsync(user);
             return new ResponseDTO
             {
                 Message = "Profil mis à jour",
                 Status = 200,
-                Data = user.ToUserResponseDTO(),
+                Data = user.ToUserResponseDTO(userRoles),
             };
         }
 
