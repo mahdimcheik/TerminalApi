@@ -214,12 +214,6 @@ namespace TerminalApi.Services
 
             var count = await sqlQuery.CountAsync();
 
-            var toto = sqlQuery
-                .AsSplitQuery()
-                .Skip(query.Start)
-                .Take(query.PerPage)
-                .Select(re => re.ToBookingResponseDTO()).ToQueryString();
-
             List<BookingResponseDTO>? result = await sqlQuery
                 .AsSplitQuery()
                 .AsNoTracking()

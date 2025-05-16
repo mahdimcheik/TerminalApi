@@ -11,6 +11,7 @@ namespace TerminalApi.Models
         public string? Description { get; set; }
         public EnumTypeHelp? TypeHelp { get; set; }
         public Guid? OrderId { get; set; }
+        public string? OrderNumber { get; set; }
         public DateTimeOffset CreatedAt { get; set; }
         [Precision(18, 2)]
         public decimal Price { get; set; }
