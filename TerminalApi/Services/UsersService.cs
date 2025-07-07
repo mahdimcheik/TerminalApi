@@ -1,4 +1,4 @@
-﻿using System.Security.Claims;
+using System.Security.Claims;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -29,16 +29,15 @@ namespace TerminalApi.Services
             );
         }
 
-        public async Task<ResponseDTO> GetAllStudentsDTO(QueryPagination query)
+        public async Task<ResponseDTO<List<UserApp>>> GetAllStudentsDTO(QueryPagination query)
         {
             var querySql = context.Users.Where(x => x.EmailConfirmed && x.Id != EnvironmentVariables.TEACHER_ID);
 
             if (query is null)
             {
                 var totalcount = await querySql.CountAsync();
-                return new ResponseDTO
-                {
-                    Message = "Demande acceptée",
+                return new ResponseDTO<List<UserApp>> {
+                    Message = "Demande accept�e",
                     Count = totalcount,
                     Data = querySql.Skip(0).Take(10).ToList()
                 };
@@ -57,22 +56,19 @@ namespace TerminalApi.Services
             querySql = querySql.Skip(query?.Start ?? 0).Take(query?.PerPage ?? 10);
 
             var result = await querySql.ToListAsync();
-            return new ResponseDTO
-            {
-                Message = "Demande acceptée",
+            return new ResponseDTO<List<UserApp>> {
+                Message = "Demande accept�e",
                 Count = count,
                 Data = result
             };
         }
 
-        public async Task<ResponseDTO> Update(UserUpdateDTO model, ClaimsPrincipal UserPrincipal)
+        public async Task<ResponseDTO<UserResponseDTO>> Update(UserUpdateDTO model, ClaimsPrincipal UserPrincipal)
         {
             var user = CheckUser.GetUserFromClaim(UserPrincipal, context);
             if (user is null)
             {
-                return new ResponseDTO
-                {
-                    Status = 404,
+                return new ResponseDTO<UserResponseDTO> { Status = 40,
                     Message = "Le compte n'existe pas ou ne correspond pas",
                 };
             }
@@ -95,25 +91,22 @@ namespace TerminalApi.Services
             catch (Exception ex)
             {
                 await transaction.RollbackAsync();
-                return new ResponseDTO { Status = 401, Message = ex.Message };
+                return new ResponseDTO<UserResponseDTO> { Status = 40, Message = ex.Message };
             }
 
-            return new ResponseDTO
-            {
-                Message = "Profil mis à jour",
+            return new ResponseDTO<UserResponseDTO> {
+                Message = "Profil mis � jour",
                 Status = 200,
                 Data = user.ToUserResponseDTO(),
             };
         }
 
-        public async Task<ResponseDTO> BanUnbanUser(UserBanDTO userBanDTO)
+        public async Task<ResponseDTO<UserResponseDTO>> BanUnbanUser(UserBanDTO userBanDTO)
         {
             var user = await context.Users.FirstOrDefaultAsync(x => x.Id == userBanDTO.UserId);
             if (user is null)
             {
-                return new ResponseDTO
-                {
-                    Status = 404,
+                return new ResponseDTO<UserResponseDTO> { Status = 40,
                     Message = "Le compte n'existe pas ou ne correspond pas",
                 };
             }
@@ -137,11 +130,10 @@ namespace TerminalApi.Services
             catch (Exception ex)
             {
                 await transaction.RollbackAsync();
-                return new ResponseDTO { Status = 401, Message = ex.Message };
+                return new ResponseDTO<UserResponseDTO> { Status = 40, Message = ex.Message };
             }
-            return new ResponseDTO
-            {
-                Message = userBanDTO.IsBanned ? "Profil banni" : "Profil mis à jour",
+            return new ResponseDTO<UserResponseDTO> {
+                Message = userBanDTO.IsBanned ? "Profil banni" : "Profil mis � jour",
                 Status = 200,
                 Data = user.ToUserResponseDTO(),
             };

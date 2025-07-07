@@ -1,4 +1,4 @@
-ï»¿using System.Text.Json.Serialization;
+using System.Text.Json.Serialization;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Identity;
@@ -13,7 +13,7 @@ using TerminalApi.Utilities;
 namespace TerminalApi.Controllers
 {
     /// <summary>
-    /// ContrÃ´leur pour gÃ©rer les utilisateurs.
+    /// Contrôleur pour gérer les utilisateurs.
     /// </summary>
     [Route("[controller]")]
     [Authorize]
@@ -23,7 +23,7 @@ namespace TerminalApi.Controllers
         #region Attributes
 
         /// <summary>
-        /// Contexte de la base de donnÃ©es.
+        /// Contexte de la base de données.
         /// </summary>
         private readonly ApiDefaultContext _context;
 
@@ -33,7 +33,7 @@ namespace TerminalApi.Controllers
         private readonly UserManager<UserApp> _userManager;
 
         /// <summary>
-        /// Service pour gÃ©nÃ©rer des donnÃ©es fictives.
+        /// Service pour générer des données fictives.
         /// </summary>
         private readonly FakerService fakerService;
 
@@ -43,11 +43,11 @@ namespace TerminalApi.Controllers
         private readonly AuthService authService;
 
         /// <summary>
-        /// Constructeur du contrÃ´leur des utilisateurs.
+        /// Constructeur du contrôleur des utilisateurs.
         /// </summary>
-        /// <param name="context">Contexte de la base de donnÃ©es.</param>
+        /// <param name="context">Contexte de la base de données.</param>
         /// <param name="userManager">Gestionnaire des utilisateurs.</param>
-        /// <param name="fakerService">Service pour gÃ©nÃ©rer des donnÃ©es fictives.</param>
+        /// <param name="fakerService">Service pour générer des données fictives.</param>
         /// <param name="authService">Service d'authentification.</param>
         public UsersController(
             ApiDefaultContext context,
@@ -69,8 +69,8 @@ namespace TerminalApi.Controllers
         /// <summary>
         /// Enregistre un nouvel utilisateur.
         /// </summary>
-        /// <param name="model">DonnÃ©es de crÃ©ation de l'utilisateur.</param>
-        /// <returns>RÃ©sultat de l'opÃ©ration.</returns>
+        /// <param name="model">Données de création de l'utilisateur.</param>
+        /// <returns>Résultat de l'opération.</returns>
         [AllowAnonymous]
         [EnableCors]
         [Route("register")]
@@ -80,7 +80,7 @@ namespace TerminalApi.Controllers
             if (!ModelState.IsValid)
             {
                 return BadRequest(
-                    new ResponseDTO { Status = 404, Message = "problÃ¨me de validation" }
+                    new ResponseDTO<object> { Status = 404, Message = "problème de validation" }
                 );
             }
 
@@ -94,10 +94,10 @@ namespace TerminalApi.Controllers
         }
 
         /// <summary>
-        /// Met Ã  jour les informations d'un utilisateur.
+        /// Met à jour les informations d'un utilisateur.
         /// </summary>
-        /// <param name="model">DonnÃ©es de mise Ã  jour de l'utilisateur.</param>
-        /// <returns>RÃ©sultat de l'opÃ©ration.</returns>
+        /// <param name="model">Données de mise à jour de l'utilisateur.</param>
+        /// <returns>Résultat de l'opération.</returns>
         [EnableCors]
         [Route("update")]
         [HttpPatch]
@@ -118,10 +118,10 @@ namespace TerminalApi.Controllers
         }
 
         /// <summary>
-        /// TÃ©lÃ©charge un avatar (image) pour l'utilisateur.
+        /// Télécharge un avatar (image) pour l'utilisateur.
         /// </summary>
         /// <param name="file">Fichier de l'avatar.</param>
-        /// <returns>RÃ©sultat de l'opÃ©ration.</returns>
+        /// <returns>Résultat de l'opération.</returns>
         [HttpPost("upload-avatar")]
         public async Task<IActionResult> OnPostUploadAsync(IFormFile file)
         {
@@ -145,18 +145,17 @@ namespace TerminalApi.Controllers
         /// <summary>
         /// Connecte un utilisateur.
         /// </summary>
-        /// <param name="model">DonnÃ©es de connexion de l'utilisateur.</param>
-        /// <returns>RÃ©sultat de l'opÃ©ration.</returns>
+        /// <param name="model">Données de connexion de l'utilisateur.</param>
+        /// <returns>Résultat de l'opération.</returns>
         [AllowAnonymous]
         [Route("login")]
         [HttpPost]
-        public async Task<ActionResult<ResponseDTO>> Login([FromBody] UserLoginDTO model)
+        public async Task<ActionResult<ResponseDTO<LoginOutputDTO>>> Login([FromBody] UserLoginDTO model)
         {
             if (!ModelState.IsValid)
                 return BadRequest(
-                    new ResponseDTO
-                    {
-                        Message = "Connexion Ã©chouÃ©e",
+                    new ResponseDTO<object> {
+                        Message = "Connexion échouée",
                         Status = 401,
                         Data = ModelState,
                     }
@@ -179,11 +178,11 @@ namespace TerminalApi.Controllers
         /// </summary>
         /// <param name="userId">Identifiant de l'utilisateur.</param>
         /// <param name="confirmationToken">Token de confirmation.</param>
-        /// <returns>RÃ©sultat de l'opÃ©ration.</returns>
+        /// <returns>Résultat de l'opération.</returns>
         [AllowAnonymous]
         [Route("email-confirmation")]
         [HttpGet]
-        public async Task<ActionResult<ResponseDTO>> EmailConfirmation(
+        public async Task<ActionResult<ResponseDTO<object>>> EmailConfirmation(
             [FromQuery] string userId,
             [FromQuery] string confirmationToken
         )
@@ -198,9 +197,9 @@ namespace TerminalApi.Controllers
         }
 
         /// <summary>
-        /// RÃ©cupÃ¨re un nouveau lien de confirmation.
+        /// Récupère un nouveau lien de confirmation.
         /// </summary>
-        /// <returns>RÃ©sultat de l'opÃ©ration.</returns>
+        /// <returns>Résultat de l'opération.</returns>
         [AllowAnonymous]
         [HttpGet("resend-confirmation-link")]
         public async Task<IActionResult> ResendConfirmationLink()
@@ -209,7 +208,7 @@ namespace TerminalApi.Controllers
 
             if (user == null)
                 return BadRequest(
-                    new ResponseDTO { Message = "Vous n'Ãªtes pas connectÃ©", Status = 401 }
+                    new ResponseDTO<object> { Message = "Vous n'êtes pas connecté", Status = 401 }
                 );
 
             var res = await authService.ResendConfirmationMail(user);
@@ -222,26 +221,25 @@ namespace TerminalApi.Controllers
         #region CurrentUser informations
 
         /// <summary>
-        /// RÃ©cupÃ¨re les informations de l'utilisateur connectÃ©.
+        /// Récupère les informations de l'utilisateur connecté.
         /// </summary>
         /// <returns>Informations de l'utilisateur.</returns>
         [HttpGet("my-informations")]
-        public async Task<ActionResult<ResponseDTO>> GetMyInformations()
+        public async Task<ActionResult<ResponseDTO<object>>> GetMyInformations()
         {
             var user = CheckUser.GetUserFromClaim(HttpContext.User, _context);
 
             if (user == null)
                 return BadRequest(
-                    new ResponseDTO { Message = "Vous n'Ãªtes pas connectÃ©", Status = 401 }
+                    new ResponseDTO<object> { Message = "Vous n'êtes pas connecté", Status = 401 }
                 );
 
             var result = user.ToUserResponseDTO();
             var userRoles = await _userManager.GetRolesAsync(user);
 
             return Ok(
-                new ResponseDTO
-                {
-                    Message = "Demande acceptÃ©e",
+                new ResponseDTO<object> {
+                    Message = "Demande acceptée",
                     Status = 200,
                     Data = new
                     {
@@ -253,13 +251,13 @@ namespace TerminalApi.Controllers
         }
 
         /// <summary>
-        /// RÃ©cupÃ¨re les informations publiques d'un utilisateur.
+        /// Récupère les informations publiques d'un utilisateur.
         /// </summary>
         /// <param name="userId">Identifiant de l'utilisateur.</param>
         /// <returns>Informations publiques de l'utilisateur.</returns>
         [AllowAnonymous]
         [HttpGet("public-informations")]
-        public async Task<ActionResult<ResponseDTO>> GetPublicInformations(
+        public async Task<ActionResult<ResponseDTO<object>>> GetPublicInformations(
             [FromQuery] string userId
         )
         {
@@ -267,7 +265,7 @@ namespace TerminalApi.Controllers
             if (userId.ToLower().Trim().IsNullOrEmpty())
             {
                 return BadRequest(
-                    new ResponseDTO { Message = "Aucun profil trouvÃ©", Status = 404 }
+                    new ResponseDTO<object> { Message = "Aucun profil trouvé", Status = 404 }
                 );
             }
             if (userId.ToLower().Trim() == "teacher")
@@ -283,13 +281,12 @@ namespace TerminalApi.Controllers
 
             if (user == null)
                 return BadRequest(
-                    new ResponseDTO { Message = "Vous n'Ãªtes pas connectÃ©", Status = 401 }
+                    new ResponseDTO<object> { Message = "Vous n'êtes pas connecté", Status = 401 }
                 );
 
             return Ok(
-                new ResponseDTO
-                {
-                    Message = "Demande acceptÃ©e",
+                new ResponseDTO<object> {
+                    Message = "Demande acceptée",
                     Status = 200,
                     Data = user.ToUserResponseDTO()
                 }
@@ -301,20 +298,20 @@ namespace TerminalApi.Controllers
         #region POST AskForPasswordRecoveryMail
 
         /// <summary>
-        /// Demande un e-mail de rÃ©cupÃ©ration de mot de passe.
+        /// Demande un e-mail de récupération de mot de passe.
         /// </summary>
-        /// <param name="model">DonnÃ©es pour la rÃ©cupÃ©ration du mot de passe.</param>
-        /// <returns>RÃ©sultat de l'opÃ©ration.</returns>
+        /// <param name="model">Données pour la récupération du mot de passe.</param>
+        /// <returns>Résultat de l'opération.</returns>
         [AllowAnonymous]
         [Route("forgot-password")]
         [HttpPost]
-        public async Task<ActionResult<ResponseDTO>> ForgotPassword(
+        public async Task<ActionResult<ResponseDTO<object>>> ForgotPassword(
             [FromBody] ForgotPasswordInput model
         )
         {
             if (!ModelState.IsValid)
             {
-                return BadRequest(new ResponseDTO { Message = "Demande refusÃ©e", Status = 400 });
+                return BadRequest(new ResponseDTO<object> { Message = "Demande refusée", Status = 400 });
             }
 
             var result = await authService.ForgotPassword(model);
@@ -331,20 +328,20 @@ namespace TerminalApi.Controllers
         #region PasswordChange after recovery
 
         /// <summary>
-        /// Change le mot de passe aprÃ¨s une rÃ©cupÃ©ration.
+        /// Change le mot de passe après une récupération.
         /// </summary>
-        /// <param name="model">DonnÃ©es pour changer le mot de passe.</param>
-        /// <returns>RÃ©sultat de l'opÃ©ration.</returns>
+        /// <param name="model">Données pour changer le mot de passe.</param>
+        /// <returns>Résultat de l'opération.</returns>
         [AllowAnonymous]
         [Route("reset-password")]
         [HttpPost]
-        public async Task<ActionResult<ResponseDTO>> ChangePassword(
+        public async Task<ActionResult<ResponseDTO<object>>> ChangePassword(
             [FromBody] PasswordRecoveryInput model
         )
         {
             if (!ModelState.IsValid || model.Password != model.PasswordConfirmation)
             {
-                return BadRequest(new ResponseDTO { Message = "Demande refusÃ©e", Status = 400 });
+                return BadRequest(new ResponseDTO<object> { Message = "Demande refusée", Status = 400 });
             }
 
             var result = await authService.ChangePassword(model);
@@ -361,9 +358,9 @@ namespace TerminalApi.Controllers
         #region refresh token
 
         /// <summary>
-        /// Met Ã  jour le token de rafraÃ®chissement.
+        /// Met à jour le token de rafraîchissement.
         /// </summary>
-        /// <returns>RÃ©sultat de l'opÃ©ration.</returns>
+        /// <returns>Résultat de l'opération.</returns>
         [Route("refresh-token")]
         [AllowAnonymous]
         [HttpGet]
@@ -391,14 +388,14 @@ namespace TerminalApi.Controllers
         #endregion
 
         /// <summary>
-        /// RÃ©cupÃ¨re tous les utilisateurs avec pagination.
+        /// Récupère tous les utilisateurs avec pagination.
         /// </summary>
-        /// <param name="first">Index de dÃ©part.</param>
-        /// <param name="rows">Nombre d'utilisateurs Ã  rÃ©cupÃ©rer.</param>
+        /// <param name="first">Index de départ.</param>
+        /// <param name="rows">Nombre d'utilisateurs à récupérer.</param>
         /// <returns>Liste des utilisateurs.</returns>
         [HttpGet("all")]
         [Authorize(Roles = "Admin")]
-        public async Task<ActionResult<ResponseDTO>> getAllUsers(
+        public async Task<ActionResult<ResponseDTO<IEnumerable<object>>>> GetAll(
             [FromQuery] int first,
             [FromQuery] int rows
         )
@@ -406,8 +403,7 @@ namespace TerminalApi.Controllers
             var users = await _context.Users.Skip(first).Take(rows).ToListAsync();
             var totalCount = await _context.Users.CountAsync();
             return Ok(
-                new ResponseDTO
-                {
+                new ResponseDTO<object> {
                     Message = "Les utilisateurs",
                     Data = new { users, totalCount },
                     Status = 200
@@ -416,9 +412,9 @@ namespace TerminalApi.Controllers
         }
 
         /// <summary>
-        /// DÃ©connecte l'utilisateur.
+        /// Déconnecte l'utilisateur.
         /// </summary>
-        /// <returns>RÃ©sultat de l'opÃ©ration.</returns>
+        /// <returns>Résultat de l'opération.</returns>
         [AllowAnonymous]
         [HttpGet("logout")]
         public async Task<ActionResult> Logout()
@@ -426,7 +422,7 @@ namespace TerminalApi.Controllers
             Response.Cookies.Delete("refreshToken");
             return Ok(new
             {
-                Message = "Vous Ãªtes dÃ©connectÃ©",
+                Message = "Vous êtes déconnecté",
                 Status = 200
             });
         }
@@ -434,9 +430,9 @@ namespace TerminalApi.Controllers
         #region fixture
 
         /// <summary>
-        /// GÃ©nÃ¨re des utilisateurs fictifs pour les tests.
+        /// Génère des utilisateurs fictifs pour les tests.
         /// </summary>
-        /// <returns>Liste des utilisateurs gÃ©nÃ©rÃ©s.</returns>
+        /// <returns>Liste des utilisateurs générés.</returns>
         [HttpGet("seed")]
         [Authorize(Roles = "Admin")]
         public async Task<ActionResult> SeedUsers()

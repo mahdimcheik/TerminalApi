@@ -1,4 +1,4 @@
-ï»¿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -9,8 +9,8 @@ using TerminalApi.Services;
 namespace TerminalApi.Controllers
 {
     /// <summary>
-    /// ContrÃ´leur responsable de la gestion des factures liÃ©es aux commandes.
-    /// Permet de gÃ©nÃ©rer et de rÃ©cupÃ©rer des factures au format PDF.
+    /// Contrôleur responsable de la gestion des factures liées aux commandes.
+    /// Permet de générer et de récupérer des factures au format PDF.
     /// </summary>
     [Route("[controller]")]
     [ApiController]
@@ -21,10 +21,10 @@ namespace TerminalApi.Controllers
         private readonly ApiDefaultContext context;
 
         /// <summary>
-        /// Initialise une nouvelle instance du contrÃ´leur <see cref="BillController"/>.
+        /// Initialise une nouvelle instance du contrôleur <see cref="BillController"/>.
         /// </summary>
-        /// <param name="pdfService">Service utilisÃ© pour gÃ©nÃ©rer des fichiers PDF.</param>
-        /// <param name="context">Contexte de base de donnÃ©es pour accÃ©der aux commandes et autres entitÃ©s.</param>
+        /// <param name="pdfService">Service utilisé pour générer des fichiers PDF.</param>
+        /// <param name="context">Contexte de base de données pour accéder aux commandes et autres entités.</param>
         public BillController(PdfService pdfService, ApiDefaultContext context)
         {
             this.pdfService = pdfService;
@@ -32,32 +32,32 @@ namespace TerminalApi.Controllers
         }
 
         /// <summary>
-        /// RÃ©cupÃ¨re une facture au format PDF pour une commande donnÃ©e.
+        /// Récupère une facture au format PDF pour une commande donnée.
         /// </summary>
-        /// <param name="orderId">Identifiant unique de la commande pour laquelle gÃ©nÃ©rer la facture.</param>
+        /// <param name="orderId">Identifiant unique de la commande pour laquelle générer la facture.</param>
         /// <returns>
-        /// Un fichier PDF contenant la facture si la commande est trouvÃ©e.
+        /// Un fichier PDF contenant la facture si la commande est trouvée.
         /// Retourne un code HTTP 200 avec le fichier PDF, 
         /// un code HTTP 404 si la commande n'existe pas, 
         /// ou un code HTTP 400 si l'identifiant de la commande est invalide.
         /// </returns>
-        /// <response code="200">Facture gÃ©nÃ©rÃ©e avec succÃ¨s.</response>
-        /// <response code="400">RequÃªte invalide, identifiant de commande manquant ou incorrect.</response>
-        /// <response code="404">Commande non trouvÃ©e.</response>
+        /// <response code="200">Facture générée avec succès.</response>
+        /// <response code="400">Requête invalide, identifiant de commande manquant ou incorrect.</response>
+        /// <response code="404">Commande non trouvée.</response>
         [HttpGet]
         public async Task<IActionResult> Get([FromQuery] string orderId)
         {
             Console.WriteLine(orderId);
 
-            // VÃ©rifie si l'identifiant de commande est vide ou invalide
+            // Vérifie si l'identifiant de commande est vide ou invalide
             if (orderId.Trim().IsNullOrEmpty())
             {
                 return BadRequest(
-                    new ResponseDTO { Message = "Aucune commande correspondante", Status = 404, }
+                    new ResponseDTO<object> { Message = "Aucune commande correspondante", Status = 404, }
                 );
             }
 
-            // Recherche de la commande dans la base de donnÃ©es
+            // Recherche de la commande dans la base de données
             var order = context
                 .Orders.Where(x => x.Id == Guid.Parse(orderId))
                 .Include(x => x.Booker)
@@ -69,11 +69,11 @@ namespace TerminalApi.Controllers
             if (order is null)
             {
                 return BadRequest(
-                    new ResponseDTO { Message = "Aucune commande correspondante", Status = 404, }
+                    new ResponseDTO<object> { Message = "Aucune commande correspondante", Status = 404, }
                 );
             }
 
-            // GÃ©nÃ©ration du fichier PDF via le service PdfService
+            // Génération du fichier PDF via le service PdfService
             var file = await pdfService.GeneratePdfAsync(order.ToOrderResponseForStudentDTO());
 
             // Retourne le fichier PDF avec un code 200

@@ -31,14 +31,14 @@ namespace TerminalApi.Controllers
         /// <response code="200">Retourne la liste des cursus.</response>
         /// <response code="500">Erreur interne du serveur.</response>
         [HttpGet]
-        [ProducesResponseType(typeof(ResponseDTO), StatusCodes.Status200OK)]
-        [ProducesResponseType(typeof(ResponseDTO), StatusCodes.Status500InternalServerError)]
-        public async Task<ActionResult<ResponseDTO>> GetAll()
+        [ProducesResponseType(typeof(ResponseDTO<IEnumerable<CursusDto>>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ResponseDTO<string>), StatusCodes.Status500InternalServerError)]
+        public async Task<ActionResult<ResponseDTO<IEnumerable<CursusDto>>>> GetAll()
         {
             try
             {
                 var cursus = await _cursusService.GetAllAsync();
-                return Ok(new ResponseDTO
+                return Ok(new ResponseDTO<IEnumerable<CursusDto>>
                 {
                     Status = 200,
                     Message = "Cursus récupérés avec succès",
@@ -48,7 +48,7 @@ namespace TerminalApi.Controllers
             }
             catch (Exception ex)
             {
-                return StatusCode(500, new ResponseDTO
+                return StatusCode(500, new ResponseDTO<string>
                 {
                     Status = 500,
                     Message = "Erreur lors de la récupération des cursus",
@@ -66,25 +66,24 @@ namespace TerminalApi.Controllers
         /// <response code="400">Données invalides.</response>
         /// <response code="500">Erreur interne du serveur.</response>
         [HttpPost]
-        [ProducesResponseType(typeof(ResponseDTO), StatusCodes.Status201Created)]
-        [ProducesResponseType(typeof(ResponseDTO), StatusCodes.Status400BadRequest)]
-        [ProducesResponseType(typeof(ResponseDTO), StatusCodes.Status500InternalServerError)]
-        public async Task<ActionResult<ResponseDTO>> Create([FromBody] CreateCursusDto dto)
+        [ProducesResponseType(typeof(ResponseDTO<CursusDto>), StatusCodes.Status201Created)]
+        [ProducesResponseType(typeof(ResponseDTO<string?>), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(ResponseDTO<string>), StatusCodes.Status500InternalServerError)]
+        public async Task<ActionResult<ResponseDTO<CursusDto>>> Create([FromBody] CreateCursusDto dto)
         {
             if (!ModelState.IsValid)
             {
-                return BadRequest(new ResponseDTO
+                return BadRequest(new ResponseDTO<string?>
                 {
                     Status = 400,
-                    Message = "Données invalides",
-                    Data = ModelState
+                    Message = "Données invalides"
                 });
             }
 
             try
             {
                 var cursus = await _cursusService.CreateAsync(dto);
-                return Ok( new ResponseDTO
+                return Ok( new ResponseDTO<CursusDto>
                 {
                     Status = 201,
                     Message = "Cursus créé avec succès",
@@ -93,7 +92,7 @@ namespace TerminalApi.Controllers
             }
             catch (ArgumentException ex)
             {
-                return BadRequest(new ResponseDTO
+                return BadRequest(new ResponseDTO<string?>
                 {
                     Status = 400,
                     Message = ex.Message
@@ -101,7 +100,7 @@ namespace TerminalApi.Controllers
             }
             catch (Exception ex)
             {
-                return StatusCode(500, new ResponseDTO
+                return StatusCode(500, new ResponseDTO<string>
                 {
                     Status = 500,
                     Message = "Erreur lors de la création du cursus",
@@ -121,19 +120,18 @@ namespace TerminalApi.Controllers
         /// <response code="404">Cursus non trouvé.</response>
         /// <response code="500">Erreur interne du serveur.</response>
         [HttpPut("{id}")]
-        [ProducesResponseType(typeof(ResponseDTO), StatusCodes.Status200OK)]
-        [ProducesResponseType(typeof(ResponseDTO), StatusCodes.Status400BadRequest)]
-        [ProducesResponseType(typeof(ResponseDTO), StatusCodes.Status404NotFound)]
-        [ProducesResponseType(typeof(ResponseDTO), StatusCodes.Status500InternalServerError)]
-        public async Task<ActionResult<ResponseDTO>> Update(Guid id, [FromBody] UpdateCursusDto dto)
+        [ProducesResponseType(typeof(ResponseDTO<CursusDto>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ResponseDTO<string?>), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(ResponseDTO<string?>), StatusCodes.Status404NotFound)]
+        [ProducesResponseType(typeof(ResponseDTO<string>), StatusCodes.Status500InternalServerError)]
+        public async Task<ActionResult<ResponseDTO<CursusDto>>> Update(Guid id, [FromBody] UpdateCursusDto dto)
         {
             if (!ModelState.IsValid)
             {
-                return BadRequest(new ResponseDTO
+                return BadRequest(new ResponseDTO<string?>
                 {
                     Status = 400,
-                    Message = "Données invalides",
-                    Data = ModelState
+                    Message = "Données invalides"
                 });
             }
 
@@ -142,14 +140,14 @@ namespace TerminalApi.Controllers
                 var cursus = await _cursusService.UpdateAsync(id, dto);
                 if (cursus == null)
                 {
-                    return NotFound(new ResponseDTO
+                    return NotFound(new ResponseDTO<string?>
                     {
                         Status = 404,
                         Message = "Cursus non trouvé"
                     });
                 }
 
-                return Ok(new ResponseDTO
+                return Ok(new ResponseDTO<CursusDto>
                 {
                     Status = 200,
                     Message = "Cursus mis à jour avec succès",
@@ -158,7 +156,7 @@ namespace TerminalApi.Controllers
             }
             catch (ArgumentException ex)
             {
-                return BadRequest(new ResponseDTO
+                return BadRequest(new ResponseDTO<string?>
                 {
                     Status = 400,
                     Message = ex.Message
@@ -166,7 +164,7 @@ namespace TerminalApi.Controllers
             }
             catch (Exception ex)
             {
-                return StatusCode(500, new ResponseDTO
+                return StatusCode(500, new ResponseDTO<string>
                 {
                     Status = 500,
                     Message = "Erreur lors de la mise à jour du cursus",
@@ -184,24 +182,24 @@ namespace TerminalApi.Controllers
         /// <response code="404">Cursus non trouvé.</response>
         /// <response code="500">Erreur interne du serveur.</response>
         [HttpDelete("{id}")]
-        [ProducesResponseType(typeof(ResponseDTO), StatusCodes.Status200OK)]
-        [ProducesResponseType(typeof(ResponseDTO), StatusCodes.Status404NotFound)]
-        [ProducesResponseType(typeof(ResponseDTO), StatusCodes.Status500InternalServerError)]
-        public async Task<ActionResult<ResponseDTO>> Delete(Guid id)
+        [ProducesResponseType(typeof(ResponseDTO<string?>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ResponseDTO<string?>), StatusCodes.Status404NotFound)]
+        [ProducesResponseType(typeof(ResponseDTO<string>), StatusCodes.Status500InternalServerError)]
+        public async Task<ActionResult<ResponseDTO<string?>>> Delete(Guid id)
         {
             try
             {
                 var success = await _cursusService.DeleteAsync(id);
                 if (!success)
                 {
-                    return NotFound(new ResponseDTO
+                    return NotFound(new ResponseDTO<string?>
                     {
                         Status = 404,
                         Message = "Cursus non trouvé"
                     });
                 }
 
-                return Ok(new ResponseDTO
+                return Ok(new ResponseDTO<string?>
                 {
                     Status = 200,
                     Message = "Cursus supprimé avec succès"
@@ -209,7 +207,7 @@ namespace TerminalApi.Controllers
             }
             catch (Exception ex)
             {
-                return StatusCode(500, new ResponseDTO
+                return StatusCode(500, new ResponseDTO<string>
                 {
                     Status = 500,
                     Message = "Erreur lors de la suppression du cursus",
@@ -225,14 +223,14 @@ namespace TerminalApi.Controllers
         /// <response code="200">Retourne la liste des niveaux.</response>
         /// <response code="500">Erreur interne du serveur.</response>
         [HttpGet("levels")]
-        [ProducesResponseType(typeof(ResponseDTO), StatusCodes.Status200OK)]
-        [ProducesResponseType(typeof(ResponseDTO), StatusCodes.Status500InternalServerError)]
-        public async Task<ActionResult<ResponseDTO>> GetLevels()
+        [ProducesResponseType(typeof(ResponseDTO<IEnumerable<Level>>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ResponseDTO<string>), StatusCodes.Status500InternalServerError)]
+        public async Task<ActionResult<ResponseDTO<IEnumerable<Level>>>> GetLevels()
         {
             try
             {
                 var levels = await _cursusService.GetLevelsAsync();
-                return Ok(new ResponseDTO
+                return Ok(new ResponseDTO<IEnumerable<Level>>
                 {
                     Status = 200,
                     Message = "Niveaux récupérés avec succès",
@@ -242,7 +240,7 @@ namespace TerminalApi.Controllers
             }
             catch (Exception ex)
             {
-                return StatusCode(500, new ResponseDTO
+                return StatusCode(500, new ResponseDTO<string>
                 {
                     Status = 500,
                     Message = "Erreur lors de la récupération des niveaux",
@@ -258,14 +256,14 @@ namespace TerminalApi.Controllers
         /// <response code="200">Retourne la liste des catégories.</response>
         /// <response code="500">Erreur interne du serveur.</response>
         [HttpGet("categories")]
-        [ProducesResponseType(typeof(ResponseDTO), StatusCodes.Status200OK)]
-        [ProducesResponseType(typeof(ResponseDTO), StatusCodes.Status500InternalServerError)]
-        public async Task<ActionResult<ResponseDTO>> GetCategories()
+        [ProducesResponseType(typeof(ResponseDTO<IEnumerable<Category>>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ResponseDTO<string>), StatusCodes.Status500InternalServerError)]
+        public async Task<ActionResult<ResponseDTO<IEnumerable<Category>>>> GetCategories()
         {
             try
             {
                 var categories = await _cursusService.GetCategoriesAsync();
-                return Ok(new ResponseDTO
+                return Ok(new ResponseDTO<IEnumerable<Category>>
                 {
                     Status = 200,
                     Message = "Catégories récupérées avec succès",
@@ -275,7 +273,7 @@ namespace TerminalApi.Controllers
             }
             catch (Exception ex)
             {
-                return StatusCode(500, new ResponseDTO
+                return StatusCode(500, new ResponseDTO<string>
                 {
                     Status = 500,
                     Message = "Erreur lors de la récupération des catégories",
