@@ -1,4 +1,4 @@
-﻿namespace TerminalApi.Models.Formations
+﻿namespace TerminalApi.Models
 {
     public static class FormationExtension
     {

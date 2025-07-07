@@ -1,9 +1,7 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using TerminalApi.Contexts;
-using TerminalApi.Models.Adresse;
-using TerminalApi.Models.Formations;
-using TerminalApi.Models.User;
+using TerminalApi.Models;
 
 namespace TerminalApi.Services
 {

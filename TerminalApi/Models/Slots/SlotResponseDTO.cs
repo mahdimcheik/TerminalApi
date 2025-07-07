@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 using Microsoft.EntityFrameworkCore;
 using TerminalApi.Utilities;
 
-namespace TerminalApi.Models.Slots
+namespace TerminalApi.Models
 {
     public class SlotResponseDTO
     {

@@ -1,9 +1,6 @@
-﻿using System.ComponentModel.DataAnnotations.Schema;
-using System.ComponentModel.DataAnnotations;
-using TerminalApi.Models.User;
-using TerminalApi.Utilities;
+﻿using TerminalApi.Utilities;
 
-namespace TerminalApi.Models.Notification
+namespace TerminalApi.Models
 {
     public class NotificationResponseDTO
     {

@@ -1,6 +1,6 @@
-﻿using TerminalApi.Models.User;
+﻿using TerminalApi.Models;
 
-namespace TerminalApi.Models.Bookings
+namespace TerminalApi.Models
 {
     public static class BookingExtension
     {
@@ -27,6 +27,7 @@ namespace TerminalApi.Models.Bookings
                 Description = booking.Description,
                 TypeHelp = booking.TypeHelp,
                 OrderId = booking.OrderId,
+                OrderNumber = booking.Order?.OrderNumber,
                 CreatedAt = booking.CreatedAt,
                 Price = booking.Slot.Price,
                 DiscountedPrice = booking.Slot.DiscountedPrice,
@@ -51,6 +52,7 @@ namespace TerminalApi.Models.Bookings
                 Description = booking.Description,
                 TypeHelp = booking.TypeHelp,
                 OrderId = booking.OrderId,
+                OrderNumber = booking.Order.OrderNumber,
                 CreatedAt = booking.CreatedAt,
                 Price = booking.Slot.Price,
                 DiscountedPrice = booking.Slot.DiscountedPrice,

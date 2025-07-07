@@ -1,14 +1,9 @@
-﻿using Bogus.Bson;
-using Microsoft.AspNetCore.Http.HttpResults;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Primitives;
-using Microsoft.IdentityModel.Tokens;
 using Stripe;
 using Stripe.Checkout;
 using TerminalApi.Contexts;
-using TerminalApi.Models.Notification;
-using TerminalApi.Models.Payments;
-using TerminalApi.Models.User;
+using TerminalApi.Models;
 using TerminalApi.Utilities;
 
 namespace TerminalApi.Services
@@ -19,27 +14,33 @@ namespace TerminalApi.Services
         private readonly OrderService orderService;
         private readonly NotificationService notificationService;
         private readonly SseService sseConnectionManager;
+        private readonly JobChron jobChron;
 
         public PaymentsService(
             ApiDefaultContext context,
             OrderService orderService,
-            NotificationService notificationService,  
-            SseService sseConnectionManager
+            NotificationService notificationService,
+            SseService sseConnectionManager,
+            JobChron jobChron
         )
         {
             this.context = context;
             this.orderService = orderService;
             this.notificationService = notificationService;
             this.sseConnectionManager = sseConnectionManager;
+            this.jobChron = jobChron;
         }
 
-        public async Task<(bool isValid, Order? order)> Checkorder(Guid orderId, string userId)
+        public async Task<(bool isValid, Order? order)> CheckOrder
+            (Guid orderId, string userId)
         {
             var order = await context
-                .Orders.Include(o => o.Booker)
+                .Orders
+                .Where(o => o.Id == orderId)
+                .Include(o => o.Booker)
                 .Include(o => o.Bookings)
                 .ThenInclude(b => b.Slot)
-                .FirstOrDefaultAsync(o => o.Id == orderId);
+                .FirstOrDefaultAsync();
 
             if (order == null)
             {
@@ -47,11 +48,11 @@ namespace TerminalApi.Services
             }
             if (order.BookerId != userId || order.Status != EnumBookingStatus.Pending)
             {
-                return (false, null);
+                return (false, order);
             }
             if (order.Bookings is null || order.TotalOriginalPrice == 0)
             {
-                return (false, null);
+                return (false, order);
             }
             return (true, order);
         }
@@ -73,7 +74,7 @@ namespace TerminalApi.Services
                     var session = stripeEvent.Data.Object as Session;
                     Console.WriteLine("********** {0} ********", json);
 
-                    if (session.PaymentStatus == "paid") 
+                    if (session.PaymentStatus == "paid")
                     {
                         (string? bookerId, string? orderId, string? orderNumber) orderIds;
                         if (session.Metadata.TryGetValue("order_id", out string orderId))
@@ -118,7 +119,7 @@ namespace TerminalApi.Services
                                         Type = EnumNotificationType.PaymentAccepted
                                     }
                                 );
-                                await sseConnectionManager.SendMessageToUserAsync(newOrder.Booker.Id, "Test after payment");
+                                //await sseConnectionManager.SendMessageToUserAsync(newOrder.Booker.Id, "Test after payment");
                                 // réservation enregistrée
                                 await notificationService.AddNotification(
                                     new Notification
@@ -132,12 +133,14 @@ namespace TerminalApi.Services
                                 await notificationService.AddNotification(
                                     new Notification
                                     {
-                                        Id = Guid.NewGuid(),                                        
+                                        Id = Guid.NewGuid(),
                                         SenderId = newOrder.Booker.Id,
                                         RecipientId = EnvironmentVariables.TEACHER_ID,
                                         Type = EnumNotificationType.NewReservation
                                     }
                                 );
+
+                                jobChron.CancelScheuledJob(newOrder.Id.ToString());
 
                                 return await orderService.UpdateOrderStatus(
                                     orderGuid,

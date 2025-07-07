@@ -1,8 +1,10 @@
-﻿using System.Threading.Tasks.Dataflow;
+﻿using System.Collections;
 using Hangfire;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
+using Stripe;
 using TerminalApi.Contexts;
-using TerminalApi.Models.Notification;
+using TerminalApi.Models;
 using TerminalApi.Utilities;
 
 namespace TerminalApi.Services
@@ -12,17 +14,19 @@ namespace TerminalApi.Services
         private readonly ApiDefaultContext _context;
         private readonly NotificationService notificationService;
 
+        public static Hashtable ScheduleJobOrderTable { get; set; } = new();
+
         public JobChron(ApiDefaultContext context, NotificationService notificationService)
         {
             _context = context;
             this.notificationService = notificationService;
-            RecurringJob.AddOrUpdate("clean-database-orders", () => CleanOrders(), "*/2 * * * *");
+            //RecurringJob.AddOrUpdate("clean-database-orders", () => CleanOrders(), "*/10 * * * *");
+            RecurringJob.AddOrUpdate("delete-passed-jobs", () => RemoveFinishedJobs(), "*/10 * * * *");
         }
 
         public async Task CleanOrders()
         {
-            int delay = 2; // default value
-            var gotDelayed = int.TryParse( EnvironmentVariables.HANGFIRE_ORDER_CLEANING_DELAY, out delay);
+            int delay = EnvironmentVariables.HANGFIRE_ORDER_CLEANING_DELAY;
             try
             {
                 var orders = _context
@@ -38,17 +42,7 @@ namespace TerminalApi.Services
                     .ToList();
                 foreach (var order in orders)
                 {
-                    order.Status = EnumBookingStatus.Cancelled;
-                    if (order.UpdatedAt is null)
-                    {
-                        order.UpdatedAt = DateTimeOffset.UtcNow;
-                    }
-
-                    _context.RemoveRange(
-                        order.Bookings.Where(x =>
-                            x.CreatedAt < DateTimeOffset.UtcNow.AddMinutes(-1 * delay)
-                        )
-                    );
+                    order.Reset();
 
                     await notificationService.AddNotification(
                         new Notification
@@ -60,12 +54,127 @@ namespace TerminalApi.Services
                         }
                     );
                 }
+
                 await _context.SaveChangesAsync();
             }
             catch (Exception e)
             {
                 throw new Exception(e.Message);
             }
+        }
+
+        public void SchedulerSingleOrderCleaning(string orderId)
+        {
+            // j'annule l'ancien job avant de planifier un nouveau
+            CancelScheuledJob(orderId);
+            int delay = EnvironmentVariables.HANGFIRE_ORDER_CLEANING_DELAY;
+
+            var jobId = BackgroundJob.Schedule(() => TrackOrder(orderId), TimeSpan.FromMinutes(delay));
+            ScheduleJobOrderTable.Add(orderId, jobId);
+        }
+
+        public void CancelScheuledJob(string orderId)
+        {
+            if (ScheduleJobOrderTable.Contains(orderId))
+            {
+                BackgroundJob.Delete(ScheduleJobOrderTable[orderId] as string);
+                object _lock = new object();
+                lock (_lock)
+                {
+                    ScheduleJobOrderTable.Remove(orderId);
+                }
+            }
+        }
+
+        public void RemoveFinishedJobs()
+        {
+            using (var connection = JobStorage.Current.GetConnection())
+            {
+                var keys = ScheduleJobOrderTable.Keys;
+
+                var copy = DeepCopyScheduleJobOrderTable();
+
+                foreach (DictionaryEntry item in copy)
+                {
+                    var jobId = ScheduleJobOrderTable[item.Key];
+                    var jobData = connection.GetJobData(jobId as string);
+
+                    if (jobData != null && jobData.State != "Scheduled" && jobData.State != "Processing")
+                    {
+                        ScheduleJobOrderTable.Remove(item.Key);
+                        BackgroundJob.Delete(jobId as string);
+                    }
+                }
+            }
+
+        }
+
+        public async Task TrackOrder(string orderId)
+        {
+            try
+            {
+                Guid.TryParse(orderId, out Guid orderGuid);
+                var order = _context
+                    .Orders.Include(x => x.Bookings)
+                    .FirstOrDefault(x => x.Id == orderGuid);
+
+                if (order is not null)
+                {
+                    _context.RemoveRange(
+                       order.Bookings.Where(x => x.OrderId == orderGuid
+                       )
+                   );
+
+                    order.Reset();
+
+                    await _context.SaveChangesAsync();
+
+                    try
+                    {
+                        if (order.CheckoutID.IsNullOrEmpty())
+                        {
+                            await ExpireCheckout(order.CheckoutID);
+                        }
+                    }
+                    catch
+                    {
+                        throw;
+                    }
+                }
+            }
+            catch (Exception e)
+            {
+                throw new Exception(e.Message);
+            }
+        }
+
+        public async Task ExpireCheckout(string checkoutId)
+        {
+            try
+            {
+
+                if (checkoutId.IsNullOrEmpty())
+                {
+                    throw new Exception("checkout est null");
+                }
+
+                StripeConfiguration.ApiKey = EnvironmentVariables.STRIPE_SECRETKEY;
+                var service = new Stripe.Checkout.SessionService();
+
+                Stripe.Checkout.Session session = service.Expire(checkoutId);
+            }
+            catch
+            {
+            }
+        }
+        public Hashtable DeepCopyScheduleJobOrderTable()
+        {
+            var deepCopy = new Hashtable();
+            foreach (DictionaryEntry entry in ScheduleJobOrderTable)
+            {
+                deepCopy.Add(entry.Key, entry.Value);
+            }
+            return deepCopy;
         }
     }
 }

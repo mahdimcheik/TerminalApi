@@ -1,35 +1,55 @@
 using System.Data;
-using System.IdentityModel.Tokens.Jwt;
 using System.Reflection;
-using System.Security.Claims;
 using System.Text;
 using Hangfire;
 using Hangfire.PostgreSql;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc.Razor;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using PuppeteerSharp;
 using TerminalApi.Contexts;
-using TerminalApi.Models.Role;
-using TerminalApi.Models.User;
+using TerminalApi.Models;
 using TerminalApi.Services;
 using TerminalApi.Utilities;
+using TerminalApi.Utilities.Policies.NotBanned;
 
 namespace TerminalApi
 {
     public class Program
     {
-        public static void Main(string[] args)
+        public static async Task Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
             var services = builder.Services;
 
             ConfigureServices(services);
+            var toto = new BrowserFetcher().DownloadAsync().Result;
+
+            // browser execution configs
+            var launchOptions = new LaunchOptions
+            {
+                Headless = true, // = false for testing
+            };
 
             var app = builder.Build();
-            ConfigureMiddlewarePipeline(app);           
+            ConfigureMiddlewarePipeline(app);
+            using (var scope = app.Services.CreateScope())
+            {
+                var service = scope.ServiceProvider;
+                try
+                {
+                    await SeedAdminUserAsync(service);
+                }
+                catch (Exception ex)
+                {
+                    // Log l'erreur si nécessaire
+                    Console.WriteLine($"Erreur lors du seed de l'utilisateur admin : {ex.Message}");
+                }
+            }
 
             app.Run();
         }
@@ -89,7 +109,6 @@ namespace TerminalApi
                 options.AddDefaultPolicy(builder =>
                 {
                     builder
-                        //.AllowAnyOrigin()
                         .SetIsOriginAllowed(CorsHelper.IsOriginAllowed)
                         .AllowAnyMethod()
                         .AllowAnyHeader()
@@ -145,6 +164,7 @@ namespace TerminalApi
 
         private static void ConfigureAuthentication(IServiceCollection services)
         {
+            // authentication
             services
                 .AddAuthentication(options =>
                 {
@@ -173,6 +193,14 @@ namespace TerminalApi
                     options.ClientSecret = EnvironmentVariables.SECRET_CLIENT_GOOGLE;
                     options.CallbackPath = new PathString("/google-callback");
                 });
+            // authorization
+            services.AddAuthorization(options =>
+            {
+                options.AddPolicy(
+                    "NotBanned",
+                    policy => policy.Requirements.Add(new NotBannedRequirement())
+                );
+            });
         }
 
         private static void ConfigureServices(IServiceCollection services)
@@ -192,6 +220,7 @@ namespace TerminalApi
             services.AddScoped<NotificationService>();
             services.AddScoped<UsersService>();
             services.AddScoped<AuthService>();
+            services.AddScoped<IAuthorizationHandler, NotBannedHandler>();
 
             // logger
             services.AddLogging(loggingBuilder =>
@@ -208,11 +237,8 @@ namespace TerminalApi
                 );
             });
             services.AddTransient<PdfService>();
-
-            //Lowercase routing
             services.AddRouting(opt => opt.LowercaseUrls = true);
 
-            // Set the active provider via configuration
             var configuration = services.BuildServiceProvider().GetService<IConfiguration>();
             string? provider = configuration?.GetValue(
                 "Provider",
@@ -221,21 +247,17 @@ namespace TerminalApi
 
             services.AddDbContext<ApiDefaultContext>(options =>
             {
-                //options.UseSqlite("Data Source = d:\\terminal.db;");
-                string POSTGRES_CONNECTION_STRING =
-                    "Server={0};Port={1};Database={2};User Id={3};Password={4}";
-                //options.UseNpgsql("Host=localhost;Port=5432;Database=leprojet;Username=postgres;Password=beecoming;");
-                options.UseNpgsql(
-                    "Host=localhost;Port=8081;Database=base;Username=postgres;Password=mahdimcheik;"
-                );
-
-                //options.UseNpgsql(
-                //            string.Format(POSTGRES_CONNECTION_STRING, EnvironmentVariables.DB_HOST ,EnvironmentVariables.DB_PORT, EnvironmentVariables.DB_NAME, EnvironmentVariables.DB_USER, EnvironmentVariables.DB_PASSWORD));
+                options.UseNpgsql("Host=localhost;Port=5432;Database=leprojet;Username=postgres;Password=beecoming;");
             });
+
+            using (var scope = services.BuildServiceProvider().CreateScope())
+            {
+                var context = scope.ServiceProvider.GetRequiredService<ApiDefaultContext>();
+                context.Database.Migrate();
+            }
 
             services.Configure<DataProtectionTokenProviderOptions>(options =>
             {
-                // timespan pour les les tokens de password rest- email confirmation ....
                 options.TokenLifespan = TimeSpan.FromHours(1);
             });
 
@@ -249,19 +271,20 @@ namespace TerminalApi
                         (options) =>
                         {
                             options.UseNpgsqlConnection(
-                                "Host=localhost;Port=8081;Database=base;Username=postgres;Password=mahdimcheik;"
+                                "Host=localhost;Port=5432;Database=leprojet;Username=postgres;Password=beecoming;"
                             );
                         }
                     )
             );
-            services.AddHangfireServer();
 
+            services.AddHangfireServer();
             ConfigureCors(services);
             ConfigureControllers(services);
             ConfigureSwagger(services);
             ConfigureIdentity(services);
             ConfigureAuthentication(services);
         }
+
         private static void ConfigureMiddlewarePipeline(WebApplication app)
         {
             // Configure localization for supported cultures.
@@ -294,8 +317,6 @@ namespace TerminalApi
             // hangfire
             app.UseHangfireDashboard("/hangfire");
 
-            //backgroundJobs.Enqueue(() => Console.WriteLine("Hello world from Hangfire!"));
-
             // Enable routing.
             app.UseRouting();
 
@@ -324,8 +345,72 @@ namespace TerminalApi
                 }
             );
         }
-       
+
+        public static async Task SeedAdminUserAsync(IServiceProvider serviceProvider)
+        {
+            var userManager = serviceProvider.GetRequiredService<UserManager<UserApp>>();
+            var roleManager = serviceProvider.GetRequiredService<RoleManager<Role>>();
+            var context = serviceProvider.GetRequiredService<ApiDefaultContext>();
+
+            string adminEmail = "teacher@skillhive.fr";
+            string adminPassword = "Admin123!"; // à stocker dans une configuration sécurisée
+
+            string adminRole = "Admin";
+
+            // Créer le rôle s'il n'existe pas
+            if (!await roleManager.RoleExistsAsync(adminRole))
+            {
+                await roleManager.CreateAsync(new Role
+                {
+                    Id = Guid.NewGuid().ToString(),
+                    Name = "Admin",
+                    NormalizedName = "ADMIN",
+                    ConcurrencyStamp = Guid.NewGuid().ToString()
+                });
+            }
+
+            // Vérifier si l'utilisateur existe
+            var adminUser = await userManager.FindByEmailAsync(adminEmail);
+            if (adminUser == null)
+            {
+                adminUser = new UserApp
+                {
+                    Id = EnvironmentVariables.TEACHER_ID,
+                    UserName = adminEmail,
+                    Email = adminEmail,
+                    EmailConfirmed = true,
+                    FirstName = "Admin",
+                    LastName = "Admin",
+                    PhoneNumber = "0606060606",
+                };
+
+                var result = await userManager.CreateAsync(adminUser, adminPassword);
+                if (result.Succeeded)
+                {
+                    await userManager.AddToRoleAsync(adminUser, adminRole);
+                }
+                else
+                {
+                    // Gérer les erreurs ici
+                    throw new Exception($"Erreur lors de la création de l'admin: {string.Join(", ", result.Errors.Select(e => e.Description))}");
+                }
+            }
+
+            var countTVA = context.TVARates.Count();
+            if(countTVA == 0)
+            {
+                TVARate defaultRate = new TVARate
+                {
+                    Rate = 0.2m,
+                    StartAt = DateTimeOffset.UtcNow
+                };
+                context.TVARates.Add(defaultRate);
+                context.SaveChanges();
+            }
+        }
     }
+
+
 }
 
 

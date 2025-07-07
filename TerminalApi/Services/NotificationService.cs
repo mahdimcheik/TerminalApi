@@ -1,9 +1,6 @@
-﻿using System.Linq.Expressions;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.IdentityModel.Tokens;
+﻿using Microsoft.EntityFrameworkCore;
 using TerminalApi.Contexts;
 using TerminalApi.Models;
-using TerminalApi.Models.Notification;
 using TerminalApi.Utilities;
 
 namespace TerminalApi.Services
@@ -97,7 +94,7 @@ namespace TerminalApi.Services
             {
                 EnumNotificationType.AccountConfirmed => @"<span class=""text-surface-700 dark:text-surface-100"">Votre compte vient d'être confirmé</span> ",
                 EnumNotificationType.AccountUpdated => @"<span class=""text-surface-700 dark:text-surface-100"">Votre compte vient d'être mis à jour</span> ",
-                
+
                 EnumNotificationType.PasswordResetDemandAccepted
                     => "Un email de réinitialisation de mot de passe vient d'être envoyé",
                 EnumNotificationType.NewAnnouncement => "Nouvelle annonce / Offres",
@@ -113,9 +110,9 @@ namespace TerminalApi.Services
                 EnumNotificationType.ReservationAccepted => "Votre réservation a été acceptée",
                 EnumNotificationType.NewReservation
                     => "Vous venez de recevoir une nouvelle commande",
-                EnumNotificationType.ReservationCancelled => @"<span class=""text-surface-700 dark:text-surface-100"">Votre réservation a été  <span class=""text-primary font-bold"">annulée</span> </span> ",            
+                EnumNotificationType.ReservationCancelled => @"<span class=""text-surface-700 dark:text-surface-100"">Votre réservation a été  <span class=""text-primary font-bold"">annulée</span> </span> ",
                 EnumNotificationType.ReservationCancelledTimeOut
-                    => @"<span class=""text-surface-700 dark:text-surface-100"">Votre réservation a été annulée <span class=""text-primary font-bold"">pour abscence de paiement</span></span> ",           
+                    => @"<span class=""text-surface-700 dark:text-surface-100"">Votre réservation a été annulée <span class=""text-primary font-bold"">pour abscence de paiement</span></span> ",
                 EnumNotificationType.ReservationRejected => "Votre réservation a été rejetée",
                 EnumNotificationType.ReservationReminder
                     => "Rappel: vous avez un rendez-vous aujourd'hui",

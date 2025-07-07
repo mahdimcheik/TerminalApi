@@ -1,7 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations.Schema;
 using System.ComponentModel.DataAnnotations;
 
-namespace TerminalApi.Models.User
+namespace TerminalApi.Models
 {
     public class RefreshTokens
     {
@@ -16,5 +16,13 @@ namespace TerminalApi.Models.User
         [ForeignKey(nameof(User))]
         public string? UserId { get; set; }
         public UserApp? User { get; set; }
+    }
+
+    public static class RefreshTokenExtensions
+    {
+        public static bool IsExpired(this RefreshTokens refreshToken)
+        {
+            return refreshToken.ExpirationDate < DateTimeOffset.UtcNow;
+        }
     }
 }

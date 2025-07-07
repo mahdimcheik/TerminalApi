@@ -1,33 +1,33 @@
-﻿using Microsoft.EntityFrameworkCore;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Text.Json.Serialization;
-using TerminalApi.Models.Bookings;
-using TerminalApi.Models.User;
+using Microsoft.EntityFrameworkCore;
 using TerminalApi.Utilities;
 
-namespace TerminalApi.Models.Payments
+namespace TerminalApi.Models
 {
     public class Order
-    {
-        [Key]
+    {    
         public Guid Id { get; set; }
         public string OrderNumber { get; set; }
-        [Column(TypeName = "timestamp with time zone")]
+       
         public DateTimeOffset? PaymentDate { get; set; }
-        [Column(TypeName = "timestamp with time zone")]
+        public string? CheckoutID { get; set; }
+
         public DateTimeOffset? CreatedAt { get; set; } = DateTimeOffset.UtcNow;
         public DateTimeOffset? UpdatedAt { get; set; } = DateTimeOffset.UtcNow;
         public EnumBookingStatus Status { get; set; }
         public string PaymentMethod { get; set; }
         public ICollection<Booking> Bookings { get; set; }
         public UserApp Booker { get; set; }
-        [ForeignKey(nameof(Booker))]
+  
         public string BookerId { get; set; }
-        [Precision(18, 2)]
+
         public decimal TVARate { get; set; }
 
         public string? PaymentIntent { get; set; }
+
+        public DateTimeOffset? CheckoutExpiredAt { get; set; }
 
         // Calculated fields
         [JsonIgnore]

@@ -1,12 +1,10 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Net;
 using System.Net.Mail;
-using System.Threading.Tasks;
 using Hangfire;
+using iText.Layout.Element;
+using Microsoft.AspNetCore.Routing.Template;
 using RazorLight;
-using TerminalApi.Models.Mail;
+using TerminalApi.Models;
 using TerminalApi.Services.Templates;
 using TerminalApi.Utilities;
 
@@ -49,6 +47,51 @@ namespace TerminalApi.Services
             mailMessage.To.Add(mail.MailTo);
 
             await smtpClient.SendMailAsync(mailMessage);
+        }
+
+
+        public async Task ContactAdmin(Mail mail)
+        {
+            var smtpClient = new SmtpClient(EnvironmentVariables.SMTP_HostAddress)
+            {
+                Port = EnvironmentVariables.SMTP_Port,
+                Credentials = new NetworkCredential(
+                    EnvironmentVariables.SMTP_EmailFrom,
+                    EnvironmentVariables.SMTP_Password
+                ),
+                EnableSsl = true
+            };
+
+            var mailMessage = new MailMessage
+            {
+                From = new MailAddress(mail.Sender.Email),
+                Subject = mail.MailSubject,
+                Body = mail.MailBody,
+                IsBodyHtml = true,
+            };
+
+            string htmlContent = await _razorLightEngine.CompileRenderAsync("ContactAdminTemplate.cshtml", mail);
+            mailMessage.Body = htmlContent;
+
+            mailMessage.To.Add(EnvironmentVariables.TEACHER_EMAIL);
+         
+            await smtpClient.SendMailAsync(mailMessage);
+
+            if(mail.SendtoSender is not null && mail.SendtoSender == true)
+            {
+                var mailMessageSender = new MailMessage
+                {
+                    From = new MailAddress(EnvironmentVariables.TEACHER_EMAIL),
+                    Subject = mail.MailSubject,
+                    Body = mail.MailBody,
+                    IsBodyHtml = true,
+                };
+
+                htmlContent = await _razorLightEngine.CompileRenderAsync("ContactAdminTemplate.cshtml", mail);
+                mailMessageSender.Body = htmlContent;
+                mailMessageSender.To.Add(mail.Sender.Email);
+                await smtpClient.SendMailAsync(mailMessageSender);
+            }
         }
         /// <summary>
         /// Cette méthode sert à envoyer un email de confirmation de mail.

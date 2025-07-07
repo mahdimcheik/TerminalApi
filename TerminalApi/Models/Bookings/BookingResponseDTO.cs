@@ -1,7 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using TerminalApi.Utilities;
 
-namespace TerminalApi.Models.Bookings
+namespace TerminalApi.Models
 {
     public class BookingResponseDTO
     {
@@ -11,6 +11,7 @@ namespace TerminalApi.Models.Bookings
         public string? Description { get; set; }
         public EnumTypeHelp? TypeHelp { get; set; }
         public Guid? OrderId { get; set; }
+        public string? OrderNumber { get; set; }
         public DateTimeOffset CreatedAt { get; set; }
         [Precision(18, 2)]
         public decimal Price { get; set; }

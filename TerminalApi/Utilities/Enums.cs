@@ -18,6 +18,8 @@
         Pending = 0,
         Paid = 1,
         Cancelled = 2,
+        WaitingForPayment = 3,
+        Refunded = 4,
     }
     public enum EnumTypeHelp
     {

@@ -98,7 +98,7 @@ namespace TerminalApi.Migrations
 
                     b.Property<string>("UserId")
                         .IsRequired()
-                        .HasColumnType("text");
+                        .HasColumnType("character varying(64)");
 
                     b.HasKey("Id");
 
@@ -120,7 +120,7 @@ namespace TerminalApi.Migrations
 
                     b.Property<string>("UserId")
                         .IsRequired()
-                        .HasColumnType("text");
+                        .HasColumnType("character varying(64)");
 
                     b.HasKey("LoginProvider", "ProviderKey");
 
@@ -132,7 +132,7 @@ namespace TerminalApi.Migrations
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserRole<string>", b =>
                 {
                     b.Property<string>("UserId")
-                        .HasColumnType("text");
+                        .HasColumnType("character varying(64)");
 
                     b.Property<string>("RoleId")
                         .HasColumnType("text");
@@ -147,7 +147,7 @@ namespace TerminalApi.Migrations
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserToken<string>", b =>
                 {
                     b.Property<string>("UserId")
-                        .HasColumnType("text");
+                        .HasColumnType("character varying(64)");
 
                     b.Property<string>("LoginProvider")
                         .HasColumnType("text");
@@ -163,7 +163,7 @@ namespace TerminalApi.Migrations
                     b.ToTable("AspNetUserTokens", (string)null);
                 });
 
-            modelBuilder.Entity("TerminalApi.Models.Adresse.Address", b =>
+            modelBuilder.Entity("TerminalApi.Models.Address", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -207,7 +207,7 @@ namespace TerminalApi.Migrations
 
                     b.Property<string>("UserId")
                         .IsRequired()
-                        .HasColumnType("text");
+                        .HasColumnType("character varying(64)");
 
                     b.HasKey("Id");
 
@@ -216,7 +216,7 @@ namespace TerminalApi.Migrations
                     b.ToTable("Addresses");
                 });
 
-            modelBuilder.Entity("TerminalApi.Models.Bookings.Booking", b =>
+            modelBuilder.Entity("TerminalApi.Models.Booking", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -224,7 +224,7 @@ namespace TerminalApi.Migrations
 
                     b.Property<string>("BookedById")
                         .IsRequired()
-                        .HasColumnType("text");
+                        .HasColumnType("character varying(64)");
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
@@ -239,7 +239,8 @@ namespace TerminalApi.Migrations
                         .HasColumnType("uuid");
 
                     b.Property<string>("Subject")
-                        .HasColumnType("text");
+                        .HasMaxLength(128)
+                        .HasColumnType("character varying(128)");
 
                     b.Property<int>("TypeHelp")
                         .HasColumnType("integer");
@@ -256,7 +257,7 @@ namespace TerminalApi.Migrations
                     b.ToTable("Bookings");
                 });
 
-            modelBuilder.Entity("TerminalApi.Models.Formations.Formation", b =>
+            modelBuilder.Entity("TerminalApi.Models.Formation", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -287,7 +288,7 @@ namespace TerminalApi.Migrations
 
                     b.Property<string>("UserId")
                         .IsRequired()
-                        .HasColumnType("text");
+                        .HasColumnType("character varying(64)");
 
                     b.HasKey("Id");
 
@@ -296,7 +297,7 @@ namespace TerminalApi.Migrations
                     b.ToTable("Formations");
                 });
 
-            modelBuilder.Entity("TerminalApi.Models.Layout.Layout", b =>
+            modelBuilder.Entity("TerminalApi.Models.Layout", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -319,7 +320,7 @@ namespace TerminalApi.Migrations
 
                     b.Property<string>("UserId")
                         .IsRequired()
-                        .HasColumnType("text");
+                        .HasColumnType("character varying(64)");
 
                     b.HasKey("Id");
 
@@ -328,7 +329,7 @@ namespace TerminalApi.Migrations
                     b.ToTable("Layouts");
                 });
 
-            modelBuilder.Entity("TerminalApi.Models.Notification.Notification", b =>
+            modelBuilder.Entity("TerminalApi.Models.Notification", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -351,10 +352,10 @@ namespace TerminalApi.Migrations
                         .HasColumnType("uuid");
 
                     b.Property<string>("RecipientId")
-                        .HasColumnType("text");
+                        .HasColumnType("character varying(64)");
 
                     b.Property<string>("SenderId")
-                        .HasColumnType("text");
+                        .HasColumnType("character varying(64)");
 
                     b.Property<int?>("Type")
                         .HasColumnType("integer");
@@ -372,7 +373,7 @@ namespace TerminalApi.Migrations
                     b.ToTable("Notifications");
                 });
 
-            modelBuilder.Entity("TerminalApi.Models.Payments.Order", b =>
+            modelBuilder.Entity("TerminalApi.Models.Order", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -380,6 +381,12 @@ namespace TerminalApi.Migrations
 
                     b.Property<string>("BookerId")
                         .IsRequired()
+                        .HasColumnType("character varying(64)");
+
+                    b.Property<DateTime?>("CheckoutExpiredAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("CheckoutID")
                         .HasColumnType("text");
 
                     b.Property<DateTime?>("CreatedAt")
@@ -403,8 +410,7 @@ namespace TerminalApi.Migrations
                         .HasColumnType("integer");
 
                     b.Property<decimal>("TVARate")
-                        .HasPrecision(18, 2)
-                        .HasColumnType("numeric(18,2)");
+                        .HasColumnType("decimal(18,2)");
 
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("timestamp with time zone");
@@ -416,7 +422,31 @@ namespace TerminalApi.Migrations
                     b.ToTable("Orders");
                 });
 
-            modelBuilder.Entity("TerminalApi.Models.Slots.Slot", b =>
+            modelBuilder.Entity("TerminalApi.Models.RefreshTokens", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("ExpirationDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("RefreshToken")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasColumnType("character varying(64)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("RefreshTokens");
+                });
+
+            modelBuilder.Entity("TerminalApi.Models.Slot", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -427,14 +457,16 @@ namespace TerminalApi.Migrations
 
                     b.Property<string>("CreatedById")
                         .IsRequired()
-                        .HasColumnType("text");
+                        .HasColumnType("character varying(64)");
 
                     b.Property<DateTime>("EndAt")
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<decimal>("Price")
+                        .ValueGeneratedOnAdd()
                         .HasPrecision(18, 2)
-                        .HasColumnType("numeric(18,2)");
+                        .HasColumnType("decimal(18,2)")
+                        .HasDefaultValue(0m);
 
                     b.Property<int?>("Reduction")
                         .HasColumnType("integer");
@@ -452,7 +484,7 @@ namespace TerminalApi.Migrations
                     b.ToTable("Slots");
                 });
 
-            modelBuilder.Entity("TerminalApi.Models.TVA.TVARate", b =>
+            modelBuilder.Entity("TerminalApi.Models.TVARate", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -460,7 +492,7 @@ namespace TerminalApi.Migrations
 
                     b.Property<decimal>("Rate")
                         .HasPrecision(18, 2)
-                        .HasColumnType("numeric(18,2)");
+                        .HasColumnType("decimal(18,2)");
 
                     b.Property<DateTime>("StartAt")
                         .HasColumnType("timestamp with time zone");
@@ -472,43 +504,23 @@ namespace TerminalApi.Migrations
                     b.HasData(
                         new
                         {
-                            Id = new Guid("fb1eda0c-5643-4fc5-a549-c3dc1a172ad4"),
+                            Id = new Guid("cd4fe9f4-2bd4-433c-8b45-3736663e5184"),
                             Rate = 0.2m,
-                            StartAt = new DateTime(2025, 4, 12, 13, 49, 6, 782, DateTimeKind.Utc).AddTicks(7266)
+                            StartAt = new DateTime(2025, 5, 14, 18, 47, 23, 505, DateTimeKind.Utc).AddTicks(3454)
                         });
                 });
 
-            modelBuilder.Entity("TerminalApi.Models.User.RefreshTokens", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
-
-                    b.Property<DateTime>("ExpirationDate")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<string>("RefreshToken")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<string>("UserId")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("UserId");
-
-                    b.ToTable("RefreshTokens");
-                });
-
-            modelBuilder.Entity("TerminalApi.Models.User.UserApp", b =>
+            modelBuilder.Entity("TerminalApi.Models.UserApp", b =>
                 {
                     b.Property<string>("Id")
-                        .HasColumnType("text");
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)");
 
                     b.Property<int>("AccessFailedCount")
                         .HasColumnType("integer");
+
+                    b.Property<DateTime?>("BannedUntilDate")
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("ConcurrencyStamp")
                         .IsConcurrencyToken()
@@ -521,7 +533,8 @@ namespace TerminalApi.Migrations
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("Description")
-                        .HasColumnType("Text");
+                        .HasMaxLength(512)
+                        .HasColumnType("text");
 
                     b.Property<string>("Email")
                         .HasMaxLength(256)
@@ -538,7 +551,14 @@ namespace TerminalApi.Migrations
                         .HasColumnType("integer");
 
                     b.Property<string>("ImgUrl")
-                        .HasColumnType("text");
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)");
+
+                    b.Property<bool?>("IsBanned")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(false);
 
                     b.Property<DateTime?>("LastLogginAt")
                         .HasColumnType("timestamp with time zone");
@@ -548,7 +568,8 @@ namespace TerminalApi.Migrations
 
                     b.Property<string>("LastName")
                         .IsRequired()
-                        .HasColumnType("text");
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)");
 
                     b.Property<bool>("LockoutEnabled")
                         .HasColumnType("boolean");
@@ -573,14 +594,12 @@ namespace TerminalApi.Migrations
                     b.Property<bool>("PhoneNumberConfirmed")
                         .HasColumnType("boolean");
 
-                    b.Property<string>("RefreshToken")
-                        .HasColumnType("text");
-
                     b.Property<string>("SecurityStamp")
                         .HasColumnType("text");
 
                     b.Property<string>("Title")
-                        .HasColumnType("text");
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)");
 
                     b.Property<bool>("TwoFactorEnabled")
                         .HasColumnType("boolean");
@@ -601,7 +620,7 @@ namespace TerminalApi.Migrations
                     b.ToTable("AspNetUsers", (string)null);
                 });
 
-            modelBuilder.Entity("TerminalApi.Models.Role.Role", b =>
+            modelBuilder.Entity("TerminalApi.Models.Role", b =>
                 {
                     b.HasBaseType("Microsoft.AspNetCore.Identity.IdentityRole");
 
@@ -649,7 +668,7 @@ namespace TerminalApi.Migrations
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserClaim<string>", b =>
                 {
-                    b.HasOne("TerminalApi.Models.User.UserApp", null)
+                    b.HasOne("TerminalApi.Models.UserApp", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -658,7 +677,7 @@ namespace TerminalApi.Migrations
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserLogin<string>", b =>
                 {
-                    b.HasOne("TerminalApi.Models.User.UserApp", null)
+                    b.HasOne("TerminalApi.Models.UserApp", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -673,7 +692,7 @@ namespace TerminalApi.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("TerminalApi.Models.User.UserApp", null)
+                    b.HasOne("TerminalApi.Models.UserApp", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -682,16 +701,16 @@ namespace TerminalApi.Migrations
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserToken<string>", b =>
                 {
-                    b.HasOne("TerminalApi.Models.User.UserApp", null)
+                    b.HasOne("TerminalApi.Models.UserApp", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("TerminalApi.Models.Adresse.Address", b =>
+            modelBuilder.Entity("TerminalApi.Models.Address", b =>
                 {
-                    b.HasOne("TerminalApi.Models.User.UserApp", "user")
+                    b.HasOne("TerminalApi.Models.UserApp", "user")
                         .WithMany("Adresses")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -700,21 +719,22 @@ namespace TerminalApi.Migrations
                     b.Navigation("user");
                 });
 
-            modelBuilder.Entity("TerminalApi.Models.Bookings.Booking", b =>
+            modelBuilder.Entity("TerminalApi.Models.Booking", b =>
                 {
-                    b.HasOne("TerminalApi.Models.User.UserApp", "Booker")
+                    b.HasOne("TerminalApi.Models.UserApp", "Booker")
                         .WithMany("Bookings")
                         .HasForeignKey("BookedById")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.HasOne("TerminalApi.Models.Payments.Order", "Order")
+                    b.HasOne("TerminalApi.Models.Order", "Order")
                         .WithMany("Bookings")
-                        .HasForeignKey("OrderId");
+                        .HasForeignKey("OrderId")
+                        .OnDelete(DeleteBehavior.Restrict);
 
-                    b.HasOne("TerminalApi.Models.Slots.Slot", "Slot")
+                    b.HasOne("TerminalApi.Models.Slot", "Slot")
                         .WithOne("Booking")
-                        .HasForeignKey("TerminalApi.Models.Bookings.Booking", "SlotId")
+                        .HasForeignKey("TerminalApi.Models.Booking", "SlotId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -725,9 +745,9 @@ namespace TerminalApi.Migrations
                     b.Navigation("Slot");
                 });
 
-            modelBuilder.Entity("TerminalApi.Models.Formations.Formation", b =>
+            modelBuilder.Entity("TerminalApi.Models.Formation", b =>
                 {
-                    b.HasOne("TerminalApi.Models.User.UserApp", "User")
+                    b.HasOne("TerminalApi.Models.UserApp", "User")
                         .WithMany("Formations")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -736,9 +756,9 @@ namespace TerminalApi.Migrations
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("TerminalApi.Models.Layout.Layout", b =>
+            modelBuilder.Entity("TerminalApi.Models.Layout", b =>
                 {
-                    b.HasOne("TerminalApi.Models.User.UserApp", "User")
+                    b.HasOne("TerminalApi.Models.UserApp", "User")
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -747,23 +767,27 @@ namespace TerminalApi.Migrations
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("TerminalApi.Models.Notification.Notification", b =>
+            modelBuilder.Entity("TerminalApi.Models.Notification", b =>
                 {
-                    b.HasOne("TerminalApi.Models.Bookings.Booking", "Booking")
+                    b.HasOne("TerminalApi.Models.Booking", "Booking")
                         .WithMany()
-                        .HasForeignKey("BookingId");
+                        .HasForeignKey("BookingId")
+                        .OnDelete(DeleteBehavior.SetNull);
 
-                    b.HasOne("TerminalApi.Models.Payments.Order", "Order")
+                    b.HasOne("TerminalApi.Models.Order", "Order")
                         .WithMany()
-                        .HasForeignKey("OrderId");
+                        .HasForeignKey("OrderId")
+                        .OnDelete(DeleteBehavior.SetNull);
 
-                    b.HasOne("TerminalApi.Models.User.UserApp", "Recipient")
+                    b.HasOne("TerminalApi.Models.UserApp", "Recipient")
                         .WithMany("NotificationsRecieved")
-                        .HasForeignKey("RecipientId");
+                        .HasForeignKey("RecipientId")
+                        .OnDelete(DeleteBehavior.Restrict);
 
-                    b.HasOne("TerminalApi.Models.User.UserApp", "Sender")
+                    b.HasOne("TerminalApi.Models.UserApp", "Sender")
                         .WithMany("NotificationsCreated")
-                        .HasForeignKey("SenderId");
+                        .HasForeignKey("SenderId")
+                        .OnDelete(DeleteBehavior.Restrict);
 
                     b.Navigation("Booking");
 
@@ -774,31 +798,20 @@ namespace TerminalApi.Migrations
                     b.Navigation("Sender");
                 });
 
-            modelBuilder.Entity("TerminalApi.Models.Payments.Order", b =>
+            modelBuilder.Entity("TerminalApi.Models.Order", b =>
                 {
-                    b.HasOne("TerminalApi.Models.User.UserApp", "Booker")
-                        .WithMany()
+                    b.HasOne("TerminalApi.Models.UserApp", "Booker")
+                        .WithMany("Orders")
                         .HasForeignKey("BookerId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.Navigation("Booker");
                 });
 
-            modelBuilder.Entity("TerminalApi.Models.Slots.Slot", b =>
+            modelBuilder.Entity("TerminalApi.Models.RefreshTokens", b =>
                 {
-                    b.HasOne("TerminalApi.Models.User.UserApp", "Creator")
-                        .WithMany("Slots")
-                        .HasForeignKey("CreatedById")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Creator");
-                });
-
-            modelBuilder.Entity("TerminalApi.Models.User.RefreshTokens", b =>
-                {
-                    b.HasOne("TerminalApi.Models.User.UserApp", "User")
+                    b.HasOne("TerminalApi.Models.UserApp", "User")
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -807,17 +820,28 @@ namespace TerminalApi.Migrations
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("TerminalApi.Models.Payments.Order", b =>
+            modelBuilder.Entity("TerminalApi.Models.Slot", b =>
+                {
+                    b.HasOne("TerminalApi.Models.UserApp", "Creator")
+                        .WithMany("Slots")
+                        .HasForeignKey("CreatedById")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Creator");
+                });
+
+            modelBuilder.Entity("TerminalApi.Models.Order", b =>
                 {
                     b.Navigation("Bookings");
                 });
 
-            modelBuilder.Entity("TerminalApi.Models.Slots.Slot", b =>
+            modelBuilder.Entity("TerminalApi.Models.Slot", b =>
                 {
                     b.Navigation("Booking");
                 });
 
-            modelBuilder.Entity("TerminalApi.Models.User.UserApp", b =>
+            modelBuilder.Entity("TerminalApi.Models.UserApp", b =>
                 {
                     b.Navigation("Adresses");
 
@@ -828,6 +852,8 @@ namespace TerminalApi.Migrations
                     b.Navigation("NotificationsCreated");
 
                     b.Navigation("NotificationsRecieved");
+
+                    b.Navigation("Orders");
 
                     b.Navigation("Slots");
                 });

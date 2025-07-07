@@ -1,10 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using TerminalApi.Contexts;
 using TerminalApi.Models;
-using TerminalApi.Models.Bookings;
 using TerminalApi.Models.Slots;
-using TerminalApi.Models.User;
-using TerminalApi.Utilities;
 
 namespace TerminalApi.Services
 {
@@ -22,6 +19,7 @@ namespace TerminalApi.Services
             try
             {
                 var slot = slotCreateDTO.ToSlot(userId);
+                slot.Type = Utilities.EnumSlotType.Presentiel;
                 context.Slots.Add(slot);
                 await context.SaveChangesAsync();
                 return slot.ToResponseDTO();
@@ -83,24 +81,12 @@ namespace TerminalApi.Services
             return await context
                 .Slots.Include(x => x.Booking)
                 .ThenInclude(y => y.Booker)
+                .Include(a => a.Booking.Order)
                 .AsSplitQuery()
                 .Where(ad =>
                     ad.CreatedById == teacherId && ad.StartAt >= fromDate && ad.EndAt <= toDate
                 )
                 .Select(ad => ad.ToResponseDTO())
-                //.Select(ad => new SlotResponseDTO
-                //{
-                //    Id = ad.Id,
-                //    StartAt = ad.StartAt,
-                //    EndAt = ad.EndAt,
-                //    Price = ad.Price,
-                //    DiscountedPrice = ad.DiscountedPrice,
-                //    Reduction = ad.Reduction,
-                //    StudentFirstName = ad.Booking.Booker.FirstName,
-                //    StudentLastName = ad.Booking.Booker.LastName,
-                //    StudentImgUrl = ad.Booking.Booker.ImgUrl,
-                //    StudentId = ad.Booking.BookedById
-                //})
                 .ToListAsync();
         }
 
@@ -116,8 +102,8 @@ namespace TerminalApi.Services
                 .AsNoTracking()
                 .Include(x => x.Booking)
                 .ThenInclude(y => y.Booker)
-                .Include(a => a.Booking.Order )
-                
+                .Include(a => a.Booking.Order)
+
                 .Where(ad =>
                     (
                         //ad.CreatedById == EnvironmentVariables.TEACHER_ID && 
@@ -136,21 +122,6 @@ namespace TerminalApi.Services
                 )
                 .Select(ad => ad.ToResponseDTO())
 
-                .ToListAsync();
-        }
-
-        public async Task<List<SlotResponseDTO>?> GetSlotsForStudent(
-            string studentid,
-            string teacherId,
-            DateTimeOffset fromDate,
-            DateTimeOffset toDate
-        )
-        {
-            return await context
-                .Slots.Where(ad =>
-                    ad.CreatedById == teacherId && ad.StartAt >= fromDate && ad.EndAt <= toDate
-                )
-                .Select(ad => ad.ToResponseDTO())
                 .ToListAsync();
         }
 

@@ -1,8 +1,4 @@
-﻿using System.Diagnostics.Metrics;
-using System.IO;
-using System.Runtime.CompilerServices;
-
-namespace TerminalApi.Models.Adresse
+﻿namespace TerminalApi.Models
 {
     public static class AddressExtension
     {

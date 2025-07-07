@@ -1,10 +1,7 @@
-﻿using System.Diagnostics;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 using TerminalApi.Contexts;
 using TerminalApi.Models;
-using TerminalApi.Models.Payments;
-using TerminalApi.Models.TVA;
-using TerminalApi.Models.User;
 using TerminalApi.Utilities;
 
 namespace TerminalApi.Services
@@ -38,49 +35,73 @@ namespace TerminalApi.Services
             return null;
         }
 
-        public async Task<OrderResponseForStudentDTO> GetOrCreateCurrentOrderByUserAsync(
-            UserApp user
-        )
+        public async Task<OrderResponseForStudentDTO> UpdateOrderAsync(UserApp user, Guid orderId)
         {
             Order? order;
-            //Stopwatch stopwatch = Stopwatch.StartNew();
             try
             {
-                order = await context
-                    .Orders.AsSplitQuery()
-                    .Include(x => x.Bookings)
-                    .ThenInclude(x => x.Slot)
-                    .FirstOrDefaultAsync(o =>
-                        o.BookerId == user.Id && o.Status == Utilities.EnumBookingStatus.Pending
-                    );
+                order = await context.Orders.FirstOrDefaultAsync(o =>
+                    o.BookerId == user.Id && o.Id == orderId
+                );
+
+                if (order == null)
+                {
+                    throw new Exception("La commande n'existe pas");
+                }
+
+                order.UpdatedAt = DateTimeOffset.UtcNow;
+                order.CheckoutID = null;
+                order.Status = Utilities.EnumBookingStatus.Pending;
+                await context.SaveChangesAsync();
+                return order.ToOrderResponseForStudentDTO();
             }
             catch (Exception e)
             {
                 throw new Exception(e.Message);
             }
-            //Console.WriteLine("Times : " + stopwatch.ElapsedMilliseconds + "ms" );
+        }
+
+        public async Task<Order> GetOrCreateCurrentOrderByUserAsync(
+            UserApp user
+        )
+        {
+            Order? order;
+            try
+            {
+                order = await context
+                    .Orders.Where(o =>
+                        o.BookerId == user.Id && (o.Status == Utilities.EnumBookingStatus.Pending || o.Status == Utilities.EnumBookingStatus.WaitingForPayment)
+                    )
+                    .Include(x => x.Bookings)
+                    .ThenInclude(x => x.Slot)
+                    .FirstOrDefaultAsync();
+            }
+            catch (Exception e)
+            {
+                throw new Exception(e.Message);
+            }
             if (order == null)
             {
                 Order newOrder = new Order
                 {
                     BookerId = user.Id,
                     Status = Utilities.EnumBookingStatus.Pending,
-                    CreatedAt = DateTimeOffset.Now,
-                    UpdatedAt = DateTimeOffset.Now,
-                    PaymentMethod = "card"
+                    CreatedAt = DateTimeOffset.UtcNow,
+                    UpdatedAt = DateTimeOffset.UtcNow,
+                    PaymentMethod = "card",
                 };
                 newOrder.OrderNumber = await GenerateOrderNumberAsync();
 
                 context.Orders.Add(newOrder);
-                context.SaveChanges();
                 newOrder.Booker = user;
-                return newOrder.ToOrderResponseForStudentDTO();
+                await context.SaveChangesAsync();
+                return newOrder;
             }
             else
             {
                 order.Booker = user;
-                order.UpdatedAt = DateTimeOffset.Now;
-                return order.ToOrderResponseForStudentDTO();
+                await context.SaveChangesAsync();
+                return order;
             }
         }
 
@@ -91,7 +112,7 @@ namespace TerminalApi.Services
         )
         {
             var order = await context.Orders.FirstOrDefaultAsync(o =>
-                o.Id == orderId && o.Status == Utilities.EnumBookingStatus.Pending
+                o.Id == orderId && o.Status == Utilities.EnumBookingStatus.WaitingForPayment
             );
             if (order is null)
             {
@@ -114,12 +135,11 @@ namespace TerminalApi.Services
         )
         {
             var sqlQuery = context
-                .Orders.Include(x => x.Bookings)
-                .ThenInclude(x => x.Slot)
+                .Orders.Where(x => x.PaymentDate != null)
                 .Where(x => x.BookerId == user.Id)
+                .Include(x => x.Bookings)
+                .ThenInclude(x => x.Slot)
                 .AsSplitQuery();
-
-            var count = await sqlQuery.CountAsync();
 
             if (query.FromDate.HasValue)
             {
@@ -129,9 +149,16 @@ namespace TerminalApi.Services
             {
                 sqlQuery = sqlQuery.Where(re => re.PaymentDate <= query.ToDate.Value);
             }
+            if (query.SearchField is not null && !query.SearchField.Trim().IsNullOrEmpty())
+            {
+                sqlQuery = sqlQuery.Where(x =>
+                    EF.Functions.ILike(x.OrderNumber, $"%{query.SearchField}%")
+                );
+            }
+
+            var count = await sqlQuery.CountAsync();
 
             List<OrderResponseForStudentDTO>? result = await sqlQuery
-                .Where(x => x.PaymentDate != null)
                 .OrderByDescending(x => x.PaymentDate)
                 .Skip(query.Start)
                 .Take(query.PerPage)
@@ -142,7 +169,7 @@ namespace TerminalApi.Services
                 Count = count,
                 Message = "Demande acceptée",
                 Data = result,
-                Status = 200
+                Status = 200,
             };
         }
 
@@ -217,12 +244,13 @@ namespace TerminalApi.Services
         {
             string datePart = DateTime.UtcNow.ToString("yyyyMMdd");
 
-            int count = await context.Orders.CountAsync(o =>
-                o.CreatedAt.Value.Date == DateTimeOffset.UtcNow
-            );
-            int nextNumber = count + 1;
+            //int count = await context.Orders.CountAsync(o =>
+            //    o.CreatedAt.Value.Date == DateTimeOffset.UtcNow.Date
+            //);
+            //int nextNumber = count + 1;
+            var id = Guid.NewGuid().ToString()[..8];
 
-            return $"SKILLHIVE-{datePart}-{nextNumber:D5}";
+            return $"SKILLHIVE-{datePart}-{id:D8}";
         }
 
         private TVARate GetTVARate()

@@ -1,7 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using TerminalApi.Utilities;
 
-namespace TerminalApi.Models.Bookings
+namespace TerminalApi.Models
 {
     public class BookingMinimalDTO
     {

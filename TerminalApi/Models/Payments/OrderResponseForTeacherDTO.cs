@@ -1,10 +1,8 @@
-﻿using Microsoft.EntityFrameworkCore;
-using System.ComponentModel.DataAnnotations.Schema;
-using TerminalApi.Models.Bookings;
-using TerminalApi.Models.User;
+﻿using System.ComponentModel.DataAnnotations.Schema;
+using Microsoft.EntityFrameworkCore;
 using TerminalApi.Utilities;
 
-namespace TerminalApi.Models.Payments
+namespace TerminalApi.Models
 {
     public class OrderResponseForTeacherDTO
     {
@@ -28,6 +26,8 @@ namespace TerminalApi.Models.Payments
         [Precision(18, 2)]
         public decimal TotalReduction { get; set; }
         public string? PaymentIntent { get; set; }
+        public DateTimeOffset? UpdatedAt { get; set; }
+
 
     }
 }

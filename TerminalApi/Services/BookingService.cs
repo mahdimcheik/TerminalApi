@@ -1,29 +1,26 @@
-﻿using TerminalApi.Contexts;
-using TerminalApi.Models.Bookings;
-using TerminalApi.Models.User;
+﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
+using TerminalApi.Contexts;
 using TerminalApi.Models;
-using Microsoft.EntityFrameworkCore;
-using TerminalApi.Models.Payments;
-using TerminalApi.Models.Notification;
 using TerminalApi.Utilities;
 
 namespace TerminalApi.Services
 {
     public class BookingService
     {
-        private readonly SlotService slotService;
         private readonly ApiDefaultContext context;
         private readonly OrderService orderService;
         private readonly SseService sseService;
         private readonly NotificationService notificationService;
+        private readonly JobChron jobChron;
 
-        public BookingService(SlotService slotService, ApiDefaultContext context, OrderService orderService, SseService sseService, NotificationService notificationService)
+        public BookingService(ApiDefaultContext context, OrderService orderService, SseService sseService, NotificationService notificationService, JobChron jobChron)
         {
-            this.slotService = slotService;
             this.context = context;
             this.orderService = orderService;
             this.sseService = sseService;
             this.notificationService = notificationService;
+            this.jobChron = jobChron;
         }
 
         public async Task<bool> BookSlot(BookingCreateDTO newBookingCreateDTO, UserApp booker)
@@ -36,13 +33,25 @@ namespace TerminalApi.Services
                 .Include(x => x.Booking)
                 .FirstOrDefaultAsync();
 
-            OrderResponseForStudentDTO order = await orderService.GetOrCreateCurrentOrderByUserAsync(booker);
+            Order order = await orderService.GetOrCreateCurrentOrderByUserAsync(booker);
+
 
             if (slot is null || slot.Booking is not null || order is null)
             {
                 return false;
             }
-            //newBookingCreateDTO.O
+
+            if (order.CheckoutID is not null)
+            {
+                try
+                {
+                    await jobChron.ExpireCheckout(order.CheckoutID);
+                    order.ResetCheckout();
+                }
+                catch
+                {
+                }
+            }
 
             Booking newBooking = newBookingCreateDTO.ToBooking(booker.Id, order.Id);
             try
@@ -61,10 +70,11 @@ namespace TerminalApi.Services
                     Type = Utilities.EnumNotificationType.NewReservation
                 };
                 await notificationService.AddNotification(notificationForTeacher);
-                var notificationDb =   await notificationService.AddNotification(notification);
+                var notificationDb = await notificationService.AddNotification(notification);
+                await orderService.UpdateOrderAsync(booker, order.Id);
 
-                var message = System.Text.Json.JsonSerializer.Serialize(notificationDb);
-                await sseService.SendMessageToUserAsync(booker.Email, message);
+                jobChron.SchedulerSingleOrderCleaning(order.Id.ToString());
+
                 return true;
             }
             catch (Exception ex)
@@ -107,10 +117,30 @@ namespace TerminalApi.Services
             {
                 return false;
             }
+
             try
             {
+                var orderId = slot.Booking.OrderId;
                 var res = context.Bookings.Remove(slot.Booking);
-                await context.SaveChangesAsync();
+
+                var order = context.Orders
+                    .Where(x => x.Id == orderId).Include(x => x.Bookings).FirstOrDefault();
+
+                if (order is not null && !order.CheckoutID.IsNullOrEmpty())
+                {
+                    await jobChron.ExpireCheckout(order.CheckoutID);
+                    order.ResetCheckout();
+                }
+
+                var affectedLines = await context.SaveChangesAsync();
+
+                if(affectedLines != 0)
+                {
+                    if(order.Bookings is not null && order.Bookings.Count == 0)
+                    {
+                        jobChron.CancelScheuledJob(order.Id.ToString());
+                    }
+                }
                 return true;
             }
             catch (Exception ex)
@@ -183,12 +213,6 @@ namespace TerminalApi.Services
             }
 
             var count = await sqlQuery.CountAsync();
-
-            var toto = sqlQuery
-                .AsSplitQuery()
-                .Skip(query.Start)
-                .Take(query.PerPage)
-                .Select(re => re.ToBookingResponseDTO()).ToQueryString();
 
             List<BookingResponseDTO>? result = await sqlQuery
                 .AsSplitQuery()

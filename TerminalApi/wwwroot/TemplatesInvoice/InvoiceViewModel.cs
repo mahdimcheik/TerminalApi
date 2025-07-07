@@ -1,5 +1,4 @@
-﻿using TerminalApi.Models.Bookings;
-using TerminalApi.Models.Payments;
+﻿using TerminalApi.Models;
 
 namespace TerminalApi.Services.Templates
 {
@@ -12,7 +11,7 @@ namespace TerminalApi.Services.Templates
         public InvoiceViewModel(OrderResponseForTeacherDTO orderDetails)
         {
             Total = 15;
-            BookerImgUrl =  "" + orderDetails.OrderNumber;
+            BookerImgUrl = "" + orderDetails.OrderNumber;
             Bookings = new();
         }
     }

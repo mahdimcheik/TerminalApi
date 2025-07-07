@@ -5,18 +5,16 @@ using System.Web;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using SixLabors.ImageSharp;
+using SixLabors.ImageSharp.Formats.Jpeg;
+using SixLabors.ImageSharp.Processing;
 using TerminalApi.Contexts;
 using TerminalApi.Models;
-using TerminalApi.Models.Adresse;
-using TerminalApi.Models.Bookings;
-using TerminalApi.Models.Notification;
-using TerminalApi.Models.Role;
-using TerminalApi.Models.User;
 using TerminalApi.Utilities;
-using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace TerminalApi.Services
 {
+
     public class AuthService
     {
         private readonly ApiDefaultContext context;
@@ -102,7 +100,7 @@ namespace TerminalApi.Services
             {
                 var confirmationLink = await GenerateAccountConfirmationLink(newUser);
                 await mailService.ScheduleSendConfirmationEmail(
-                    new Models.Mail.Mail
+                    new Mail
                     {
                         MailBody = confirmationLink,
                         MailSubject = "Mail de confirmation",
@@ -125,6 +123,38 @@ namespace TerminalApi.Services
                 // En cas d'exception, afficher la trace et retourner une réponse avec le statut approprié
                 Console.WriteLine(e);
                 return new ResponseDTO { Status = 400, Message = "Le compte n'est pas créé!!!" };
+            }
+        }
+
+        public async Task<ResponseDTO> ResendConfirmationMail(UserApp newUser)
+        {
+            try
+            {
+                var confirmationLink = await GenerateAccountConfirmationLink(newUser);
+                await mailService.ScheduleSendConfirmationEmail(
+                    new Mail
+                    {
+                        MailBody = confirmationLink,
+                        MailSubject = "Mail de confirmation",
+                        MailTo = newUser.Email ?? "mahdi.mcheik@hotmail.fr",
+                    },
+                    confirmationLink ?? ""
+                );
+
+                // Retourne une réponse avec le statut déterminé, l'identifiant de l'utilisateur, le message de réponse et le statut complet
+                return new ResponseDTO
+                {
+                    Message = "Email envoyé",
+                    Status = 201,
+                    Data = newUser.ToUserResponseDTO(),
+                };
+
+            }
+            catch (Exception e)
+            {
+                // En cas d'exception, afficher la trace et retourner une réponse avec le statut approprié
+                Console.WriteLine(e);
+                return new ResponseDTO { Status = 400, Message = "L'email n'est pas envoyé!!!" };
             }
         }
 
@@ -161,11 +191,12 @@ namespace TerminalApi.Services
                 return new ResponseDTO { Status = 401, Message = ex.Message };
             }
 
+            var userRoles = await userManager.GetRolesAsync(user);
             return new ResponseDTO
             {
                 Message = "Profil mis à jour",
                 Status = 200,
-                Data = user.ToUserResponseDTO(),
+                Data = user.ToUserResponseDTO(userRoles),
             };
         }
 
@@ -181,7 +212,7 @@ namespace TerminalApi.Services
 
             if (result.Succeeded)
             {
-                new ResponseDTO
+                return new ResponseDTO
                 {
                     Message =
                         $"{EnvironmentVariables.API_FRONT_URL}/auth/email-confirmation-success",
@@ -211,7 +242,7 @@ namespace TerminalApi.Services
 
                     // Tentative d'envoi de l'e-mail pour la regénération du mot de passe
                     await mailService.ScheduleSendResetEmail(
-                        new Models.Mail.Mail
+                        new Mail
                         {
                             MailSubject = "Mail de réinitialisation",
                             MailTo = user.Email,
@@ -266,17 +297,18 @@ namespace TerminalApi.Services
             {
                 return new ResponseDTO { Message = "L'utilisateur n'existe pas", Status = 404 };
             }
-            // var decodedToken = HttpUtility.UrlDecode(model.ResetToken);
-            user.RefreshToken = Guid.NewGuid().ToString();
+
             IdentityResult result = await userManager.ResetPasswordAsync(
                 user: user,
                 token: model.ResetToken,
                 newPassword: model.Password
             );
 
+            var newRefreshToken = await RenewRefreshTokenAsync(user);
+
             if (result.Succeeded)
             {
-                await context.SaveChangesAsync();
+                //await context.SaveChangesAsync();
                 await notificationService.AddNotification(
                     new Notification
                     {
@@ -316,8 +348,8 @@ namespace TerminalApi.Services
                 return new ResponseDTO { Status = 400, Message = "Demande refusée" };
             }
             //verifier si le type est image
-            var allowedMimeTypes = new[] { "image/jpeg", "image/png", "image/gif", "image/bmp" };
-            var allowedExtensions = new[] { ".jpg", ".jpeg", ".png", ".gif", ".bmp" };
+            var allowedMimeTypes = new[] { "image/jpeg", "image/png", "image/gif", "image/bmp", "image/webp" };
+            var allowedExtensions = new[] { ".jpg", ".jpeg", ".png", ".gif", ".bmp", ".webp" };
 
             var fileExtension = Path.GetExtension(file.FileName).ToLowerInvariant();
             if (
@@ -348,13 +380,26 @@ namespace TerminalApi.Services
             }
             //
 
+            using var inputStream = file.OpenReadStream();
+            using var image = await Image.LoadAsync(inputStream);
+
+            image.Mutate(x => x.Resize(new ResizeOptions
+            {
+                Size = new Size(400, 600),
+                Mode = ResizeMode.Max // Garde les proportions
+            }));
+
+            using var outputStream = new MemoryStream();
+            await image.SaveAsJpegAsync(outputStream, new JpegEncoder { Quality = 85 });
+            outputStream.Seek(0, SeekOrigin.Begin);
 
             string fileName = Guid.NewGuid() + "_avatar" + Path.GetExtension(file.FileName);
             var filePath = Path.Combine(_env.WebRootPath, "images", fileName); // wwwroot + images + filename ???
 
             using (var stream = System.IO.File.Create(filePath))
             {
-                await file.CopyToAsync(stream);
+                await outputStream.CopyToAsync(stream);
+                //await file.CopyToAsync(stream);
             }
 
             var url = $"{request.Scheme}://{request.Host}/images/{fileName}";
@@ -370,46 +415,38 @@ namespace TerminalApi.Services
         }
 
         public async Task<ResponseDTO> UpdateRefreshToken(
-            RefreshTokenBodyInput values,
+            string refreshToken,
             HttpContext httpContext
         )
         {
-            string? userEmail = httpContext
-                .User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.Email)
-                ?.Value?.ToLower();
-            if (userEmail == null)
+            var refreshTokenDB = await context
+                .RefreshTokens.Include(x => x.User)
+                .AsSplitQuery()
+                .FirstOrDefaultAsync(x => x.RefreshToken == refreshToken);
+
+            if (refreshTokenDB is null || refreshTokenDB.User is null || refreshTokenDB.IsExpired())
             {
-                var principal = GetPrincipalFromExpiredToken(values.Token);
-                userEmail = principal
-                    ?.Claims.FirstOrDefault(x => x.Type == ClaimTypes.Email)
-                    ?.Value?.ToLower();
+                return new ResponseDTO { Message = "Token expiré ou non valide", Status = 401, };
             }
 
-            if (userEmail == null)
-                return new ResponseDTO { Status = 401, Message = "Demande refusée" };
+            httpContext.Response.Headers.Add(
+                key: "Access-Control-Allow-Credentials",
+                value: "true"
+            );
 
-            UserApp? user = context.Users.FirstOrDefault(x => x.Email.ToLower() == userEmail);
+            var userRoles = await userManager.GetRolesAsync(refreshTokenDB.User);
 
-            if (user == null)
-                return new ResponseDTO { Status = 404, Message = "Demande refusée" };
-
-            if (values.RefreshToken == user.RefreshToken)
+            return new ResponseDTO
             {
-                httpContext.Response.Headers.Add(
-                    key: "Access-Control-Allow-Credentials",
-                    value: "true"
-                );
-                //HttpContext.Response.Headers.Add(key: "Authorization", value: accessToken);
-
-                return new ResponseDTO
+                Message = "Autorisation renouvelée",
+                Data = new LoginOutputDTO
                 {
-                    Message = "Autorisation renouvelée",
-                    Data = new RefreshTokenOutput(user, await GenerateAccessTokenAsync(user)),
-                    Status = 200
-                };
-            }
-
-            return new ResponseDTO { Status = 404, Message = "Demande refusée" };
+                    User = refreshTokenDB.User.ToUserResponseDTO(userRoles),
+                    Token = await GenerateAccessTokenAsync(refreshTokenDB.User),
+                    RefreshToken = refreshToken
+                },
+                Status = 200
+            };
         }
 
         public async Task<ResponseDTO> Login(UserLoginDTO model, HttpResponse response)
@@ -417,43 +454,18 @@ namespace TerminalApi.Services
             var user = await userManager.FindByEmailAsync(model.Email);
 
             if (user == null)
+            {
                 return new ResponseDTO { Message = "L'utilisateur n'existe pas ", Status = 404 };
+            }
 
             var result = await userManager.CheckPasswordAsync(user: user, password: model.Password);
             if (!userManager.CheckPasswordAsync(user: user, password: model.Password).Result)
-                return new ResponseDTO { Message = "Connexion échouée", Status = 401 };
-
-            //if (!await _userManager.IsEmailConfirmedAsync(user))
-            //    return Unauthorized();
-
-            if (user.RefreshToken == null) // a new refresh token has to be saved
             {
-                user.RefreshToken = Guid.NewGuid().ToString();
-                
+                return new ResponseDTO { Message = "Connexion échouée", Status = 401 };
             }
 
             // à la connection, je crée ou je met à jour le refreshtoken
-            var RefreshToken = context.RefreshTokens.FirstOrDefault(x => x.UserId == user.Id);
-            if (RefreshToken is null)
-            {
-                context.RefreshTokens.Add(
-                    new RefreshTokens
-                    {
-                        Id = Guid.NewGuid(),
-                        RefreshToken = user.RefreshToken,
-                        UserId = user.Id,
-                        ExpirationDate = DateTimeOffset.UtcNow.AddDays(7),
-                    }
-                );
-            }
-            else
-            {
-                RefreshToken.RefreshToken = user.RefreshToken;
-                RefreshToken.ExpirationDate = DateTimeOffset.UtcNow.AddDays(7);
-                context.Entry(RefreshToken).State = EntityState.Modified;
-            }
-
-            await context.SaveChangesAsync();
+            var refreshToken = await CreateOrUpdateTokenAsync(user, forceReset: true);
 
             user.LastLogginAt = DateTime.Now;
             await context.SaveChangesAsync();
@@ -461,20 +473,92 @@ namespace TerminalApi.Services
             response.Headers.Add(key: "Access-Control-Allow-Credentials", value: "true");
             var userRoles = await userManager.GetRolesAsync(user);
 
+            response.Cookies.Append(
+                "refreshToken",
+                refreshToken.RefreshToken,
+                new CookieOptions
+                {
+                    HttpOnly = true,
+                    Secure = true,
+                    SameSite = SameSiteMode.None,
+                    Expires = DateTimeOffset.UtcNow.AddDays(EnvironmentVariables.COOKIES_VALIDITY_DAYS),
+                }
+            );
+
             return new ResponseDTO
             {
                 Message = "Connexion réussite",
                 Status = 200,
-                Data = new
+                Data = new LoginOutputDTO
                 {
                     Token = await GenerateAccessTokenAsync(user),
-                    refreshToken = user.RefreshToken,
+                    RefreshToken = refreshToken?.RefreshToken,
                     User = user.ToUserResponseDTO(userRoles),
                 },
             };
         }
 
-        private async Task<string> GenerateAccessTokenAsync(UserApp user)
+        private async Task<RefreshTokens?> CreateOrUpdateTokenAsync(
+            UserApp user,
+            bool forceReset = false
+        )
+        {
+            // à la connection, je crée ou je met à jour le refreshtoken
+            var refreshToken = context.RefreshTokens.FirstOrDefault(x => x.UserId == user.Id);
+
+            if (refreshToken is null)
+            {
+                refreshToken = new RefreshTokens
+                {
+                    Id = Guid.NewGuid(),
+                    RefreshToken = Guid.NewGuid().ToString(),
+                    UserId = user.Id,
+                    ExpirationDate = DateTimeOffset.UtcNow.AddDays(EnvironmentVariables.COOKIES_VALIDITY_DAYS),
+                };
+                context.RefreshTokens.Add(
+                   refreshToken
+                );
+            }
+            else if (forceReset)
+            {
+                refreshToken.UserId = user.Id;
+                refreshToken.ExpirationDate = DateTimeOffset.UtcNow.AddDays(EnvironmentVariables.COOKIES_VALIDITY_DAYS);
+            }
+
+            await context.SaveChangesAsync();
+
+            return refreshToken;
+        }
+
+        private async Task<RefreshTokens?> RenewRefreshTokenAsync(UserApp user)
+        {
+            var refreshToken = context.RefreshTokens.FirstOrDefault(x => x.UserId == user.Id);
+
+            if (refreshToken is null)
+            {
+                context.RefreshTokens.Add(
+                    new RefreshTokens
+                    {
+                        Id = Guid.NewGuid(),
+                        RefreshToken = Guid.NewGuid().ToString(),
+                        UserId = user.Id,
+                        ExpirationDate = DateTimeOffset.UtcNow.AddDays(EnvironmentVariables.COOKIES_VALIDITY_DAYS),
+                    }
+                );
+            }
+            else
+            {
+                refreshToken.RefreshToken = Guid.NewGuid().ToString();
+                refreshToken.UserId = user.Id;
+                refreshToken.ExpirationDate = DateTimeOffset.UtcNow.AddDays(EnvironmentVariables.COOKIES_VALIDITY_DAYS);
+            }
+
+            await context.SaveChangesAsync();
+
+            return refreshToken;
+        }
+
+        public async Task<string> GenerateAccessTokenAsync(UserApp user)
         {
             var securityKey = new SymmetricSecurityKey(
                 Encoding.UTF8.GetBytes(EnvironmentVariables.JWT_KEY)
@@ -500,7 +584,7 @@ namespace TerminalApi.Services
                 issuer: EnvironmentVariables.API_BACK_URL,
                 audience: EnvironmentVariables.API_BACK_URL,
                 claims: authClaims,
-                expires: DateTime.Now.AddMinutes(15),
+                expires: DateTime.Now.AddMinutes(EnvironmentVariables.TOKEN_VALIDATY_MINUTES),
                 signingCredentials: credentials
             );
 
@@ -528,37 +612,6 @@ namespace TerminalApi.Services
         {
             var existingUser = await userManager.FindByEmailAsync(email);
             return existingUser != null;
-        }
-
-        private ClaimsPrincipal? GetPrincipalFromExpiredToken(string? token)
-        {
-            var tokenValidationParameters = new TokenValidationParameters
-            {
-                ValidateAudience = false,
-                ValidateIssuer = false,
-                ValidateIssuerSigningKey = true,
-                IssuerSigningKey = new SymmetricSecurityKey(
-                    Encoding.UTF8.GetBytes(EnvironmentVariables.JWT_KEY)
-                ),
-                ValidateLifetime = false,
-            };
-
-            var tokenHandler = new JwtSecurityTokenHandler();
-            var principal = tokenHandler.ValidateToken(
-                token,
-                tokenValidationParameters,
-                out SecurityToken securityToken
-            );
-            if (
-                securityToken is not JwtSecurityToken jwtSecurityToken
-                || !jwtSecurityToken.Header.Alg.Equals(
-                    SecurityAlgorithms.HmacSha256,
-                    StringComparison.InvariantCultureIgnoreCase
-                )
-            )
-                throw new SecurityTokenException("Invalid token");
-
-            return principal;
         }
     }
 }

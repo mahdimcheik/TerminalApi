@@ -1,15 +1,8 @@
 ﻿using Bogus;
 using Bogus.Extensions;
 using Microsoft.EntityFrameworkCore;
-using System.ComponentModel.DataAnnotations;
-using System.Threading.Tasks;
 using TerminalApi.Contexts;
-using TerminalApi.Models.Adresse;
-using TerminalApi.Models.Bookings;
-using TerminalApi.Models.Formations;
-using TerminalApi.Models.Payments;
-using TerminalApi.Models.Slots;
-using TerminalApi.Models.User;
+using TerminalApi.Models;
 using TerminalApi.Utilities;
 
 namespace TerminalApi.Services
@@ -51,7 +44,7 @@ namespace TerminalApi.Services
         public Faker<AddressCreateDTO> GenerateAddresseCreateDTO()
         {
             return new Faker<AddressCreateDTO>()
-                .RuleFor(u => u.City, f => f.Address.City().ClampLength(max:49))                
+                .RuleFor(u => u.City, f => f.Address.City().ClampLength(max: 49))
                 .RuleFor(u => u.StreetLine2, f => f.Address.CardinalDirection())
                 .RuleFor(u => u.Country, f => f.Address.Country().ClampLength(max: 49))
                 .RuleFor(u => u.Street, f => f.Address.StreetName())
@@ -75,7 +68,7 @@ namespace TerminalApi.Services
             var users = await context.Users.Where(x => x.Id != "1577fcf3-35a3-42fb-add1-daffcc56f6401577fcf3-35a3-42fb-add1-daffcc56f640").ToListAsync();
 
             int i = 0;
-            foreach(var user in users.Take(100))
+            foreach (var user in users.Take(100))
             {
                 var order = context.Orders.FirstOrDefault(x => x.BookerId == user.Id);
 
@@ -95,7 +88,7 @@ namespace TerminalApi.Services
                     Subject = "test" + i,
                     Description = "description " + i,
                     TypeHelp = 0
-                };i++;
+                }; i++;
                 var booking3 = new BookingCreateDTO()
                 {
                     Id = Guid.NewGuid(),
@@ -103,7 +96,7 @@ namespace TerminalApi.Services
                     Subject = "test" + i,
                     Description = "description " + i,
                     TypeHelp = 0
-                };i++;
+                }; i++;
 
                 context.Bookings.Add(booking1.ToBooking(user.Id, order.Id));
                 context.Bookings.Add(booking2.ToBooking(user.Id, order.Id));
@@ -114,7 +107,7 @@ namespace TerminalApi.Services
         }
 
         public async Task CreateOrdersFixtureAsync()
-        {      
+        {
             var users = await context.Users.Where(x => x.Id != "1577fcf3-35a3-42fb-add1-daffcc56f6401577fcf3-35a3-42fb-add1-daffcc56f640").ToListAsync();
 
             foreach (var user in users)
