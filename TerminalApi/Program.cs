@@ -220,6 +220,7 @@ namespace TerminalApi
             services.AddScoped<NotificationService>();
             services.AddScoped<UsersService>();
             services.AddScoped<AuthService>();
+            services.AddScoped<ICursusService, CursusService>();
             services.AddScoped<IAuthorizationHandler, NotBannedHandler>();
 
             // logger

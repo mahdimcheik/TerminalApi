@@ -331,6 +331,69 @@ namespace TerminalApi.Contexts
                     .HasForeignKey(n => n.OrderId)
                     .OnDelete(DeleteBehavior.SetNull);
             });
+
+            // Cursus configurations
+            builder.Entity<Cursus>(entity =>
+            {
+                entity.HasKey(c => c.Id);
+                
+                entity.Property(c => c.Name)
+                    .IsRequired()
+                    .HasMaxLength(200);
+                
+                entity.Property(c => c.Description)
+                    .IsRequired()
+                    .HasMaxLength(1000);
+                
+                entity.Property(c => c.CreatedAt)
+                    .IsRequired()
+                    .HasColumnType("timestamp with time zone");
+                
+                entity.Property(c => c.UpdatedAt)
+                    .HasColumnType("timestamp with time zone");
+                
+                entity.HasOne(c => c.Level)
+                    .WithMany(l => l.Cursus)
+                    .HasForeignKey(c => c.LevelId)
+                    .OnDelete(DeleteBehavior.Restrict);
+                
+                entity.HasOne(c => c.Category)
+                    .WithMany(cat => cat.Cursus)
+                    .HasForeignKey(c => c.CategoryId)
+                    .OnDelete(DeleteBehavior.Restrict);
+            });
+
+            // Level configurations
+            builder.Entity<Level>(entity =>
+            {
+                entity.HasKey(l => l.Id);
+                
+                entity.Property(l => l.Name)
+                    .IsRequired()
+                    .HasMaxLength(100);
+                
+                entity.Property(l => l.Icon)
+                    .HasMaxLength(50);
+                
+                entity.Property(l => l.Color)
+                    .HasMaxLength(20);
+            });
+
+            // Category configurations
+            builder.Entity<Category>(entity =>
+            {
+                entity.HasKey(c => c.Id);
+                
+                entity.Property(c => c.Name)
+                    .IsRequired()
+                    .HasMaxLength(100);
+                
+                entity.Property(c => c.Icon)
+                    .HasMaxLength(50);
+                
+                entity.Property(c => c.Color)
+                    .HasMaxLength(20);
+            });
         }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
@@ -356,5 +419,8 @@ namespace TerminalApi.Contexts
         public DbSet<TVARate> TVARates { get; set; }
         public DbSet<Notification> Notifications { get; set; }
         public DbSet<RefreshTokens> RefreshTokens { get; set; }
+        public DbSet<Cursus> Cursus { get; set; }
+        public DbSet<Level> Levels { get; set; }
+        public DbSet<Category> Categories { get; set; }
     }
 }
