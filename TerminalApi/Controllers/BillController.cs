@@ -14,7 +14,7 @@ namespace TerminalApi.Controllers
     /// </summary>
     [Route("[controller]")]
     [ApiController]
-    [Authorize]
+    //[Authorize]
     public class BillController : ControllerBase
     {
         private readonly PdfService pdfService;
@@ -44,7 +44,8 @@ namespace TerminalApi.Controllers
         /// <response code="200">Facture générée avec succès.</response>
         /// <response code="400">Requête invalide, identifiant de commande manquant ou incorrect.</response>
         /// <response code="404">Commande non trouvée.</response>
-        [HttpGet]
+        [HttpGet("export")]
+        [Produces("application/pdf")]
         public async Task<IActionResult> Get([FromQuery] string orderId)
         {
             Console.WriteLine(orderId);
