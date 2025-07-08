@@ -30,20 +30,20 @@ namespace TerminalApi.Controllers
         /// <returns>Liste des cursus correspondant aux critères.</returns>
         /// <response code="200">Retourne la liste des cursus.</response>
         /// <response code="500">Erreur interne du serveur.</response>
-        [HttpGet]
+        [HttpPost("all")]
         [ProducesResponseType(typeof(ResponseDTO<IEnumerable<CursusDto>>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ResponseDTO<string>), StatusCodes.Status500InternalServerError)]
-        public async Task<ActionResult<ResponseDTO<IEnumerable<CursusDto>>>> GetAll()
+        public async Task<ActionResult<ResponseDTO<IEnumerable<CursusDto>>>> GetAll([FromBody] QueryPagination query)
         {
             try
             {
-                var cursus = await _cursusService.GetAllAsync();
+                var cursus = await _cursusService.GetAllAsync(query);
                 return Ok(new ResponseDTO<IEnumerable<CursusDto>>
                 {
                     Status = 200,
                     Message = "Cursus récupérés avec succès",
-                    Data = cursus,
-                    Count = cursus.Count()
+                    Data = cursus.Item1,
+                    Count = cursus.Item2
                 });
             }
             catch (Exception ex)

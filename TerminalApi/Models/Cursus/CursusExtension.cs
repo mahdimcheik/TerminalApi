@@ -23,16 +23,18 @@ namespace TerminalApi.Models
                 Name = cursus.Name,
                 Description = cursus.Description,
                 LevelId = cursus.LevelId,
-                Level = cursus.Level,
                 CategoryId = cursus.CategoryId,
-                Category = cursus.Category,
                 CreatedAt = cursus.CreatedAt,
-                UpdatedAt = cursus.UpdatedAt
+                UpdatedAt = cursus.UpdatedAt,
+                Category = cursus.Category.ToCategoryDTO(),
+                Level = cursus.Level.ToLevelDTO()
+
             };
         }
 
         public static void UpdateFromDto(this Cursus cursus, UpdateCursusDto dto)
         {
+            cursus.Id = dto.Id;
             if (!string.IsNullOrEmpty(dto.Name))
                 cursus.Name = dto.Name;
             
@@ -46,6 +48,28 @@ namespace TerminalApi.Models
                 cursus.CategoryId = dto.CategoryId.Value;
             
             cursus.UpdatedAt = DateTimeOffset.UtcNow;
+        }
+
+        public static LevelDTO ToLevelDTO(this Level level)
+        {
+            return new LevelDTO
+            {
+                Id = level.Id,
+                Name = level.Name,
+                Color = level.Color,
+                Icon = level.Icon
+            };
+        }
+
+        public static CategoryDTO ToCategoryDTO(this Category category)
+        {
+            return new CategoryDTO
+            {
+                Id = category.Id,
+                Name = category.Name,
+                Color = category.Color,
+                Icon = category.Icon
+            };
         }
     }
 } 

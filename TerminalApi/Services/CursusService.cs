@@ -13,18 +13,24 @@ namespace TerminalApi.Services
             _context = context;
         }
 
-        public async Task<IEnumerable<CursusDto>> GetAllAsync()
+        public async Task<( IEnumerable<CursusDto>,  int)> GetAllAsync(QueryPagination queryPagination)
         {
-            var query = _context.Cursus
-                .Include(c => c.Level)
+            var query = _context
+                .Cursus.Include(c => c.Level)
                 .Include(c => c.Category)
                 .AsQueryable();
-           
+
+            var count = await query.CountAsync();
+
+            if (queryPagination.PerPage == 0)
+            {
+                queryPagination.PerPage = 10;
+            }
+            query = query.Skip(queryPagination.Start).Take(queryPagination.PerPage);
+
             var cursus = await query.ToListAsync();
-            return cursus.Select(c => c.ToCursusDto());
+            return (cursus.Select(c => c.ToCursusDto()), count);
         }
-
-
 
         public async Task<CursusDto> CreateAsync(CreateCursusDto dto)
         {
@@ -46,20 +52,16 @@ namespace TerminalApi.Services
             await _context.SaveChangesAsync();
 
             // Reload with navigation properties
-            await _context.Entry(cursus)
-                .Reference(c => c.Level)
-                .LoadAsync();
-            await _context.Entry(cursus)
-                .Reference(c => c.Category)
-                .LoadAsync();
+            await _context.Entry(cursus).Reference(c => c.Level).LoadAsync();
+            await _context.Entry(cursus).Reference(c => c.Category).LoadAsync();
 
             return cursus.ToCursusDto();
         }
 
         public async Task<CursusDto?> UpdateAsync(Guid id, UpdateCursusDto dto)
         {
-            var cursus = await _context.Cursus
-                .Include(c => c.Level)
+            var cursus = await _context
+                .Cursus.Include(c => c.Level)
                 .Include(c => c.Category)
                 .FirstOrDefaultAsync(c => c.Id == id);
 
@@ -79,7 +81,9 @@ namespace TerminalApi.Services
             // Validate Category exists if provided
             if (dto.CategoryId.HasValue)
             {
-                var categoryExists = await _context.Categories.AnyAsync(c => c.Id == dto.CategoryId.Value);
+                var categoryExists = await _context.Categories.AnyAsync(c =>
+                    c.Id == dto.CategoryId.Value
+                );
                 if (!categoryExists)
                 {
                     throw new ArgumentException("Category not found", nameof(dto.CategoryId));
@@ -92,12 +96,8 @@ namespace TerminalApi.Services
             // Reload navigation properties if they were changed
             if (dto.LevelId.HasValue || dto.CategoryId.HasValue)
             {
-                await _context.Entry(cursus)
-                    .Reference(c => c.Level)
-                    .LoadAsync();
-                await _context.Entry(cursus)
-                    .Reference(c => c.Category)
-                    .LoadAsync();
+                await _context.Entry(cursus).Reference(c => c.Level).LoadAsync();
+                await _context.Entry(cursus).Reference(c => c.Category).LoadAsync();
             }
 
             return cursus.ToCursusDto();
@@ -129,4 +129,4 @@ namespace TerminalApi.Services
             return await _context.Categories.ToListAsync();
         }
     }
-} 
+}

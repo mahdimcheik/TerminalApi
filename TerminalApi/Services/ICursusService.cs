@@ -4,7 +4,7 @@ namespace TerminalApi.Services
 {
     public interface ICursusService
     {
-        Task<IEnumerable<CursusDto>> GetAllAsync();
+        Task<(IEnumerable<CursusDto>, int)> GetAllAsync(QueryPagination queryPagination);
         Task<CursusDto> CreateAsync(CreateCursusDto dto);
         Task<CursusDto?> UpdateAsync(Guid id, UpdateCursusDto dto);
         Task<bool> DeleteAsync(Guid id);

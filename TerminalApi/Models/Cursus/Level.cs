@@ -20,4 +20,12 @@ namespace TerminalApi.Models
         // Navigation properties
         public ICollection<Cursus>? Cursus { get; set; }
     }
+
+    public class LevelDTO
+    {
+        public Guid Id { get; set; }
+        public string Name { get; set; }
+        public string? Icon { get; set; }
+        public string? Color { get; set; }
+    }
 } 
