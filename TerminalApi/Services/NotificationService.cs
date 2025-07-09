@@ -222,6 +222,15 @@ namespace TerminalApi.Services
             };
         }
 
+        public async Task<int> GetUserNotificationsCountAsync(string userId)
+        {
+            var query = context.Notifications.Where(n => n.RecipientId == userId && !n.IsRead); 
+
+            var totalItems = await query.CountAsync();
+
+            return totalItems;
+        }
+
         public async Task<ResponseDTO<NotificationResponseDTO>> Update(Notification notification, bool newValue)
         {
             try

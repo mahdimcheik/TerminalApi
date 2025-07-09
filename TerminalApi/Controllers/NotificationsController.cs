@@ -42,7 +42,7 @@ namespace TerminalApi.Controllers
         /// - 400 : Erreur de validation ou problème lors de l'ajout.
         /// </returns>
         [HttpPost]
-        public async Task<IActionResult> AddNotification(Notification notification)
+        public async Task<ActionResult<ResponseDTO<NotificationResponseDTO?>>> AddNotification(Notification notification)
         {
             try
             {
@@ -78,7 +78,7 @@ namespace TerminalApi.Controllers
         /// - 404 : Notifications non trouvées.
         /// </returns>
         [HttpPost("user")]
-        public async Task<IActionResult> GetUserNotifications(
+        public async Task<ActionResult<ResponseDTO< PaginatedNotificationResult<NotificationResponseDTO>>>> GetUserNotifications(
             [FromBody] NotificationFilter filter
         )
         {
@@ -110,6 +110,40 @@ namespace TerminalApi.Controllers
             }
         }
 
+
+        [HttpGet("count")]
+        public async Task<ActionResult<ResponseDTO<int>>> GetUserNotificationsCount()
+        {
+            var user = CheckUser.GetUserFromClaim(HttpContext.User, context);
+            if (user is null)
+            {
+                return BadRequest(new ResponseDTO<object> { Status = 40, Message = "Demande refusée" });
+            }
+            try
+            {
+                var count = await _notificationService.GetUserNotificationsCountAsync(user.Id);
+                return Ok(
+                    new ResponseDTO<object>
+                    {
+                        Count = count,
+                        Status = StatusCodes.Status200OK,
+                        Message = "Notifications récupérées avec succès",
+                        Data = count
+                    }
+                );
+            }
+            catch (Exception e)
+            {
+                return BadRequest(
+                    new ResponseDTO<object>
+                    {
+                        Status = StatusCodes.Status404NotFound,
+                        Message = $"Je ne sais pas : {e.Message}"
+                    }
+                );
+            }
+        }
+
         /// <summary>
         /// Met à jour l'état d'une notification (par exemple, marquer comme lue ou non lue).
         /// </summary>
@@ -123,7 +157,7 @@ namespace TerminalApi.Controllers
         /// - 404 : Erreur lors de la mise à jour.
         /// </returns>
         [HttpPut("{notificationId}/{newValue}")]
-        public async Task<IActionResult> UpdateNotification(Guid notificationId, bool newValue)
+        public async Task<ActionResult<ResponseDTO<NotificationResponseDTO>>> UpdateNotification(Guid notificationId, bool newValue)
         {
             var user = CheckUser.GetUserFromClaim(HttpContext.User, context);
             if (user is null)
