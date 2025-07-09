@@ -57,20 +57,20 @@ namespace TerminalApi.Services
             try
             {
                 var res = await context.Bookings.AddAsync(newBooking);
-                await context.SaveChangesAsync();
-                var notification = new Notification
-                {
-                    RecipientId = booker.Id,
-                    Type = Utilities.EnumNotificationType.ReservationAccepted
-                };
-                var notificationForTeacher = new Notification
-                {
-                    RecipientId = EnvironmentVariables.TEACHER_ID,
-                    SenderId = booker.Id,
-                    Type = Utilities.EnumNotificationType.NewReservation
-                };
-                await notificationService.AddNotification(notificationForTeacher);
-                var notificationDb = await notificationService.AddNotification(notification);
+                //await context.SaveChangesAsync();
+                //var notification = new Notification
+                //{
+                //    RecipientId = booker.Id,
+                //    Type = Utilities.EnumNotificationType.ReservationAccepted
+                //};
+                //var notificationForTeacher = new Notification
+                //{
+                //    RecipientId = EnvironmentVariables.TEACHER_ID,
+                //    SenderId = booker.Id,
+                //    Type = Utilities.EnumNotificationType.NewReservation
+                //};
+                //await notificationService.AddNotification(notificationForTeacher);
+                //var notificationDb = await notificationService.AddNotification(notification);
                 await orderService.UpdateOrderAsync(booker, order.Id);
 
                 jobChron.SchedulerSingleOrderCleaning(order.Id.ToString());

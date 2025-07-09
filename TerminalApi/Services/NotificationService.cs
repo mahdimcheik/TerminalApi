@@ -92,33 +92,33 @@ namespace TerminalApi.Services
         {
             return type switch
             {
-                EnumNotificationType.AccountConfirmed => @"<span class=""text-surface-700 dark:text-surface-100"">Votre compte vient d'�tre confirm�</span> ",
-                EnumNotificationType.AccountUpdated => @"<span class=""text-surface-700 dark:text-surface-100"">Votre compte vient d'�tre mis � jour</span> ",
+                EnumNotificationType.AccountConfirmed => @"<span class=""text-surface-700 dark:text-surface-100"">Votre compte vient d'etre confirmé</span> ",
+                EnumNotificationType.AccountUpdated => @"<span class=""text-surface-700 dark:text-surface-100"">Votre compte vient d'etre mis à jour</span> ",
 
                 EnumNotificationType.PasswordResetDemandAccepted
-                    => "Un email de r�initialisation de mot de passe vient d'�tre envoy�",
+                    => "Un email de r�initialisation de mot de passe vient d'etre envoyé",
                 EnumNotificationType.NewAnnouncement => "Nouvelle annonce / Offres",
-                EnumNotificationType.MessageReceived => "Vous avez re�u un message",
+                EnumNotificationType.MessageReceived => "Vous avez reçu un message",
                 EnumNotificationType.GeneralReminder
                     => "Rappel: vous avez un rendez-vous aujourd'hui",
-                EnumNotificationType.PasswordChanged => "Votre mot de passe a �t� modifi�",
-                EnumNotificationType.PaymentAccepted => "Votre paiement a �t� accept�",
-                EnumNotificationType.PaymentFailed => "Votre paiement a �chou�",
+                EnumNotificationType.PasswordChanged => "Votre mot de passe a été modifié",
+                EnumNotificationType.PaymentAccepted => "Votre paiement a été accepté",
+                EnumNotificationType.PaymentFailed => "Votre paiement a échoué",
                 EnumNotificationType.PromotionOffer => "Offre promotionnelle",
                 EnumNotificationType.RefundProcessed
-                    => "Votre remboursement a �t� trait�, le montant demand� sera vers� prochainement",
-                EnumNotificationType.ReservationAccepted => "Votre r�servation a �t� accept�e",
+                    => "Votre remboursement a été traité, le montant demandé sera vers� prochainement",
+                EnumNotificationType.ReservationAccepted => "Votre réservation a été acceptée",
                 EnumNotificationType.NewReservation
                     => "Vous venez de recevoir une nouvelle commande",
-                EnumNotificationType.ReservationCancelled => @"<span class=""text-surface-700 dark:text-surface-100"">Votre r�servation a �t�  <span class=""text-primary font-bold"">annul�e</span> </span> ",
+                EnumNotificationType.ReservationCancelled => @"<span class=""text-surface-700 dark:text-surface-100"">Votre réservation a été  <span class=""text-primary font-bold"">annulée</span> </span> ",
                 EnumNotificationType.ReservationCancelledTimeOut
-                    => @"<span class=""text-surface-700 dark:text-surface-100"">Votre r�servation a �t� annul�e <span class=""text-primary font-bold"">pour abscence de paiement</span></span> ",
-                EnumNotificationType.ReservationRejected => "Votre r�servation a �t� rejet�e",
+                    => @"<span class=""text-surface-700 dark:text-surface-100"">Votre réservation a été annulée <span class=""text-primary font-bold"">pour abscence de paiement</span></span> ",
+                EnumNotificationType.ReservationRejected => "Votre réservation a été rejetée",
                 EnumNotificationType.ReservationReminder
                     => "Rappel: vous avez un rendez-vous aujourd'hui",
-                EnumNotificationType.ReviewReceived => "Vous avez re�u un avis",
+                EnumNotificationType.ReviewReceived => "Vous avez reçu un avis",
                 EnumNotificationType.SystemUpdate
-                    => "Mise � jour du syst�me pr�vue le : 21/04/1986",
+                    => "Mise à jour du système prévue le : 21/04/1986",
                 _ => "Nouvelle notification",
             };
         }
