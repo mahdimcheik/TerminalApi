@@ -29,11 +29,13 @@ namespace TerminalApi.Controllers
                 .Include(b => b.Slot)
                 .Include(b => b.Booker)
                 .Where(b => b.Slot.StartAt >= firstDayOfWeek && b.Slot.EndAt < firstDayOfWeek.AddDays(7))
+                .OrderBy(b => b.Slot.StartAt)
                 .Select(b => b.ToBookingResponseDTO())
                 .ToListAsync();
 
             var OrdersOfTheWeek = await context.Orders
                 .Where(o => o.UpdatedAt >= firstDayOfWeek && o.PaymentIntent != null)
+                .OrderBy(o => o.UpdatedAt)
                 .Select(o => o.ToOrderResponseForTeacherDTO())
                 .ToListAsync();
 
@@ -69,11 +71,13 @@ namespace TerminalApi.Controllers
                 .Include(b => b.Slot)
                 .Include(b => b.Booker)
                 .Where(b => b.Slot.StartAt >= firstDayOfWeek && b.Slot.EndAt < firstDayOfWeek.AddDays(7) && b.BookedById == id)
+                .OrderBy(b => b.Slot.StartAt)
                 .Select(b => b.ToBookingResponseDTO())
                 .ToListAsync();
 
             var OrdersHistory = await context.Orders
                 .Where(o => o.UpdatedAt >= firstDayOfWeek && o.PaymentIntent != null && o.BookerId == id)
+                .OrderByDescending(x => x.UpdatedAt)
                 .Select(o => o.ToOrderResponseForTeacherDTO())
                 .ToListAsync();
 
