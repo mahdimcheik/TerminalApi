@@ -24,6 +24,16 @@ namespace TerminalApi
         public static async Task Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
+
+            //builder.WebHost.ConfigureKestrel(options =>
+            //{
+            //    options.ListenAnyIP(5113); // HTTP
+            //    options.ListenAnyIP(7113, listenOptions =>
+            //    {
+            //        listenOptions.UseHttps(); // HTTPS
+            //    });
+            //});
+
             var services = builder.Services;
 
             ConfigureServices(services);
@@ -288,6 +298,11 @@ namespace TerminalApi
 
         private static void ConfigureMiddlewarePipeline(WebApplication app)
         {
+            //app.Use(async (context, next) =>
+            //{
+            //    var toto = context.Request;
+            //    await next.Invoke();
+            //});
             // Configure localization for supported cultures.
             var supportedCultures = new string[] { "fr-FR" };
             app.UseRequestLocalization(options =>
@@ -320,6 +335,8 @@ namespace TerminalApi
 
             // Enable routing.
             app.UseRouting();
+
+
 
             // Enable Cross-Origin Resource Sharing (CORS).
             app.UseCors();

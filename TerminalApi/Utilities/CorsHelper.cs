@@ -12,6 +12,8 @@
                     "https://localhost:4200",
                     "http://localhost:4200",
                     "https://localhost:4201",
+                    "https://192.168.1.19:4201",
+                    "http://192.168.1.19:4201",
                     "http://localhost:4201",
                     "http://localhost:7113",
                     "https://localhost:7113",
