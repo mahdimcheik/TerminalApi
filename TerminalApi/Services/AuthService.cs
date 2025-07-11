@@ -464,7 +464,7 @@ namespace TerminalApi.Services
                 {
                     HttpOnly = true,
                     Secure = true,
-                    SameSite = SameSiteMode.None,
+                    SameSite = SameSiteMode.Strict,
                     Expires = DateTimeOffset.UtcNow.AddDays(EnvironmentVariables.COOKIES_VALIDITY_DAYS),
                 }
             );
@@ -555,6 +555,7 @@ namespace TerminalApi.Services
 
             var authClaims = new List<Claim>
             {
+                new Claim(ClaimTypes.Name, user.UserName!),
                 new Claim(type: ClaimTypes.Email, value: user.Email),
             };
 

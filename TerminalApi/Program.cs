@@ -197,6 +197,24 @@ namespace TerminalApi
                             Encoding.UTF8.GetBytes(EnvironmentVariables.JWT_KEY)
                         ),
                     };
+                    options.Events = new JwtBearerEvents
+                    {
+                        OnMessageReceived = context =>
+                        {
+                            var accessToken = context.Request.Query["access_token"];
+
+                            var path = context.HttpContext.Request.Path;
+                            if (
+                            !string.IsNullOrEmpty(accessToken)
+                            && (path.StartsWithSegments("/notificationHub"))
+                            )
+                            {
+                                context.Token = accessToken;
+                            }
+                            return Task.CompletedTask;
+                        },
+                    };
+
                 })
                 .AddGoogle(options =>
                 {
@@ -204,6 +222,8 @@ namespace TerminalApi
                     options.ClientSecret = EnvironmentVariables.SECRET_CLIENT_GOOGLE;
                     options.CallbackPath = new PathString("/google-callback");
                 });
+
+           
             // authorization
             services.AddAuthorization(options =>
             {
@@ -320,7 +340,7 @@ namespace TerminalApi
             app.UseStaticFiles();
 
             // signalR
-            app.MapHub<SignalRHub>("/signalhub");
+            app.MapHub<NotificationHub>("/signalhub");
 
             // Enable authentication.
             app.UseAuthentication();

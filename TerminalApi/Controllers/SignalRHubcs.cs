@@ -1,47 +1,39 @@
-﻿using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.SignalR;
-using TerminalApi.Services;
+﻿using Microsoft.AspNetCore.SignalR;
 
-namespace TerminalApi.Controllers
+namespace TerminalApi;
+
+public class NotificationHub : Hub
 {
-    //[Authorize]
-    public class SignalRHub : Hub
+    public async Task SendNotificationToAll(string message)
     {
-        private readonly SignalConnectionManager _connectionManager;
+        await Clients.All.SendAsync("ReceiveNotification", message);
+    }
 
-        public SignalRHub(SignalConnectionManager connectionManager)
-        {
-            _connectionManager = connectionManager;
-        }
+    public override async Task OnConnectedAsync()
+    {
+        Console.WriteLine($"Client connected: {Context.ConnectionId}");
+        await base.OnConnectedAsync();
+    }
 
-        public override Task OnConnectedAsync()
-        {
-            var connectionId = Context.ConnectionId;
-            var toto = Context;
-            var userName = Context.User?.Identity?.Name ?? "Anonymous";
-            _connectionManager.AddConnection(connectionId, userName);
+    public override async Task OnDisconnectedAsync(Exception? exception)
+    {
+        Console.WriteLine($"Client disconnected: {Context.ConnectionId}, Exception: {exception?.Message}");
+        await base.OnDisconnectedAsync(exception);
+    }
 
-            return base.OnConnectedAsync();
-        }
+    public async Task JoinGroup(string groupName)
+    {
+        Console.WriteLine($"Client reconnected: {Context.ConnectionId}");
+        await base.Groups.AddToGroupAsync(Context.ConnectionId, groupName);
+    }
+    public async Task LeaveGroup(string groupName)
+    {
+        Console.WriteLine($"Client disconnected: {Context.ConnectionId}");
+        await base.Groups.RemoveFromGroupAsync(Context.ConnectionId, groupName);
+    }
 
-        public override Task OnDisconnectedAsync(Exception? exception)
-        {
-            var connectionId = Context.ConnectionId;
-            _connectionManager.RemoveConnection(connectionId);
-
-            return base.OnDisconnectedAsync(exception);
-        }
-
-        // Optionnel : exposer une méthode pour obtenir le nombre de clients connectés
-        public Task<int> GetOnlineCount()
-        {
-            return Task.FromResult(_connectionManager.GetConnectionCount());
-        }
-
-        public async Task SendMessage(string user, string message)
-        {
-            var toto = _connectionManager.GetAllConnections();
-            await Clients.All.SendAsync("ReceiveMessage", user, message);
-        }
+    public async Task SendMessageToGroup(string groupName, string message)
+    {
+        await base.Clients.Group(groupName).SendAsync(message);
     }
 }

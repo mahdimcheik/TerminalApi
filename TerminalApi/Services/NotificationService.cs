@@ -109,7 +109,7 @@ namespace TerminalApi.Services
                     => "Votre remboursement a été traité, le montant demandé sera vers� prochainement",
                 EnumNotificationType.ReservationAccepted => "Votre réservation a été acceptée",
                 EnumNotificationType.NewReservation
-                    => "Vous venez de recevoir une nouvelle commande",
+                    => "Vous avez récu une nouvelle commande",
                 EnumNotificationType.ReservationCancelled => @"<span class=""text-surface-700 dark:text-surface-100"">Votre réservation a été  <span class=""text-primary font-bold"">annulée</span> </span> ",
                 EnumNotificationType.ReservationCancelledTimeOut
                     => @"<span class=""text-surface-700 dark:text-surface-100"">Votre réservation a été annulée <span class=""text-primary font-bold"">pour abscence de paiement</span></span> ",
