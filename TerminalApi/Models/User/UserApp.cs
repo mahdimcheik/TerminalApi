@@ -148,6 +148,12 @@ namespace TerminalApi.Models
 
         public string? LinkedinUrl { get; set; }
         public string? GithubUrl { get; set; }
+
+        [MustBeTrue]
+        public bool? privacyPolicyConsent { get; set; }
+  
+        [MustBeTrue]
+        public bool? dataProcessingConsent { get; set; }
     }
 
     public class UserBanDTO
