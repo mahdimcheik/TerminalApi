@@ -12,6 +12,7 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using PuppeteerSharp;
 using TerminalApi.Contexts;
+using TerminalApi.Controllers;
 using TerminalApi.Models;
 using TerminalApi.Services;
 using TerminalApi.Utilities;
@@ -233,6 +234,10 @@ namespace TerminalApi
             services.AddScoped<ICursusService, CursusService>();
             services.AddScoped<IAuthorizationHandler, NotBannedHandler>();
 
+            // signalR
+            services.AddSignalR();
+            services.AddSingleton<SignalConnectionManager>();
+
             // logger
             services.AddLogging(loggingBuilder =>
             {
@@ -313,6 +318,9 @@ namespace TerminalApi
             );
 
             app.UseStaticFiles();
+
+            // signalR
+            app.MapHub<SignalRHub>("/signalhub");
 
             // Enable authentication.
             app.UseAuthentication();
