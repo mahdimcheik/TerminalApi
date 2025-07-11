@@ -1,4 +1,4 @@
-ï»¿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using TerminalApi.Contexts;
@@ -9,8 +9,8 @@ using TerminalApi.Utilities;
 namespace TerminalApi.Controllers
 {
     /// <summary>
-    /// ContrÃ´leur responsable de la gestion des notifications des utilisateurs.
-    /// Permet d'ajouter, rÃ©cupÃ©rer et mettre Ã  jour les notifications.
+    /// Contrôleur responsable de la gestion des notifications des utilisateurs.
+    /// Permet d'ajouter, récupérer et mettre à jour les notifications.
     /// </summary>
     [Route("[controller]")]
     [ApiController]
@@ -21,10 +21,10 @@ namespace TerminalApi.Controllers
         private readonly ApiDefaultContext context;
 
         /// <summary>
-        /// Initialise une nouvelle instance du contrÃ´leur NotificationsController.
+        /// Initialise une nouvelle instance du contrôleur NotificationsController.
         /// </summary>
         /// <param name="notificationService">Service pour la gestion des notifications.</param>
-        /// <param name="context">Contexte de base de donnÃ©es pour accÃ©der aux entitÃ©s.</param>
+        /// <param name="context">Contexte de base de données pour accéder aux entités.</param>
         public NotificationsController(NotificationService notificationService, ApiDefaultContext context)
         {
             _notificationService = notificationService;
@@ -34,117 +34,146 @@ namespace TerminalApi.Controllers
         /// <summary>
         /// Ajoute une nouvelle notification.
         /// </summary>
-        /// <param name="notification">Objet Notification contenant les dÃ©tails de la notification Ã  ajouter.</param>
+        /// <param name="notification">Objet Notification contenant les détails de la notification à ajouter.</param>
         /// <returns>
-        /// Un objet ResponseDTO contenant les dÃ©tails de la notification ajoutÃ©e.
+        /// Un objet ResponseDTO contenant les détails de la notification ajoutée.
         /// Codes HTTP possibles :
-        /// - 201 : Notification ajoutÃ©e avec succÃ¨s.
-        /// - 400 : Erreur de validation ou problÃ¨me lors de l'ajout.
+        /// - 201 : Notification ajoutée avec succès.
+        /// - 400 : Erreur de validation ou problème lors de l'ajout.
         /// </returns>
         [HttpPost]
-        public async Task<IActionResult> AddNotification(Notification notification)
+        public async Task<ActionResult<ResponseDTO<NotificationResponseDTO?>>> AddNotification(Notification notification)
         {
             try
             {
                 var response = await _notificationService.AddNotification(notification);
                 return Ok(
-                    new ResponseDTO
-                    {
+                    new ResponseDTO<object> {
                         Data = response,
                         Status = StatusCodes.Status201Created,
-                        Message = "Notification ajoutÃ©e avec succÃ¨s"
+                        Message = "Notification ajoutée avec succès"
                     }
                 );
             }
             catch (Exception e)
             {
                 return BadRequest(
-                    new ResponseDTO
-                    {
+                    new ResponseDTO<object> {
                         Status = StatusCodes.Status404NotFound,
-                        Message = $"Notification non-ajoutÃ©e {e.Message} "
+                        Message = $"Notification non-ajoutée {e.Message} "
                     }
                 );
             }
         }
 
         /// <summary>
-        /// RÃ©cupÃ¨re les notifications d'un utilisateur en fonction d'un filtre.
+        /// Récupère les notifications d'un utilisateur en fonction d'un filtre.
         /// </summary>
-        /// <param name="filter">Filtre pour spÃ©cifier les critÃ¨res de rÃ©cupÃ©ration des notifications.</param>
+        /// <param name="filter">Filtre pour spécifier les critères de récupération des notifications.</param>
         /// <returns>
-        /// Un objet ResponseDTO contenant une liste paginÃ©e des notifications.
+        /// Un objet ResponseDTO contenant une liste paginée des notifications.
         /// Codes HTTP possibles :
-        /// - 200 : Notifications rÃ©cupÃ©rÃ©es avec succÃ¨s.
-        /// - 400 : Utilisateur non authentifiÃ© ou problÃ¨me de validation.
-        /// - 404 : Notifications non trouvÃ©es.
+        /// - 200 : Notifications récupérées avec succès.
+        /// - 400 : Utilisateur non authentifié ou problème de validation.
+        /// - 404 : Notifications non trouvées.
         /// </returns>
         [HttpPost("user")]
-        public async Task<IActionResult> GetUserNotifications(
+        public async Task<ActionResult<ResponseDTO< PaginatedNotificationResult<NotificationResponseDTO>>>> GetUserNotifications(
             [FromBody] NotificationFilter filter
         )
         {
             var user = CheckUser.GetUserFromClaim(HttpContext.User, context);
             if (user is null)
             {
-                return BadRequest(new ResponseDTO { Status = 400, Message = "Demande refusÃ©e" });
+                return BadRequest(new ResponseDTO<object> { Status = 40, Message = "Demande refusée" });
             }
             try
             {
                 var response = await _notificationService.GetUserNotificationsAsync(user.Id, filter);
                 return Ok(
-                    new ResponseDTO
-                    {
+                    new ResponseDTO<object> {
                         Data = response,
                         Count = response.TotalItems,
                         Status = StatusCodes.Status200OK,
-                        Message = "Notifications rÃ©cupÃ©rÃ©es avec succÃ¨s"
+                        Message = "Notifications récupérées avec succès"
                     }
                 );
             }
             catch (Exception e)
             {
                 return BadRequest(
-                    new ResponseDTO
+                    new ResponseDTO<object> {
+                        Status = StatusCodes.Status404NotFound,
+                        Message = $"Notifications non-trouvées {e.Message}"
+                    }
+                );
+            }
+        }
+
+
+        [HttpGet("count")]
+        public async Task<ActionResult<ResponseDTO<int>>> GetUserNotificationsCount()
+        {
+            var user = CheckUser.GetUserFromClaim(HttpContext.User, context);
+            if (user is null)
+            {
+                return BadRequest(new ResponseDTO<object> { Status = 40, Message = "Demande refusée" });
+            }
+            try
+            {
+                var count = await _notificationService.GetUserNotificationsCountAsync(user.Id);
+                return Ok(
+                    new ResponseDTO<object>
+                    {
+                        Count = count,
+                        Status = StatusCodes.Status200OK,
+                        Message = "Notifications récupérées avec succès",
+                        Data = count
+                    }
+                );
+            }
+            catch (Exception e)
+            {
+                return BadRequest(
+                    new ResponseDTO<object>
                     {
                         Status = StatusCodes.Status404NotFound,
-                        Message = $"Notifications non-trouvÃ©es {e.Message}"
+                        Message = $"Je ne sais pas : {e.Message}"
                     }
                 );
             }
         }
 
         /// <summary>
-        /// Met Ã  jour l'Ã©tat d'une notification (par exemple, marquer comme lue ou non lue).
+        /// Met à jour l'état d'une notification (par exemple, marquer comme lue ou non lue).
         /// </summary>
-        /// <param name="notificationId">Identifiant unique de la notification Ã  mettre Ã  jour.</param>
-        /// <param name="newValue">Nouvelle valeur de l'Ã©tat (true pour lu, false pour non lu).</param>
+        /// <param name="notificationId">Identifiant unique de la notification à mettre à jour.</param>
+        /// <param name="newValue">Nouvelle valeur de l'état (true pour lu, false pour non lu).</param>
         /// <returns>
-        /// Un objet ResponseDTO contenant les dÃ©tails de la notification mise Ã  jour.
+        /// Un objet ResponseDTO contenant les détails de la notification mise à jour.
         /// Codes HTTP possibles :
-        /// - 200 : Notification mise Ã  jour avec succÃ¨s.
-        /// - 400 : Utilisateur non authentifiÃ© ou notification non trouvÃ©e.
-        /// - 404 : Erreur lors de la mise Ã  jour.
+        /// - 200 : Notification mise à jour avec succès.
+        /// - 400 : Utilisateur non authentifié ou notification non trouvée.
+        /// - 404 : Erreur lors de la mise à jour.
         /// </returns>
         [HttpPut("{notificationId}/{newValue}")]
-        public async Task<IActionResult> UpdateNotification(Guid notificationId, bool newValue)
+        public async Task<ActionResult<ResponseDTO<NotificationResponseDTO>>> UpdateNotification(Guid notificationId, bool newValue)
         {
             var user = CheckUser.GetUserFromClaim(HttpContext.User, context);
             if (user is null)
             {
-                return BadRequest(new ResponseDTO { Status = 400, Message = "Demande refusÃ©e" });
+                return BadRequest(new ResponseDTO<object> { Status = 40, Message = "Demande refusée" });
             }
             var notification = await context.Notifications.FirstOrDefaultAsync(x => x.Id == notificationId && x.RecipientId == user.Id);
             if (notification is null)
             {
-                return BadRequest(new ResponseDTO { Status = 400, Message = "Demande refusÃ©e" });
+                return BadRequest(new ResponseDTO<object> { Status = 40, Message = "Demande refusée" });
             }
             try
             {
                 var response = await _notificationService.Update(notification, newValue);
                 return Ok(
-                    new ResponseDTO
-                    {
+                    new ResponseDTO<object> {
                         Data = response.Data,
                         Status = response.Status,
                         Message = response.Message
@@ -154,10 +183,9 @@ namespace TerminalApi.Controllers
             catch (Exception e)
             {
                 return BadRequest(
-                    new ResponseDTO
-                    {
+                    new ResponseDTO<object> {
                         Status = StatusCodes.Status404NotFound,
-                        Message = $"Notification non-mise Ã  jour {e.Message}"
+                        Message = $"Notification non-mise à jour {e.Message}"
                     }
                 );
             }

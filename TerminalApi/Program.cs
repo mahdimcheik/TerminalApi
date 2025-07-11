@@ -12,6 +12,7 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using PuppeteerSharp;
 using TerminalApi.Contexts;
+using TerminalApi.Controllers;
 using TerminalApi.Models;
 using TerminalApi.Services;
 using TerminalApi.Utilities;
@@ -24,6 +25,16 @@ namespace TerminalApi
         public static async Task Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
+
+            //builder.WebHost.ConfigureKestrel(options =>
+            //{
+            //    options.ListenAnyIP(5113); // HTTP
+            //    options.ListenAnyIP(7113, listenOptions =>
+            //    {
+            //        listenOptions.UseHttps(); // HTTPS
+            //    });
+            //});
+
             var services = builder.Services;
 
             ConfigureServices(services);
@@ -186,6 +197,24 @@ namespace TerminalApi
                             Encoding.UTF8.GetBytes(EnvironmentVariables.JWT_KEY)
                         ),
                     };
+                    options.Events = new JwtBearerEvents
+                    {
+                        OnMessageReceived = context =>
+                        {
+                            var accessToken = context.Request.Query["access_token"];
+
+                            var path = context.HttpContext.Request.Path;
+                            if (
+                            !string.IsNullOrEmpty(accessToken)
+                            && (path.StartsWithSegments("/notificationHub"))
+                            )
+                            {
+                                context.Token = accessToken;
+                            }
+                            return Task.CompletedTask;
+                        },
+                    };
+
                 })
                 .AddGoogle(options =>
                 {
@@ -193,6 +222,8 @@ namespace TerminalApi
                     options.ClientSecret = EnvironmentVariables.SECRET_CLIENT_GOOGLE;
                     options.CallbackPath = new PathString("/google-callback");
                 });
+
+           
             // authorization
             services.AddAuthorization(options =>
             {
@@ -220,7 +251,12 @@ namespace TerminalApi
             services.AddScoped<NotificationService>();
             services.AddScoped<UsersService>();
             services.AddScoped<AuthService>();
+            services.AddScoped<ICursusService, CursusService>();
             services.AddScoped<IAuthorizationHandler, NotBannedHandler>();
+
+            // signalR
+            services.AddSignalR();
+            services.AddSingleton<SignalConnectionManager>();
 
             // logger
             services.AddLogging(loggingBuilder =>
@@ -287,6 +323,11 @@ namespace TerminalApi
 
         private static void ConfigureMiddlewarePipeline(WebApplication app)
         {
+            //app.Use(async (context, next) =>
+            //{
+            //    var toto = context.Request;
+            //    await next.Invoke();
+            //});
             // Configure localization for supported cultures.
             var supportedCultures = new string[] { "fr-FR" };
             app.UseRequestLocalization(options =>
@@ -297,6 +338,9 @@ namespace TerminalApi
             );
 
             app.UseStaticFiles();
+
+            // signalR
+            app.MapHub<NotificationHub>("/signalhub");
 
             // Enable authentication.
             app.UseAuthentication();
@@ -319,6 +363,8 @@ namespace TerminalApi
 
             // Enable routing.
             app.UseRouting();
+
+
 
             // Enable Cross-Origin Resource Sharing (CORS).
             app.UseCors();

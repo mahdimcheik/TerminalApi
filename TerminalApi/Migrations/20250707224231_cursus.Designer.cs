@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using TerminalApi.Contexts;
@@ -11,9 +12,11 @@ using TerminalApi.Contexts;
 namespace TerminalApi.Migrations
 {
     [DbContext(typeof(ApiDefaultContext))]
-    partial class ApiDefaultContextModelSnapshot : ModelSnapshot
+    [Migration("20250707224231_cursus")]
+    partial class cursus
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -279,78 +282,6 @@ namespace TerminalApi.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Categories");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = new Guid("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"),
-                            Color = "#3b82f6",
-                            Icon = "💻",
-                            Name = "Programmation"
-                        },
-                        new
-                        {
-                            Id = new Guid("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb"),
-                            Color = "#ec4899",
-                            Icon = "🎨",
-                            Name = "Design"
-                        },
-                        new
-                        {
-                            Id = new Guid("cccccccc-cccc-cccc-cccc-cccccccccccc"),
-                            Color = "#059669",
-                            Icon = "📊",
-                            Name = "Business"
-                        },
-                        new
-                        {
-                            Id = new Guid("dddddddd-dddd-dddd-dddd-dddddddddddd"),
-                            Color = "#dc2626",
-                            Icon = "📢",
-                            Name = "Marketing"
-                        },
-                        new
-                        {
-                            Id = new Guid("eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee"),
-                            Color = "#7c3aed",
-                            Icon = "📈",
-                            Name = "Data Science"
-                        },
-                        new
-                        {
-                            Id = new Guid("ffffffff-ffff-ffff-ffff-ffffffffffff"),
-                            Color = "#1f2937",
-                            Icon = "🔒",
-                            Name = "Cybersécurité"
-                        },
-                        new
-                        {
-                            Id = new Guid("10101010-1010-1010-1010-101010101010"),
-                            Color = "#6366f1",
-                            Icon = "🤖",
-                            Name = "Intelligence Artificielle"
-                        },
-                        new
-                        {
-                            Id = new Guid("20202020-2020-2020-2020-202020202020"),
-                            Color = "#f59e0b",
-                            Icon = "⚙️",
-                            Name = "DevOps"
-                        },
-                        new
-                        {
-                            Id = new Guid("30303030-3030-3030-3030-303030303030"),
-                            Color = "#10b981",
-                            Icon = "📱",
-                            Name = "Mobile"
-                        },
-                        new
-                        {
-                            Id = new Guid("40404040-4040-4040-4040-404040404040"),
-                            Color = "#64748b",
-                            Icon = "📋",
-                            Name = "Gestion de projet"
-                        });
                 });
 
             modelBuilder.Entity("TerminalApi.Models.Cursus", b =>
@@ -481,43 +412,6 @@ namespace TerminalApi.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Levels");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = new Guid("11111111-1111-1111-1111-111111111111"),
-                            Color = "#22c55e",
-                            Icon = "🟢",
-                            Name = "Débutant"
-                        },
-                        new
-                        {
-                            Id = new Guid("22222222-2222-2222-2222-222222222222"),
-                            Color = "#eab308",
-                            Icon = "🟡",
-                            Name = "Intermédiaire"
-                        },
-                        new
-                        {
-                            Id = new Guid("33333333-3333-3333-3333-333333333333"),
-                            Color = "#f97316",
-                            Icon = "🟠",
-                            Name = "Avancé"
-                        },
-                        new
-                        {
-                            Id = new Guid("44444444-4444-4444-4444-444444444444"),
-                            Color = "#ef4444",
-                            Icon = "🔴",
-                            Name = "Expert"
-                        },
-                        new
-                        {
-                            Id = new Guid("55555555-5555-5555-5555-555555555555"),
-                            Color = "#8b5cf6",
-                            Icon = "⭐",
-                            Name = "Tous niveaux"
-                        });
                 });
 
             modelBuilder.Entity("TerminalApi.Models.Notification", b =>
@@ -693,9 +587,9 @@ namespace TerminalApi.Migrations
                     b.HasData(
                         new
                         {
-                            Id = new Guid("1aa53bd9-8a1b-4b17-b2e4-bbc28ac5541f"),
+                            Id = new Guid("5c68df4a-6be9-4291-95db-335e15e3c0ef"),
                             Rate = 0.2m,
-                            StartAt = new DateTime(2025, 7, 7, 22, 51, 31, 401, DateTimeKind.Utc).AddTicks(3100)
+                            StartAt = new DateTime(2025, 7, 7, 22, 42, 31, 488, DateTimeKind.Utc).AddTicks(7749)
                         });
                 });
 

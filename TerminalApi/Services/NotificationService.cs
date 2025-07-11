@@ -1,4 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using TerminalApi.Contexts;
 using TerminalApi.Models;
 using TerminalApi.Utilities;
@@ -21,7 +21,7 @@ namespace TerminalApi.Services
         {
             if (notification is null)
             {
-                throw new Exception("Erreur lors de la création de la notification");
+                throw new Exception("Erreur lors de la cr�ation de la notification");
             }
 
             try
@@ -50,7 +50,7 @@ namespace TerminalApi.Services
                 );
                 if (sender is null)
                 {
-                    throw new Exception("Erreur lors de la création de la notification");
+                    throw new Exception("Erreur lors de la cr�ation de la notification");
                 }
             }
 
@@ -61,7 +61,7 @@ namespace TerminalApi.Services
                 );
                 if (recipient is null)
                 {
-                    throw new Exception("Erreur lors de la création de la notification");
+                    throw new Exception("Erreur lors de la cr�ation de la notification");
                 }
             }
 
@@ -72,7 +72,7 @@ namespace TerminalApi.Services
                 );
                 if (booking is null)
                 {
-                    throw new Exception("Erreur lors de la création de la notification");
+                    throw new Exception("Erreur lors de la cr�ation de la notification");
                 }
             }
 
@@ -83,7 +83,7 @@ namespace TerminalApi.Services
                 );
                 if (order is null)
                 {
-                    throw new Exception("Erreur lors de la création de la notification");
+                    throw new Exception("Erreur lors de la cr�ation de la notification");
                 }
             }
         }
@@ -92,11 +92,11 @@ namespace TerminalApi.Services
         {
             return type switch
             {
-                EnumNotificationType.AccountConfirmed => @"<span class=""text-surface-700 dark:text-surface-100"">Votre compte vient d'être confirmé</span> ",
-                EnumNotificationType.AccountUpdated => @"<span class=""text-surface-700 dark:text-surface-100"">Votre compte vient d'être mis à jour</span> ",
+                EnumNotificationType.AccountConfirmed => @"<span class=""text-surface-700 dark:text-surface-100"">Votre compte vient d'etre confirmé</span> ",
+                EnumNotificationType.AccountUpdated => @"<span class=""text-surface-700 dark:text-surface-100"">Votre compte vient d'etre mis à jour</span> ",
 
                 EnumNotificationType.PasswordResetDemandAccepted
-                    => "Un email de réinitialisation de mot de passe vient d'être envoyé",
+                    => "Un email de r�initialisation de mot de passe vient d'etre envoyé",
                 EnumNotificationType.NewAnnouncement => "Nouvelle annonce / Offres",
                 EnumNotificationType.MessageReceived => "Vous avez reçu un message",
                 EnumNotificationType.GeneralReminder
@@ -106,10 +106,10 @@ namespace TerminalApi.Services
                 EnumNotificationType.PaymentFailed => "Votre paiement a échoué",
                 EnumNotificationType.PromotionOffer => "Offre promotionnelle",
                 EnumNotificationType.RefundProcessed
-                    => "Votre remboursement a été traité, le montant demandé sera versé prochainement",
+                    => "Votre remboursement a été traité, le montant demandé sera vers� prochainement",
                 EnumNotificationType.ReservationAccepted => "Votre réservation a été acceptée",
                 EnumNotificationType.NewReservation
-                    => "Vous venez de recevoir une nouvelle commande",
+                    => "Vous avez récu une nouvelle commande",
                 EnumNotificationType.ReservationCancelled => @"<span class=""text-surface-700 dark:text-surface-100"">Votre réservation a été  <span class=""text-primary font-bold"">annulée</span> </span> ",
                 EnumNotificationType.ReservationCancelledTimeOut
                     => @"<span class=""text-surface-700 dark:text-surface-100"">Votre réservation a été annulée <span class=""text-primary font-bold"">pour abscence de paiement</span></span> ",
@@ -130,7 +130,7 @@ namespace TerminalApi.Services
             );
             if (notification is null)
             {
-                throw new Exception("Erreur lors de la création de la notification");
+                throw new Exception("Erreur lors de la cr�ation de la notification");
             }
             try
             {
@@ -152,7 +152,7 @@ namespace TerminalApi.Services
             );
             if (notification is null)
             {
-                throw new Exception("Erreur lors de la création de la notification");
+                throw new Exception("Erreur lors de la cr�ation de la notification");
             }
             try
             {
@@ -222,7 +222,16 @@ namespace TerminalApi.Services
             };
         }
 
-        public async Task<ResponseDTO> Update(Notification notification, bool newValue)
+        public async Task<int> GetUserNotificationsCountAsync(string userId)
+        {
+            var query = context.Notifications.Where(n => n.RecipientId == userId && !n.IsRead); 
+
+            var totalItems = await query.CountAsync();
+
+            return totalItems;
+        }
+
+        public async Task<ResponseDTO<NotificationResponseDTO>> Update(Notification notification, bool newValue)
         {
             try
             {
@@ -231,18 +240,16 @@ namespace TerminalApi.Services
 
                 await context.SaveChangesAsync();
 
-                return new ResponseDTO
-                {
-                    Message = "Notification mise à jour",
+                return new ResponseDTO<NotificationResponseDTO> {
+                    Message = "Notification mise � jour",
                     Status = 200,
                     Data = notification.ToRespsonseDTO()
                 };
             }
             catch
             {
-                return new ResponseDTO
-                {
-                    Message = "Erreur lors de la mise à jour de la notification",
+                return new ResponseDTO<NotificationResponseDTO> {
+                    Message = "Erreur lors de la mise � jour de la notification",
                     Status = 500
                 };
             }

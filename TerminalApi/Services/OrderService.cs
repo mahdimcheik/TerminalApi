@@ -1,4 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using TerminalApi.Contexts;
 using TerminalApi.Models;
@@ -129,7 +129,7 @@ namespace TerminalApi.Services
             return true;
         }
 
-        public async Task<ResponseDTO?> GetOrdersForStudentPaginatedAsync(
+        public async Task<ResponseDTO<List<OrderResponseForStudentDTO>>?> GetOrdersForStudentPaginatedAsync(
             OrderPagination query,
             UserApp user
         )
@@ -164,10 +164,9 @@ namespace TerminalApi.Services
                 .Take(query.PerPage)
                 .Select(re => re.ToOrderResponseForStudentDTO())
                 .ToListAsync();
-            return new ResponseDTO
-            {
+            return new ResponseDTO<List<OrderResponseForStudentDTO>> {
                 Count = count,
-                Message = "Demande acceptée",
+                Message = "Demande accept�e",
                 Data = result,
                 Status = 200,
             };

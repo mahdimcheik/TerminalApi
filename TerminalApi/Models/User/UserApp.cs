@@ -16,6 +16,8 @@ namespace TerminalApi.Models
 
         public string? Description { get; set; }
         public string? Title { get; set; }
+        public string? LinkedinUrl { get; set; }
+        public string? GithubUrl { get; set; }
 
         public DateTimeOffset DateOfBirth { get; set; }
 
@@ -56,6 +58,8 @@ namespace TerminalApi.Models
 
         [Required]
         public string? LastName { get; set; }
+        public string? LinkedinUrl { get; set; }
+        public string? GithubUrl { get; set; }
         public string? PhoneNumber { get; set; }
         [Column(TypeName = "Text")]
         public string? Description { get; set; }
@@ -77,6 +81,9 @@ namespace TerminalApi.Models
         public string? ImgUrl { get; set; }
         public string? Description { get; set; }
         public string? Title { get; set; }
+
+        public string?  LinkedinUrl { get; set; }
+        public string?  GithubUrl { get; set; }
 
         public bool IsBanned { get; set; }
         public DateTimeOffset? BannedUntilDate { get; set; }
@@ -138,6 +145,15 @@ namespace TerminalApi.Models
         [Required]
         [Column(TypeName = "timestamp with time zone")]
         public DateTimeOffset DateOfBirth { get; set; }
+
+        public string? LinkedinUrl { get; set; }
+        public string? GithubUrl { get; set; }
+
+        [MustBeTrue]
+        public bool? privacyPolicyConsent { get; set; }
+  
+        [MustBeTrue]
+        public bool? dataProcessingConsent { get; set; }
     }
 
     public class UserBanDTO
@@ -165,6 +181,8 @@ namespace TerminalApi.Models
                 PhoneNumber = userDTO.PhoneNumber,
                 Description = userDTO.Description,
                 Title = userDTO.Title,
+                LinkedinUrl = userDTO.LinkedinUrl,
+                GithubUrl = userDTO.GithubUrl
             };
         }
 
@@ -177,6 +195,8 @@ namespace TerminalApi.Models
             user.LastModifiedAt = DateTime.Now;
             user.Description = userDTO.Description;
             user.Title = userDTO.Title;
+            user.LinkedinUrl = userDTO.LinkedinUrl;
+            user.GithubUrl = userDTO.GithubUrl;
             return user;
         }
 
@@ -200,6 +220,8 @@ namespace TerminalApi.Models
                 IsBanned = user.IsBanned ?? false,
                 BannedUntilDate = user.BannedUntilDate,
                 EmailConfirmed = user.EmailConfirmed,
+                LinkedinUrl = user.LinkedinUrl,
+                GithubUrl = user.GithubUrl,
                 Roles = roles,
             };
         }

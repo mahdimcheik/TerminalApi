@@ -59,7 +59,7 @@ namespace TerminalApi.Controllers
                 if (user is null)
                 {
                     return BadRequest(
-                        new ResponseDTO { Status = 400, Message = "Demande refusée" }
+                        new ResponseDTO<object> { Status = 40, Message = "Demande refusée" }
                     );
                 }
 

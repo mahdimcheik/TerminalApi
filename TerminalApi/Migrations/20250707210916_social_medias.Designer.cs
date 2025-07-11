@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using TerminalApi.Contexts;
@@ -11,9 +12,11 @@ using TerminalApi.Contexts;
 namespace TerminalApi.Migrations
 {
     [DbContext(typeof(ApiDefaultContext))]
-    partial class ApiDefaultContextModelSnapshot : ModelSnapshot
+    [Migration("20250707210916_social_medias")]
+    partial class social_medias
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -257,139 +260,6 @@ namespace TerminalApi.Migrations
                     b.ToTable("Bookings");
                 });
 
-            modelBuilder.Entity("TerminalApi.Models.Category", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
-
-                    b.Property<string>("Color")
-                        .HasMaxLength(20)
-                        .HasColumnType("character varying(20)");
-
-                    b.Property<string>("Icon")
-                        .HasMaxLength(50)
-                        .HasColumnType("character varying(50)");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("character varying(100)");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("Categories");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = new Guid("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"),
-                            Color = "#3b82f6",
-                            Icon = "💻",
-                            Name = "Programmation"
-                        },
-                        new
-                        {
-                            Id = new Guid("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb"),
-                            Color = "#ec4899",
-                            Icon = "🎨",
-                            Name = "Design"
-                        },
-                        new
-                        {
-                            Id = new Guid("cccccccc-cccc-cccc-cccc-cccccccccccc"),
-                            Color = "#059669",
-                            Icon = "📊",
-                            Name = "Business"
-                        },
-                        new
-                        {
-                            Id = new Guid("dddddddd-dddd-dddd-dddd-dddddddddddd"),
-                            Color = "#dc2626",
-                            Icon = "📢",
-                            Name = "Marketing"
-                        },
-                        new
-                        {
-                            Id = new Guid("eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee"),
-                            Color = "#7c3aed",
-                            Icon = "📈",
-                            Name = "Data Science"
-                        },
-                        new
-                        {
-                            Id = new Guid("ffffffff-ffff-ffff-ffff-ffffffffffff"),
-                            Color = "#1f2937",
-                            Icon = "🔒",
-                            Name = "Cybersécurité"
-                        },
-                        new
-                        {
-                            Id = new Guid("10101010-1010-1010-1010-101010101010"),
-                            Color = "#6366f1",
-                            Icon = "🤖",
-                            Name = "Intelligence Artificielle"
-                        },
-                        new
-                        {
-                            Id = new Guid("20202020-2020-2020-2020-202020202020"),
-                            Color = "#f59e0b",
-                            Icon = "⚙️",
-                            Name = "DevOps"
-                        },
-                        new
-                        {
-                            Id = new Guid("30303030-3030-3030-3030-303030303030"),
-                            Color = "#10b981",
-                            Icon = "📱",
-                            Name = "Mobile"
-                        },
-                        new
-                        {
-                            Id = new Guid("40404040-4040-4040-4040-404040404040"),
-                            Color = "#64748b",
-                            Icon = "📋",
-                            Name = "Gestion de projet"
-                        });
-                });
-
-            modelBuilder.Entity("TerminalApi.Models.Cursus", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
-
-                    b.Property<Guid>("CategoryId")
-                        .HasColumnType("uuid");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<string>("Description")
-                        .IsRequired()
-                        .HasMaxLength(1000)
-                        .HasColumnType("character varying(1000)");
-
-                    b.Property<Guid>("LevelId")
-                        .HasColumnType("uuid");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasMaxLength(200)
-                        .HasColumnType("character varying(200)");
-
-                    b.Property<DateTime?>("UpdatedAt")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("CategoryId");
-
-                    b.HasIndex("LevelId");
-
-                    b.ToTable("Cursus");
-                });
-
             modelBuilder.Entity("TerminalApi.Models.Formation", b =>
                 {
                     b.Property<Guid>("Id")
@@ -457,67 +327,6 @@ namespace TerminalApi.Migrations
                     b.HasIndex("UserId");
 
                     b.ToTable("Layouts");
-                });
-
-            modelBuilder.Entity("TerminalApi.Models.Level", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
-
-                    b.Property<string>("Color")
-                        .HasMaxLength(20)
-                        .HasColumnType("character varying(20)");
-
-                    b.Property<string>("Icon")
-                        .HasMaxLength(50)
-                        .HasColumnType("character varying(50)");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("character varying(100)");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("Levels");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = new Guid("11111111-1111-1111-1111-111111111111"),
-                            Color = "#22c55e",
-                            Icon = "🟢",
-                            Name = "Débutant"
-                        },
-                        new
-                        {
-                            Id = new Guid("22222222-2222-2222-2222-222222222222"),
-                            Color = "#eab308",
-                            Icon = "🟡",
-                            Name = "Intermédiaire"
-                        },
-                        new
-                        {
-                            Id = new Guid("33333333-3333-3333-3333-333333333333"),
-                            Color = "#f97316",
-                            Icon = "🟠",
-                            Name = "Avancé"
-                        },
-                        new
-                        {
-                            Id = new Guid("44444444-4444-4444-4444-444444444444"),
-                            Color = "#ef4444",
-                            Icon = "🔴",
-                            Name = "Expert"
-                        },
-                        new
-                        {
-                            Id = new Guid("55555555-5555-5555-5555-555555555555"),
-                            Color = "#8b5cf6",
-                            Icon = "⭐",
-                            Name = "Tous niveaux"
-                        });
                 });
 
             modelBuilder.Entity("TerminalApi.Models.Notification", b =>
@@ -693,9 +502,9 @@ namespace TerminalApi.Migrations
                     b.HasData(
                         new
                         {
-                            Id = new Guid("1aa53bd9-8a1b-4b17-b2e4-bbc28ac5541f"),
+                            Id = new Guid("967063ef-31ff-4162-8ee7-6c0fea4e92e2"),
                             Rate = 0.2m,
-                            StartAt = new DateTime(2025, 7, 7, 22, 51, 31, 401, DateTimeKind.Utc).AddTicks(3100)
+                            StartAt = new DateTime(2025, 7, 7, 21, 9, 15, 496, DateTimeKind.Utc).AddTicks(5312)
                         });
                 });
 
@@ -940,25 +749,6 @@ namespace TerminalApi.Migrations
                     b.Navigation("Slot");
                 });
 
-            modelBuilder.Entity("TerminalApi.Models.Cursus", b =>
-                {
-                    b.HasOne("TerminalApi.Models.Category", "Category")
-                        .WithMany("Cursus")
-                        .HasForeignKey("CategoryId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.HasOne("TerminalApi.Models.Level", "Level")
-                        .WithMany("Cursus")
-                        .HasForeignKey("LevelId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.Navigation("Category");
-
-                    b.Navigation("Level");
-                });
-
             modelBuilder.Entity("TerminalApi.Models.Formation", b =>
                 {
                     b.HasOne("TerminalApi.Models.UserApp", "User")
@@ -1043,16 +833,6 @@ namespace TerminalApi.Migrations
                         .IsRequired();
 
                     b.Navigation("Creator");
-                });
-
-            modelBuilder.Entity("TerminalApi.Models.Category", b =>
-                {
-                    b.Navigation("Cursus");
-                });
-
-            modelBuilder.Entity("TerminalApi.Models.Level", b =>
-                {
-                    b.Navigation("Cursus");
                 });
 
             modelBuilder.Entity("TerminalApi.Models.Order", b =>

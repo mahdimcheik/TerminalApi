@@ -51,8 +51,7 @@ namespace TerminalApi.Controllers
                 Console.WriteLine("test");
                 await mailService.SendEmail(mail);
                 return Ok(
-                    new ResponseDTO
-                    {
+                    new ResponseDTO<object> {
                         Message = "Email est envoyé avec succès",
                         Status = 200,
                         Data = mail
@@ -62,7 +61,7 @@ namespace TerminalApi.Controllers
             catch
             {
                 return BadRequest(
-                    new ResponseDTO { Message = "Email n'est pas envoyé", Status = 400 }
+                    new ResponseDTO<object> { Message = "Email n'est pas envoyé", Status = 400 }
                 );
             }
         }
@@ -74,15 +73,14 @@ namespace TerminalApi.Controllers
 
             if (sender  is null)
             {
-                return BadRequest(new ResponseDTO { Status = 400, Message = "Demande refusée" });
+                return BadRequest(new ResponseDTO<object> { Status = 40, Message = "Demande refusée" });
             }
             try
             {
                 mail.Sender = sender;
                 await mailService.ContactAdmin(mail );
                 return Ok(
-                    new ResponseDTO
-                    {
+                    new ResponseDTO<object> {
                         Message = "Email est envoyé avec succès",
                         Status = 200,
                         Data = mail
@@ -92,7 +90,7 @@ namespace TerminalApi.Controllers
             catch
             {
                 return BadRequest(
-                    new ResponseDTO { Message = "Email n'est pas envoyé", Status = 400 }
+                    new ResponseDTO<object> { Message = "Email n'est pas envoyé", Status = 400 }
                 );
             }
         }
