@@ -22,18 +22,15 @@ namespace TerminalApi
 {
     public class Program
     {
+        private static string? cs = "";
         public static async Task Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
-
-            //builder.WebHost.ConfigureKestrel(options =>
-            //{
-            //    options.ListenAnyIP(5113); // HTTP
-            //    options.ListenAnyIP(7113, listenOptions =>
-            //    {
-            //        listenOptions.UseHttps(); // HTTPS
-            //    });
-            //});
+            cs = builder.Configuration["ConnectionStrings:DefaultConnection"];
+            if(cs is null)
+            {
+                throw new Exception("Connection string 'DefaultConnection' not found in configuration.");
+            }
 
             var services = builder.Services;
 
@@ -284,7 +281,11 @@ namespace TerminalApi
             services.AddDbContext<ApiDefaultContext>(options =>
             {
                 //options.UseNpgsql($"Host={EnvironmentVariables.DB_HOST};Port={EnvironmentVariables.DB_PORT};Database={EnvironmentVariables.DB_NAME};Username={EnvironmentVariables.DB_USER};Password={EnvironmentVariables.DB_PASSWORD};");
-                options.UseNpgsql($"Host=localhost;Port=5432;Database=terminaldb;Username=postgres;Password=beecoming;");
+                options.UseNpgsql(
+                    cs
+                                //EnvironmentVariables.DB_CONNECTION_STRING
+                    //$"Host=db;Port=5432;Database=terminaldb;Username=postgres;Password=beecoming;"
+                    );
             });
 
             using (var scope = services.BuildServiceProvider().CreateScope())
@@ -308,8 +309,10 @@ namespace TerminalApi
                         (options) =>
                         {
                             options.UseNpgsqlConnection(
+                                cs
                                 //"Host=localhost;Port=5432;Database=leprojet;Username=postgres;Password=beecoming;"
-                                "Host=localhost;Port=5432;Database=terminaldb;Username=postgres;Password=beecoming;"
+                                //EnvironmentVariables.DB_CONNECTION_STRING
+                                //"Host=db;Port=5432;Database=terminaldb;Username=postgres;Password=beecoming;"
                             );
                         }
                     )

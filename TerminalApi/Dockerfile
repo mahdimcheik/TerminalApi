@@ -27,4 +27,4 @@ RUN dotnet publish "./TerminalApi.csproj" -c $BUILD_CONFIGURATION -o /app/publis
 FROM base AS final
 WORKDIR /app
 COPY --from=publish /app/publish .
-ENTRYPOINT ["dotnet", "TerminalApi.dll"]
+ENTRYPOINT ["dotnet", "TerminalApi.dll", "--environment", "Production", "--profile", "base"]

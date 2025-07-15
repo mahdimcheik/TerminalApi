@@ -17,6 +17,10 @@
         public static string? DB_NAME => Environment.GetEnvironmentVariable("DB_NAME");
         public static string? DB_USER => Environment.GetEnvironmentVariable("DB_USER");
         public static string? DB_PASSWORD => Environment.GetEnvironmentVariable("DB_PASSWORD");
+
+        public static string? DB_CONNECTION_STRING =>
+            Environment.GetEnvironmentVariable("DB_CONNECTION_STRING")
+            ?? $"Host={DB_HOST};Port={DB_PORT};Database={DB_NAME};Username={DB_USER};Password={DB_PASSWORD}";
         public static string? DB_PROVIDER =>
             Environment.GetEnvironmentVariable("DB_PROVIDER") ?? "PostgreSql";
 
