@@ -1,6 +1,3 @@
-using System.Data;
-using System.Reflection;
-using System.Text;
 using Hangfire;
 using Hangfire.PostgreSql;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -11,6 +8,10 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using PuppeteerSharp;
+using System.Collections;
+using System.Data;
+using System.Reflection;
+using System.Text;
 using TerminalApi.Contexts;
 using TerminalApi.Controllers;
 using TerminalApi.Models;
@@ -27,7 +28,8 @@ namespace TerminalApi
         {
             var builder = WebApplication.CreateBuilder(args);
             cs = builder.Configuration["ConnectionStrings:DefaultConnection"];
-            if(cs is null)
+
+            if (cs is null)
             {
                 throw new Exception("Connection string 'DefaultConnection' not found in configuration.");
             }

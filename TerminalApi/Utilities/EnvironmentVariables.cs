@@ -20,6 +20,7 @@
 
         public static string? DB_CONNECTION_STRING =>
             Environment.GetEnvironmentVariable("DB_CONNECTION_STRING")
+            ?? Environment.GetEnvironmentVariable("ConnectionStrings__DefaultConnection")
             ?? $"Host={DB_HOST};Port={DB_PORT};Database={DB_NAME};Username={DB_USER};Password={DB_PASSWORD}";
         public static string? DB_PROVIDER =>
             Environment.GetEnvironmentVariable("DB_PROVIDER") ?? "PostgreSql";
