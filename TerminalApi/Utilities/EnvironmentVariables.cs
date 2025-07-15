@@ -39,7 +39,7 @@
         public static string? SMTP_HostAddress =>
             Environment.GetEnvironmentVariable("SMTP_BREVO_SERVER");
         public static string? SMTP_EmailFrom =>
-            Environment.GetEnvironmentVariable("SMTP_BROVO_LOGIN");
+            Environment.GetEnvironmentVariable("SMTP_BREVO_LOGIN");
         public static string? SMTP_Password => Environment.GetEnvironmentVariable("SMTP_BREVO_KEY");
         public static int SMTP_Port =>
             Int32.Parse(Environment.GetEnvironmentVariable("SMTP_BREVO_PORT"));
@@ -106,12 +106,12 @@
                 return res <= 0 ? 7 : res;
             }
         }
-        public static int TOKEN_VALIDATY_MINUTES
+        public static int TOKEN_VALIDITY_MINUTES
         {
             get
             {
                 int res = 30;
-                int.TryParse(Environment.GetEnvironmentVariable("TOKEN_VALIDATY_MINUTES"), out res);
+                int.TryParse(Environment.GetEnvironmentVariable("TOKEN_VALIDITY_MINUTES"), out res);
 
                 return res <= 0 ? 60 : res;
             }

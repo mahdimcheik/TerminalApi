@@ -215,13 +215,13 @@ namespace TerminalApi
                         },
                     };
 
-                })
-                .AddGoogle(options =>
-                {
-                    options.ClientId = EnvironmentVariables.ID_CLIENT_GOOGLE;
-                    options.ClientSecret = EnvironmentVariables.SECRET_CLIENT_GOOGLE;
-                    options.CallbackPath = new PathString("/google-callback");
                 });
+                //.AddGoogle(options =>
+                //{
+                //    options.ClientId = EnvironmentVariables.ID_CLIENT_GOOGLE;
+                //    options.ClientSecret = EnvironmentVariables.SECRET_CLIENT_GOOGLE;
+                //    options.CallbackPath = new PathString("/google-callback");
+                //});
 
            
             // authorization
@@ -283,7 +283,8 @@ namespace TerminalApi
 
             services.AddDbContext<ApiDefaultContext>(options =>
             {
-                options.UseNpgsql("Host=localhost;Port=5432;Database=leprojet;Username=postgres;Password=beecoming;");
+                //options.UseNpgsql($"Host={EnvironmentVariables.DB_HOST};Port={EnvironmentVariables.DB_PORT};Database={EnvironmentVariables.DB_NAME};Username={EnvironmentVariables.DB_USER};Password={EnvironmentVariables.DB_PASSWORD};");
+                options.UseNpgsql($"Host=localhost;Port=5432;Database=terminaldb;Username=postgres;Password=beecoming;");
             });
 
             using (var scope = services.BuildServiceProvider().CreateScope())
@@ -307,7 +308,8 @@ namespace TerminalApi
                         (options) =>
                         {
                             options.UseNpgsqlConnection(
-                                "Host=localhost;Port=5432;Database=leprojet;Username=postgres;Password=beecoming;"
+                                //"Host=localhost;Port=5432;Database=leprojet;Username=postgres;Password=beecoming;"
+                                "Host=localhost;Port=5432;Database=terminaldb;Username=postgres;Password=beecoming;"
                             );
                         }
                     )
@@ -340,7 +342,7 @@ namespace TerminalApi
             app.UseStaticFiles();
 
             // signalR
-            app.MapHub<NotificationHub>("/signalhub");
+            //app.MapHub<NotificationHub>("/signalhub");
 
             // Enable authentication.
             app.UseAuthentication();

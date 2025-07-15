@@ -568,7 +568,7 @@ namespace TerminalApi.Services
                 issuer: EnvironmentVariables.API_BACK_URL,
                 audience: EnvironmentVariables.API_BACK_URL,
                 claims: authClaims,
-                expires: DateTime.Now.AddMinutes(EnvironmentVariables.TOKEN_VALIDATY_MINUTES),
+                expires: DateTime.Now.AddMinutes(EnvironmentVariables.TOKEN_VALIDITY_MINUTES),
                 signingCredentials: credentials
             );
 
