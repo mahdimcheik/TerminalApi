@@ -1,4 +1,5 @@
 using Moq;
+using TerminalApi.Interfaces;
 using TerminalApi.Models;
 using TerminalApi.Services;
 
@@ -13,7 +14,7 @@ namespace TerminalTest
         [Fact]
         public async Task GetFormationById()
         {
-            var mockFormation = new Mock<FormationService>();
+            var mockFormation = new Mock<IFormationService>();
             mockFormation.Setup(service => service.GetFormations(It.IsAny<string>()))
                 .ReturnsAsync(new List<FormationResponseDTO>());
 

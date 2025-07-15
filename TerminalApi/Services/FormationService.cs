@@ -29,7 +29,7 @@ namespace TerminalApi.Services
         public async Task<FormationResponseDTO?> AddFormation(FormationCreateDTO formationCreate, string userId)
         {
             try
-            {
+            {                   
                 var formation = formationCreate.ToFormation(userId);
                 context.Formations.Add(formation);
                 await context.SaveChangesAsync();
