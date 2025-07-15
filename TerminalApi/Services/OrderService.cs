@@ -3,10 +3,11 @@ using Microsoft.IdentityModel.Tokens;
 using TerminalApi.Contexts;
 using TerminalApi.Models;
 using TerminalApi.Utilities;
+using TerminalApi.Interfaces;
 
 namespace TerminalApi.Services
 {
-    public class OrderService
+    public class OrderService : IOrderService
     {
         private readonly ApiDefaultContext context;
 

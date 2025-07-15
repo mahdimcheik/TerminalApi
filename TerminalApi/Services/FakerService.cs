@@ -4,10 +4,11 @@ using Microsoft.EntityFrameworkCore;
 using TerminalApi.Contexts;
 using TerminalApi.Models;
 using TerminalApi.Utilities;
+using TerminalApi.Interfaces;
 
 namespace TerminalApi.Services
 {
-    public class FakerService
+    public class FakerService : IFakerService
     {
         private readonly ApiDefaultContext context;
 

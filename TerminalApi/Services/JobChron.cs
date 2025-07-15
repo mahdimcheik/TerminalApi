@@ -6,17 +6,18 @@ using Stripe;
 using TerminalApi.Contexts;
 using TerminalApi.Models;
 using TerminalApi.Utilities;
+using TerminalApi.Interfaces;
 
 namespace TerminalApi.Services
 {
-    public class JobChron
+    public class JobChron : IJobChron
     {
         private readonly ApiDefaultContext _context;
-        private readonly NotificationService notificationService;
+        private readonly INotificationService notificationService;
 
         public static Hashtable ScheduleJobOrderTable { get; set; } = new();
 
-        public JobChron(ApiDefaultContext context, NotificationService notificationService)
+        public JobChron(ApiDefaultContext context, INotificationService notificationService)
         {
             _context = context;
             this.notificationService = notificationService;

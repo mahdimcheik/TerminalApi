@@ -2,10 +2,11 @@
 using Microsoft.EntityFrameworkCore;
 using TerminalApi.Contexts;
 using TerminalApi.Models;
+using TerminalApi.Interfaces;
 
 namespace TerminalApi.Services
 {
-    public class FormationService
+    public class FormationService : IFormationService
     {
         private readonly UserManager<UserApp> userManager;
         private readonly ApiDefaultContext context;

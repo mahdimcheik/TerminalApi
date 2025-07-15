@@ -2,23 +2,21 @@
 using Microsoft.IdentityModel.Tokens;
 using TerminalApi.Contexts;
 using TerminalApi.Models;
-using TerminalApi.Utilities;
+using TerminalApi.Interfaces;
 
 namespace TerminalApi.Services
 {
-    public class BookingService
+    public class BookingService : IBookingService
     {
         private readonly ApiDefaultContext context;
-        private readonly OrderService orderService;
-        private readonly SseService sseService;
-        private readonly NotificationService notificationService;
-        private readonly JobChron jobChron;
+        private readonly IOrderService orderService;
+        private readonly INotificationService notificationService;
+        private readonly IJobChron jobChron;
 
-        public BookingService(ApiDefaultContext context, OrderService orderService, SseService sseService, NotificationService notificationService, JobChron jobChron)
+        public BookingService(ApiDefaultContext context, IOrderService orderService,  INotificationService notificationService, IJobChron jobChron)
         {
             this.context = context;
             this.orderService = orderService;
-            this.sseService = sseService;
             this.notificationService = notificationService;
             this.jobChron = jobChron;
         }
