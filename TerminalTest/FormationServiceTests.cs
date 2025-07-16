@@ -27,14 +27,9 @@ namespace TerminalTest
             var options = new DbContextOptionsBuilder<ApiDefaultContext>()
                 .UseInMemoryDatabase(databaseName: Guid.NewGuid().ToString())
                 .Options;
-            
+
             _context = new ApiDefaultContext(options);
-            
-            // Setup mock UserManager
-            var mockUserStore = new Mock<IUserStore<UserApp>>();
-            _mockUserManager = new Mock<UserManager<UserApp>>(mockUserStore.Object, null, null, null, null, null, null, null, null);
-            
-            _formationService = new FormationService(_mockUserManager.Object, _context);
+            _formationService = new FormationService(_context);
         }
 
         public void Dispose()

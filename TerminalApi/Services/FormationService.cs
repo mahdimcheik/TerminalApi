@@ -8,12 +8,10 @@ namespace TerminalApi.Services
 {
     public class FormationService : IFormationService
     {
-        private readonly UserManager<UserApp> userManager;
         private readonly ApiDefaultContext context;
 
-        public FormationService(UserManager<UserApp> userManager, ApiDefaultContext context)
+        public FormationService( ApiDefaultContext context)
         {
-            this.userManager = userManager;
             this.context = context;
         }
 

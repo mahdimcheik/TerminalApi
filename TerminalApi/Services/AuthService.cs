@@ -20,8 +20,6 @@ namespace TerminalApi.Services
     {
         private readonly ApiDefaultContext context;
         private readonly UserManager<UserApp> userManager;
-        private readonly RoleManager<Role> roleManager;
-        private readonly SignInManager<UserApp> signInManager;
         private readonly ISendMailService mailService;
         private readonly INotificationService notificationService;
         private readonly IWebHostEnvironment _env;
@@ -29,8 +27,6 @@ namespace TerminalApi.Services
         public AuthService(
             ApiDefaultContext context,
             UserManager<UserApp> userManager,
-            RoleManager<Role> roleManager,
-            SignInManager<UserApp> signInManager,
             ISendMailService mailService,
             INotificationService notificationService,
             IWebHostEnvironment env
@@ -38,8 +34,6 @@ namespace TerminalApi.Services
         {
             this.context = context;
             this.userManager = userManager;
-            this.roleManager = roleManager;
-            this.signInManager = signInManager;
             this.mailService = mailService;
             this.notificationService = notificationService;
             this._env = env;

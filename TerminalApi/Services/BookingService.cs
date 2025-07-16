@@ -10,14 +10,12 @@ namespace TerminalApi.Services
     {
         private readonly ApiDefaultContext context;
         private readonly IOrderService orderService;
-        private readonly INotificationService notificationService;
         private readonly IJobChron jobChron;
 
         public BookingService(ApiDefaultContext context, IOrderService orderService,  INotificationService notificationService, IJobChron jobChron)
         {
             this.context = context;
             this.orderService = orderService;
-            this.notificationService = notificationService;
             this.jobChron = jobChron;
         }
 

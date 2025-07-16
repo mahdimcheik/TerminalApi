@@ -12,7 +12,6 @@ namespace TerminalApi.Services
     /// </summary>
     public class AddressService : IAddressService
     {
-        private readonly UserManager<UserApp> userManager;
         private readonly ApiDefaultContext context;
 
         /// <summary>
@@ -20,9 +19,8 @@ namespace TerminalApi.Services
         /// </summary>
         /// <param name="userManager">Service UserManager pour gérer les utilisateurs.</param>
         /// <param name="context">Contexte de base de données pour accéder aux entités.</param>
-        public AddressService(UserManager<UserApp> userManager, ApiDefaultContext context)
+        public AddressService( ApiDefaultContext context)
         {
-            this.userManager = userManager;
             this.context = context;
         }
 

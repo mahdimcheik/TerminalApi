@@ -136,7 +136,7 @@ namespace TerminalApi.Services
             try
             {
                 notification.IsRead = !notification.IsRead;
-                context.Notifications.Add(notification);
+                context.Notifications.Update(notification);
                 await context.SaveChangesAsync();
                 return notification;
             }

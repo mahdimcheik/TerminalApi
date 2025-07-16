@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using TerminalApi.Contexts;
+using TerminalApi.Interfaces;
 using TerminalApi.Models;
 using TerminalApi.Services;
 using TerminalApi.Utilities;
@@ -35,12 +36,12 @@ namespace TerminalApi.Controllers
         /// <summary>
         /// Service pour générer des données fictives.
         /// </summary>
-        private readonly FakerService fakerService;
+        private readonly IFakerService fakerService;
 
         /// <summary>
         /// Service d'authentification.
         /// </summary>
-        private readonly AuthService authService;
+        private readonly IAuthService authService;
 
         /// <summary>
         /// Constructeur du contrôleur des utilisateurs.
@@ -52,8 +53,8 @@ namespace TerminalApi.Controllers
         public UsersController(
             ApiDefaultContext context,
             UserManager<UserApp> userManager,
-            FakerService fakerService,
-            AuthService authService
+            IFakerService fakerService,
+            IAuthService authService
         )
         {
             this._context = context;
