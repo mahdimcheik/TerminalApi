@@ -449,7 +449,7 @@ namespace TerminalApi.Controllers
                 .Generate(500)
                 .ToList();
             var users = usersDTO.Select(x => x.ToUser()).ToList();
-            for (int i = 0; i < 500; i++)
+            for (int i = 0; i < 10; i++)
             {
                 IdentityResult result = await _userManager.CreateAsync(
                     users[i],
