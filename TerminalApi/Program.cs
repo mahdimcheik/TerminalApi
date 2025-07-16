@@ -8,15 +8,13 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using PuppeteerSharp;
-using System.Collections;
 using System.Data;
 using System.Reflection;
 using System.Text;
 using TerminalApi.Contexts;
-using TerminalApi.Controllers;
+using TerminalApi.Interfaces;
 using TerminalApi.Models;
 using TerminalApi.Services;
-using TerminalApi.Interfaces;
 using TerminalApi.Utilities;
 using TerminalApi.Utilities.Policies.NotBanned;
 
@@ -216,14 +214,14 @@ namespace TerminalApi
                     };
 
                 });
-                //.AddGoogle(options =>
-                //{
-                //    options.ClientId = EnvironmentVariables.ID_CLIENT_GOOGLE;
-                //    options.ClientSecret = EnvironmentVariables.SECRET_CLIENT_GOOGLE;
-                //    options.CallbackPath = new PathString("/google-callback");
-                //});
+            //.AddGoogle(options =>
+            //{
+            //    options.ClientId = EnvironmentVariables.ID_CLIENT_GOOGLE;
+            //    options.ClientSecret = EnvironmentVariables.SECRET_CLIENT_GOOGLE;
+            //    options.CallbackPath = new PathString("/google-callback");
+            //});
 
-           
+
             // authorization
             services.AddAuthorization(options =>
             {
@@ -283,7 +281,7 @@ namespace TerminalApi
                 //options.UseNpgsql($"Host={EnvironmentVariables.DB_HOST};Port={EnvironmentVariables.DB_PORT};Database={EnvironmentVariables.DB_NAME};Username={EnvironmentVariables.DB_USER};Password={EnvironmentVariables.DB_PASSWORD};");
                 options.UseNpgsql(
                     cs
-                                //EnvironmentVariables.DB_CONNECTION_STRING
+                    //EnvironmentVariables.DB_CONNECTION_STRING
                     //$"Host=db;Port=5432;Database=terminaldb;Username=postgres;Password=beecoming;"
                     );
             });
@@ -310,9 +308,9 @@ namespace TerminalApi
                         {
                             options.UseNpgsqlConnection(
                                 cs
-                                //"Host=localhost;Port=5432;Database=leprojet;Username=postgres;Password=beecoming;"
-                                //EnvironmentVariables.DB_CONNECTION_STRING
-                                //"Host=db;Port=5432;Database=terminaldb;Username=postgres;Password=beecoming;"
+                            //"Host=localhost;Port=5432;Database=leprojet;Username=postgres;Password=beecoming;"
+                            //EnvironmentVariables.DB_CONNECTION_STRING
+                            //"Host=db;Port=5432;Database=terminaldb;Username=postgres;Password=beecoming;"
                             );
                         }
                     )
@@ -448,7 +446,7 @@ namespace TerminalApi
             }
 
             var countTVA = context.TVARates.Count();
-            if(countTVA == 0)
+            if (countTVA == 0)
             {
                 TVARate defaultRate = new TVARate
                 {

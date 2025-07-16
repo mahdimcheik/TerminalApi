@@ -19,6 +19,8 @@ namespace TerminalApi.Controllers
     [Route("[controller]")]
     [Authorize]
     [ApiController]
+    [Consumes("application/json")]
+    [Produces("application/json")]
     public class UsersController : ControllerBase
     {
         #region Attributes
@@ -76,7 +78,7 @@ namespace TerminalApi.Controllers
         [EnableCors]
         [Route("register")]
         [HttpPost]
-        public async Task<IActionResult> Register([FromBody] UserCreateDTO model)
+        public async Task<ActionResult<ResponseDTO<UserResponseDTO>?>> Register([FromBody] UserCreateDTO model)
         {
             if (!ModelState.IsValid)
             {
@@ -102,7 +104,7 @@ namespace TerminalApi.Controllers
         [EnableCors]
         [Route("update")]
         [HttpPatch]
-        public async Task<IActionResult> Update([FromBody] UserUpdateDTO model)
+        public async Task<ActionResult<ResponseDTO<UserResponseDTO>?>> Update([FromBody] UserUpdateDTO model)
         {
             if (!ModelState.IsValid)
             {
@@ -124,7 +126,9 @@ namespace TerminalApi.Controllers
         /// <param name="file">Fichier de l'avatar.</param>
         /// <returns>Résultat de l'opération.</returns>
         [HttpPost("upload-avatar")]
-        public async Task<IActionResult> OnPostUploadAsync(IFormFile file)
+        [Consumes("multipart/form-data")]
+        [Produces("application/json")]
+        public async Task<ActionResult<ResponseDTO<UserResponseDTO>?>> OnPostUploadAsync(IFormFile file)
         {
             var result = await authService.UploadAvatar(
                 file,
@@ -183,7 +187,7 @@ namespace TerminalApi.Controllers
         [AllowAnonymous]
         [Route("email-confirmation")]
         [HttpGet]
-        public async Task<ActionResult<ResponseDTO<object>>> EmailConfirmation(
+        public async Task<ActionResult<ResponseDTO<string?>?>> EmailConfirmation(
             [FromQuery] string userId,
             [FromQuery] string confirmationToken
         )
@@ -203,7 +207,7 @@ namespace TerminalApi.Controllers
         /// <returns>Résultat de l'opération.</returns>
         [AllowAnonymous]
         [HttpGet("resend-confirmation-link")]
-        public async Task<IActionResult> ResendConfirmationLink()
+        public async Task<ActionResult<ResponseDTO<UserResponseDTO>?>> ResendConfirmationLink()
         {
             var user = CheckUser.GetUserFromClaim(HttpContext.User, _context);
 
@@ -258,7 +262,7 @@ namespace TerminalApi.Controllers
         /// <returns>Informations publiques de l'utilisateur.</returns>
         [AllowAnonymous]
         [HttpGet("public-informations")]
-        public async Task<ActionResult<ResponseDTO<object>>> GetPublicInformations(
+        public async Task<ActionResult<ResponseDTO<ResponseDTO<UserResponseDTO?>?>>> GetPublicInformations(
             [FromQuery] string userId
         )
         {
@@ -266,7 +270,7 @@ namespace TerminalApi.Controllers
             if (userId.ToLower().Trim().IsNullOrEmpty())
             {
                 return BadRequest(
-                    new ResponseDTO<object> { Message = "Aucun profil trouvé", Status = 404 }
+                    new ResponseDTO<ResponseDTO<UserResponseDTO?>?> { Message = "Aucun profil trouvé", Status = 404 }
                 );
             }
             if (userId.ToLower().Trim() == "teacher")
@@ -282,11 +286,11 @@ namespace TerminalApi.Controllers
 
             if (user == null)
                 return BadRequest(
-                    new ResponseDTO<object> { Message = "Vous n'êtes pas connecté", Status = 401 }
+                    new ResponseDTO<ResponseDTO<UserResponseDTO?>?> { Message = "Vous n'êtes pas connecté", Status = 401 }
                 );
 
             return Ok(
-                new ResponseDTO<object> {
+                new ResponseDTO<UserResponseDTO?> {
                     Message = "Demande acceptée",
                     Status = 200,
                     Data = user.ToUserResponseDTO()
@@ -306,13 +310,13 @@ namespace TerminalApi.Controllers
         [AllowAnonymous]
         [Route("forgot-password")]
         [HttpPost]
-        public async Task<ActionResult<ResponseDTO<object>>> ForgotPassword(
+        public async Task<ActionResult<ResponseDTO<PasswordResetResponseDTO?>>> ForgotPassword(
             [FromBody] ForgotPasswordInput model
         )
         {
             if (!ModelState.IsValid)
             {
-                return BadRequest(new ResponseDTO<object> { Message = "Demande refusée", Status = 400 });
+                return BadRequest(new ResponseDTO<PasswordResetResponseDTO?> { Message = "Demande refusée", Status = 400 });
             }
 
             var result = await authService.ForgotPassword(model);
@@ -336,13 +340,13 @@ namespace TerminalApi.Controllers
         [AllowAnonymous]
         [Route("reset-password")]
         [HttpPost]
-        public async Task<ActionResult<ResponseDTO<object>>> ChangePassword(
+        public async Task<ActionResult<ResponseDTO<string?>>> ChangePassword(
             [FromBody] PasswordRecoveryInput model
         )
         {
             if (!ModelState.IsValid || model.Password != model.PasswordConfirmation)
             {
-                return BadRequest(new ResponseDTO<object> { Message = "Demande refusée", Status = 400 });
+                return BadRequest(new ResponseDTO<string?> { Message = "Demande refusée", Status = 400 });
             }
 
             var result = await authService.ChangePassword(model);
@@ -365,12 +369,12 @@ namespace TerminalApi.Controllers
         [Route("refresh-token")]
         [AllowAnonymous]
         [HttpGet]
-        public async Task<ActionResult> UpdateRefreshToken()
+        public async Task<ActionResult<LoginOutputDTO?>> UpdateRefreshToken()
         {
             if (!Request.Cookies.TryGetValue("refreshToken", out var refreshToken))
             {
                 return Unauthorized(
-                    new
+                    new ResponseDTO<LoginOutputDTO?>
                     {
                         Message = "Refresh token non-existant",
                         Status = 401
@@ -396,17 +400,19 @@ namespace TerminalApi.Controllers
         /// <returns>Liste des utilisateurs.</returns>
         [HttpGet("all")]
         [Authorize(Roles = "Admin")]
-        public async Task<ActionResult<ResponseDTO<IEnumerable<object>>>> GetAll(
+        public async Task<ActionResult<ResponseDTO<ResponsePagination<UserResponseDTO>>>> GetAll(
             [FromQuery] int first,
             [FromQuery] int rows
         )
         {
-            var users = await _context.Users.Skip(first).Take(rows).ToListAsync();
+            var users = await _context.Users.Skip(first).Take(rows).Select(u => u.ToUserResponseDTO(null)).ToListAsync();
             var totalCount = await _context.Users.CountAsync();
             return Ok(
-                new ResponseDTO<object> {
+                new ResponseDTO<ResponsePagination<UserResponseDTO>>
+                {
                     Message = "Les utilisateurs",
-                    Data = new { users, totalCount },
+                    Data = new ResponsePagination<UserResponseDTO> { DataList = users,
+                        Count = totalCount },
                     Status = 200
                 }
             );
@@ -418,7 +424,7 @@ namespace TerminalApi.Controllers
         /// <returns>Résultat de l'opération.</returns>
         [AllowAnonymous]
         [HttpGet("logout")]
-        public async Task<ActionResult> Logout()
+        public async Task<ActionResult<ResponseDTO<object?>>> Logout()
         {
             Response.Cookies.Delete("refreshToken");
             return Ok(new
