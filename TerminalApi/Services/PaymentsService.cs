@@ -5,29 +5,27 @@ using Stripe.Checkout;
 using TerminalApi.Contexts;
 using TerminalApi.Models;
 using TerminalApi.Utilities;
+using TerminalApi.Interfaces;
 
 namespace TerminalApi.Services
 {
-    public class PaymentsService
+    public class PaymentsService : IPaymentsService
     {
         private readonly ApiDefaultContext context;
-        private readonly OrderService orderService;
-        private readonly NotificationService notificationService;
-        private readonly SseService sseConnectionManager;
-        private readonly JobChron jobChron;
+        private readonly IOrderService orderService;
+        private readonly INotificationService notificationService;
+        private readonly IJobChron jobChron;
 
         public PaymentsService(
             ApiDefaultContext context,
-            OrderService orderService,
-            NotificationService notificationService,
-            SseService sseConnectionManager,
-            JobChron jobChron
+            IOrderService orderService,
+            INotificationService notificationService,
+            IJobChron jobChron
         )
         {
             this.context = context;
             this.orderService = orderService;
             this.notificationService = notificationService;
-            this.sseConnectionManager = sseConnectionManager;
             this.jobChron = jobChron;
         }
 

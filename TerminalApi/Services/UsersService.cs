@@ -5,17 +5,18 @@ using Microsoft.IdentityModel.Tokens;
 using TerminalApi.Contexts;
 using TerminalApi.Models;
 using TerminalApi.Utilities;
+using TerminalApi.Interfaces;
 
 namespace TerminalApi.Services
 {
-    public class UsersService
+    public class UsersService : IUsersService
     {
         private readonly ApiDefaultContext context;
-        private readonly NotificationService notificationService;
+        private readonly INotificationService notificationService;
 
         public UsersService(
             ApiDefaultContext context,
-            NotificationService notificationService
+            INotificationService notificationService
         )
         {
             this.context = context;

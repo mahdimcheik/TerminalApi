@@ -7,10 +7,11 @@ using RazorLight;
 using TerminalApi.Models;
 using TerminalApi.Services.Templates;
 using TerminalApi.Utilities;
+using TerminalApi.Interfaces;
 
 namespace TerminalApi.Services
 {
-    public class SendMailService
+    public class SendMailService : ISendMailService
     {
         private readonly IRazorLightEngine _razorLightEngine;
         private readonly IWebHostEnvironment _env;
@@ -94,7 +95,7 @@ namespace TerminalApi.Services
             }
         }
         /// <summary>
-        /// Cette méthode sert à envoyer un email de confirmation de mail.
+        /// Cette mï¿½thode sert ï¿½ envoyer un email de confirmation de mail.
         /// C'est une version asynchrone
         /// </summary>
         /// <param name="mail"></param>
@@ -106,8 +107,8 @@ namespace TerminalApi.Services
             await SendEmail(mail, link, "ValidationEmailTemplate.cshtml");
         }
         /// <summary>
-        /// Cette méthode sert à envoyer un email de confirmation de mail.
-        /// En utilisant hangfire, l'envoi du mail sera executé dnas un backgorund Job.
+        /// Cette mï¿½thode sert ï¿½ envoyer un email de confirmation de mail.
+        /// En utilisant hangfire, l'envoi du mail sera executï¿½ dnas un backgorund Job.
         /// </summary>
         /// <param name="mail"></param>
         /// <param name="link"></param>
@@ -132,7 +133,7 @@ namespace TerminalApi.Services
 
 
         /// <summary>
-        /// Méthode générale d'envoi de mail 
+        /// Mï¿½thode gï¿½nï¿½rale d'envoi de mail 
         /// </summary>
         /// <param name="mail"></param>
         /// <param name="link"></param>

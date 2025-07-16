@@ -2,10 +2,11 @@
 using TerminalApi.Contexts;
 using TerminalApi.Models;
 using TerminalApi.Models.Slots;
+using TerminalApi.Interfaces;
 
 namespace TerminalApi.Services
 {
-    public class SlotService
+    public class SlotService : ISlotService
     {
         private readonly ApiDefaultContext context;
 
@@ -60,11 +61,11 @@ namespace TerminalApi.Services
             string slotId
         )
         {
-            var slot = context
+            var slot = await context
                 .Slots.Include(x => x.Booking)
                 .ThenInclude(y => y.Booker)
                 .AsSplitQuery()
-                .FirstOrDefault(ad =>
+                .FirstOrDefaultAsync(ad =>
                     ad.Id == Guid.Parse(slotId)
                 );
 

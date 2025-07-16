@@ -2,10 +2,11 @@ using Microsoft.EntityFrameworkCore;
 using TerminalApi.Contexts;
 using TerminalApi.Models;
 using TerminalApi.Utilities;
+using TerminalApi.Interfaces;
 
 namespace TerminalApi.Services
 {
-    public class NotificationService
+    public class NotificationService : INotificationService
     {
         private readonly ApiDefaultContext context;
 
@@ -135,7 +136,7 @@ namespace TerminalApi.Services
             try
             {
                 notification.IsRead = !notification.IsRead;
-                context.Notifications.Add(notification);
+                context.Notifications.Update(notification);
                 await context.SaveChangesAsync();
                 return notification;
             }

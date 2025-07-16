@@ -3,10 +3,11 @@ using PuppeteerSharp.Media;
 using RazorLight;
 using TerminalApi.Contexts;
 using TerminalApi.Models;
+using TerminalApi.Interfaces;
 
 namespace TerminalApi.Services
 {
-    public class PdfService
+    public class PdfService : IPdfService
     {
         private readonly IWebHostEnvironment _env;
         private readonly IRazorLightEngine _razorLightEngine;

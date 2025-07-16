@@ -16,6 +16,7 @@ using TerminalApi.Contexts;
 using TerminalApi.Controllers;
 using TerminalApi.Models;
 using TerminalApi.Services;
+using TerminalApi.Interfaces;
 using TerminalApi.Utilities;
 using TerminalApi.Utilities.Policies.NotBanned;
 
@@ -235,27 +236,24 @@ namespace TerminalApi
 
         private static void ConfigureServices(IServiceCollection services)
         {
-            services.AddSingleton<SendMailService>();
-            services.AddScoped<AddressService>();
-            services.AddScoped<FormationService>();
-            services.AddScoped<SlotService>();
-            services.AddScoped<BookingService>();
-            services.AddScoped<OrderService>();
-            services.AddScoped<PaymentsService>();
-            services.AddScoped<FakerService>();
-            services.AddSingleton<SseConnectionManager>();
-            services.AddSingleton<SseService>();
-            services.AddScoped<PdfService>();
-            services.AddScoped<JobChron>();
-            services.AddScoped<NotificationService>();
-            services.AddScoped<UsersService>();
-            services.AddScoped<AuthService>();
+            services.AddSingleton<ISendMailService, SendMailService>();
+            services.AddScoped<IAddressService, AddressService>();
+            services.AddScoped<IFormationService, FormationService>();
+            services.AddScoped<ISlotService, SlotService>();
+            services.AddScoped<IBookingService, BookingService>();
+            services.AddScoped<IOrderService, OrderService>();
+            services.AddScoped<IPaymentsService, PaymentsService>();
+            services.AddScoped<IFakerService, FakerService>();
+            services.AddScoped<IPdfService, PdfService>();
+            services.AddScoped<IJobChron, JobChron>();
+            services.AddScoped<INotificationService, NotificationService>();
+            services.AddScoped<IUsersService, UsersService>();
+            services.AddScoped<IAuthService, AuthService>();
             services.AddScoped<ICursusService, CursusService>();
             services.AddScoped<IAuthorizationHandler, NotBannedHandler>();
 
             // signalR
             services.AddSignalR();
-            services.AddSingleton<SignalConnectionManager>();
 
             // logger
             services.AddLogging(loggingBuilder =>
@@ -271,7 +269,7 @@ namespace TerminalApi
                     "/TemplatesInvoice/{0}" + RazorViewEngine.ViewExtension
                 );
             });
-            services.AddTransient<PdfService>();
+            services.AddTransient<IPdfService, PdfService>();
             services.AddRouting(opt => opt.LowercaseUrls = true);
 
             var configuration = services.BuildServiceProvider().GetService<IConfiguration>();

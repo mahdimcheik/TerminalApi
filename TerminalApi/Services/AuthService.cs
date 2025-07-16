@@ -11,34 +11,29 @@ using SixLabors.ImageSharp.Processing;
 using TerminalApi.Contexts;
 using TerminalApi.Models;
 using TerminalApi.Utilities;
+using TerminalApi.Interfaces;
 
 namespace TerminalApi.Services
 {
 
-    public class AuthService
+    public class AuthService : IAuthService
     {
         private readonly ApiDefaultContext context;
         private readonly UserManager<UserApp> userManager;
-        private readonly RoleManager<Role> roleManager;
-        private readonly SignInManager<UserApp> signInManager;
-        private readonly SendMailService mailService;
-        private readonly NotificationService notificationService;
+        private readonly ISendMailService mailService;
+        private readonly INotificationService notificationService;
         private readonly IWebHostEnvironment _env;
 
         public AuthService(
             ApiDefaultContext context,
             UserManager<UserApp> userManager,
-            RoleManager<Role> roleManager,
-            SignInManager<UserApp> signInManager,
-            SendMailService mailService,
-            NotificationService notificationService,
+            ISendMailService mailService,
+            INotificationService notificationService,
             IWebHostEnvironment env
         )
         {
             this.context = context;
             this.userManager = userManager;
-            this.roleManager = roleManager;
-            this.signInManager = signInManager;
             this.mailService = mailService;
             this.notificationService = notificationService;
             this._env = env;

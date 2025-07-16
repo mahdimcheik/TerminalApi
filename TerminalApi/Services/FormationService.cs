@@ -2,17 +2,16 @@
 using Microsoft.EntityFrameworkCore;
 using TerminalApi.Contexts;
 using TerminalApi.Models;
+using TerminalApi.Interfaces;
 
 namespace TerminalApi.Services
 {
-    public class FormationService
+    public class FormationService : IFormationService
     {
-        private readonly UserManager<UserApp> userManager;
         private readonly ApiDefaultContext context;
 
-        public FormationService(UserManager<UserApp> userManager, ApiDefaultContext context)
+        public FormationService( ApiDefaultContext context)
         {
-            this.userManager = userManager;
             this.context = context;
         }
 
@@ -28,7 +27,7 @@ namespace TerminalApi.Services
         public async Task<FormationResponseDTO?> AddFormation(FormationCreateDTO formationCreate, string userId)
         {
             try
-            {
+            {                   
                 var formation = formationCreate.ToFormation(userId);
                 context.Formations.Add(formation);
                 await context.SaveChangesAsync();

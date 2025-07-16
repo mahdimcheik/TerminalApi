@@ -2,6 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using TerminalApi.Contexts;
 using TerminalApi.Models;
+using TerminalApi.Interfaces;
 
 namespace TerminalApi.Services
 {
@@ -9,9 +10,8 @@ namespace TerminalApi.Services
     /// Service responsable de la gestion des adresses des utilisateurs.
     /// Permet de récupérer, ajouter, mettre à jour et supprimer des adresses.
     /// </summary>
-    public class AddressService
+    public class AddressService : IAddressService
     {
-        private readonly UserManager<UserApp> userManager;
         private readonly ApiDefaultContext context;
 
         /// <summary>
@@ -19,9 +19,8 @@ namespace TerminalApi.Services
         /// </summary>
         /// <param name="userManager">Service UserManager pour gérer les utilisateurs.</param>
         /// <param name="context">Contexte de base de données pour accéder aux entités.</param>
-        public AddressService(UserManager<UserApp> userManager, ApiDefaultContext context)
+        public AddressService( ApiDefaultContext context)
         {
-            this.userManager = userManager;
             this.context = context;
         }
 

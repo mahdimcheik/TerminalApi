@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using TerminalApi.Utilities.Validators;
 
 namespace TerminalApi.Models
 {
@@ -19,6 +20,7 @@ namespace TerminalApi.Models
         public DateTimeOffset StartAt { get; set; }
         [Required]
         [Column(TypeName = "timestamp with time zone")]
+        [DateRange("StartAt")]
         public DateTimeOffset EndAt { get; set; }
     }
 }
