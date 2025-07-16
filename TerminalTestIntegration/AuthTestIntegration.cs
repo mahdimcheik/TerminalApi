@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.Http.Json;
 using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
@@ -29,7 +30,7 @@ namespace TerminalTestIntegration
         {
             // Arrange - Use unique email to avoid conflicts
             var uniqueEmail = $"mahdi.test.{Guid.NewGuid().ToString("N")[..8]}@hotmail.fr";
-            
+
             UserCreateDTO userCreateDTO = new UserCreateDTO
             {
                 Email = uniqueEmail,
@@ -54,7 +55,7 @@ namespace TerminalTestIntegration
             Assert.True(response.IsSuccessStatusCode, $"Response was not successful. Status: {response.StatusCode}, Content: {responseContent}");
             Assert.NotNull(responseContent);
             Assert.NotEmpty(responseContent);
-            
+
             // Deserialize and verify the response structure
             var deserializedResponse = JsonSerializer.Deserialize<ResponseDTO<UserResponseDTO>>(responseContent, jsonOptions);
             Assert.NotNull(deserializedResponse);
@@ -70,7 +71,7 @@ namespace TerminalTestIntegration
         {
             // Arrange - Use unique email to avoid conflicts
             var uniqueEmail = $"mahdi.test.{Guid.NewGuid().ToString("N")[..8]}@hotmail.fr";
-            
+
             UserCreateDTO userCreateDTO = new UserCreateDTO
             {
                 Email = uniqueEmail,
@@ -124,6 +125,51 @@ namespace TerminalTestIntegration
             var deserializedResponse = JsonSerializer.Deserialize<ResponseDTO<UserResponseDTO>>(responseContent, jsonOptions);
             Assert.NotNull(deserializedResponse);
             Assert.NotNull(deserializedResponse.Message);
+        }
+
+        [Fact]
+        public async Task LoginUserAsync()
+        {
+
+            UserLoginDTO userLoginDTO = new UserLoginDTO
+            {
+                Email = "teacher@skillhive.fr",
+                Password = "Admin123!",
+            };
+
+            var content = new StringContent(JsonSerializer.Serialize(userLoginDTO, jsonOptions), Encoding.UTF8, "application/json");
+
+            // Act
+            var response = await httpClient.PostAsync("/users/login", content);
+            var responseContent = await response.Content.ReadFromJsonAsync<ResponseDTO<LoginOutputDTO>>();
+
+            // Assert
+            Assert.True(response.IsSuccessStatusCode, $"Response was not successful. Status: {response.StatusCode}, Content: {responseContent}");
+            Assert.NotNull(responseContent);
+            Assert.IsType<ResponseDTO<LoginOutputDTO>>(responseContent);
+            Assert.NotNull(responseContent?.Data?.Token);
+            Assert.NotNull(responseContent?.Data?.User);
+        }
+
+        [Fact]
+        public async Task LoginUserAsync_returnBadCredentials()
+        {
+
+            UserLoginDTO userLoginDTO = new UserLoginDTO
+            {
+                Email = "teache@skillhive.fr",
+                Password = "Admin123",
+            };
+
+            var content = new StringContent(JsonSerializer.Serialize(userLoginDTO, jsonOptions), Encoding.UTF8, "application/json");
+
+            // Act
+            var response = await httpClient.PostAsync("/users/login", content);
+            var responseContent = await response.Content.ReadFromJsonAsync<ResponseDTO<LoginOutputDTO?>?>();
+
+            // Assert
+            Assert.False(response.IsSuccessStatusCode, $"Response was not successful. Status: {response.StatusCode}, Content: {responseContent}");
+
         }
     }
 }

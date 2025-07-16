@@ -1,10 +1,14 @@
-using Testcontainers.PostgreSql;
+using iText.Signatures.Validation.Extensions;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.AspNetCore.Mvc.Testing;
 using TerminalApi;
 using TerminalApi.Contexts;
+using TerminalApi.Models;
+using TerminalApi.Utilities;
+using Testcontainers.PostgreSql;
 
 namespace TerminalTestIntegration;
 
@@ -34,11 +38,12 @@ public class CustomWebApplicationFactory : WebApplicationFactory<Program>, IAsyn
 
     protected override void ConfigureWebHost(IWebHostBuilder builder)
     {
-        builder.ConfigureServices(services =>
+        builder.ConfigureServices(async services =>
         {
             // Remove the existing database context registration
-            var descriptor = services.SingleOrDefault(
-                d => d.ServiceType == typeof(DbContextOptions<ApiDefaultContext>));
+            var descriptor = services.SingleOrDefault(d =>
+                d.ServiceType == typeof(DbContextOptions<ApiDefaultContext>)
+            );
             if (descriptor != null)
                 services.Remove(descriptor);
 
@@ -55,14 +60,14 @@ public class CustomWebApplicationFactory : WebApplicationFactory<Program>, IAsyn
             // Create database and apply migrations
             using var scope = serviceProvider.CreateScope();
             var context = scope.ServiceProvider.GetRequiredService<ApiDefaultContext>();
-            
+            var userManager = scope.ServiceProvider.GetRequiredService<UserManager<UserApp>>();
+
             try
             {
                 // Ensure database is created and migrations are applied
                 context.Database.EnsureCreated();
-                
-                // Or use migrations if you prefer:
-                // context.Database.Migrate();
+
+                await SeedDataAsync(userManager);
             }
             catch (Exception ex)
             {
@@ -75,5 +80,23 @@ public class CustomWebApplicationFactory : WebApplicationFactory<Program>, IAsyn
         // Set the environment to Testing to avoid production-specific configurations
         builder.UseEnvironment("Testing");
     }
-}
 
+    public async Task SeedDataAsync(UserManager<UserApp> userManager)
+    {
+        var student = new UserApp
+        {
+            Email = "student@skillhive.fr",
+            FirstName = "mahdi",
+            LastName = "mcheik",
+            Gender = EnumGender.Homme,
+            PhoneNumber = "123456789",
+            DateOfBirth = new DateTimeOffset(1990, 1, 1, 0, 0, 0, TimeSpan.Zero),
+            Description = "Test user for integration test",
+        };
+
+        var result = await userManager.CreateAsync(student, "Olitec1>");
+
+        Console.WriteLine("*********" + result);
+        //await context.SaveChangesAsync();
+    }
+}
