@@ -9,36 +9,121 @@ using TerminalApi.Utilities;
 
 namespace TerminalTestIntegration
 {
-    public class AuthTestIntegration
+    public class AuthTestIntegration : IClassFixture<CustomWebApplicationFactory>
     {
         private readonly HttpClient httpClient;
+        private readonly JsonSerializerOptions jsonOptions;
 
-        public AuthTestIntegration(HttpClient httpClient)
+        public AuthTestIntegration(CustomWebApplicationFactory factory)
         {
-            this.httpClient = httpClient;
+            this.httpClient = factory.CreateClient();
+            this.jsonOptions = new JsonSerializerOptions
+            {
+                PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+                PropertyNameCaseInsensitive = true
+            };
         }
 
         [Fact]
         public async Task RegisterUserAsync()
         {
+            // Arrange - Use unique email to avoid conflicts
+            var uniqueEmail = $"mahdi.test.{Guid.NewGuid().ToString("N")[..8]}@hotmail.fr";
+            
             UserCreateDTO userCreateDTO = new UserCreateDTO
             {
-                Email = "mahdi.mcheik@hotmail.fr",
+                Email = uniqueEmail,
                 Password = "Olitec1>",
                 FirstName = "mahdi",
-                LastName = "bensalem",
-                DateOfBirth = DateTimeOffset.Now.AddYears(-39),
-                Gender = EnumGender.Homme,
-                Description = "test user",
-                privacyPolicyConsent = true,
-                dataProcessingConsent = true,   
+                LastName = "mcheik",
+                Gender = EnumGender.Homme, // Use the correct enum value
+                PhoneNumber = "123456789", // Use correct property name
+                DateOfBirth = new DateTimeOffset(1990, 1, 1, 0, 0, 0, TimeSpan.Zero), // Use DateTimeOffset
+                Description = "Test user for integration test",
+                privacyPolicyConsent = true, // Use correct property name
+                dataProcessingConsent = true, // Use correct property name
             };
-            var content = new StringContent(JsonSerializer.Serialize(userCreateDTO), Encoding.UTF8, "application/json");
+
+            var content = new StringContent(JsonSerializer.Serialize(userCreateDTO, jsonOptions), Encoding.UTF8, "application/json");
+
+            // Act
             var response = await httpClient.PostAsync("/users/register", content);
             var responseContent = await response.Content.ReadAsStringAsync();
-            response.EnsureSuccessStatusCode();
+
+            // Assert
+            Assert.True(response.IsSuccessStatusCode, $"Response was not successful. Status: {response.StatusCode}, Content: {responseContent}");
             Assert.NotNull(responseContent);
-            Assert.IsType<ResponseDTO<UserResponseDTO>>(responseContent);            
+            Assert.NotEmpty(responseContent);
+            
+            // Deserialize and verify the response structure
+            var deserializedResponse = JsonSerializer.Deserialize<ResponseDTO<UserResponseDTO>>(responseContent, jsonOptions);
+            Assert.NotNull(deserializedResponse);
+            Assert.NotNull(deserializedResponse.Data);
+            Assert.Equal(userCreateDTO.Email, deserializedResponse.Data.Email);
+            Assert.Equal(userCreateDTO.FirstName, deserializedResponse.Data.FirstName);
+            Assert.Equal(userCreateDTO.LastName, deserializedResponse.Data.LastName);
+            Assert.Equal(userCreateDTO.Gender, deserializedResponse.Data.Gender);
+        }
+
+        [Fact]
+        public async Task Register_returnBadRequest_Validation()
+        {
+            // Arrange - Use unique email to avoid conflicts
+            var uniqueEmail = $"mahdi.test.{Guid.NewGuid().ToString("N")[..8]}@hotmail.fr";
+            
+            UserCreateDTO userCreateDTO = new UserCreateDTO
+            {
+                Email = uniqueEmail,
+                Password = "Olitec1>",
+                FirstName = "mahdi",
+                LastName = "mcheik",
+            };
+
+            var content = new StringContent(JsonSerializer.Serialize(userCreateDTO, jsonOptions), Encoding.UTF8, "application/json");
+
+            // Act
+            var response = await httpClient.PostAsync("/users/register", content);
+            var responseContent = await response.Content.ReadAsStringAsync();
+
+            // Assert
+            Assert.False(response.IsSuccessStatusCode, $"Response was successful. Status: {response.StatusCode}, Content: {responseContent}");
+        }
+
+        [Fact]
+        public async Task Register_returnBadRequest_UserExists()
+        {
+            // Arrange - Use unique email to avoid conflicts
+            var uniqueEmail = "teacher@skillhive.fr";
+
+            UserCreateDTO userCreateDTO = new UserCreateDTO
+            {
+                Email = uniqueEmail,
+                Password = "Olitec1>",
+                FirstName = "mahdi",
+                LastName = "mcheik",
+                Gender = EnumGender.Homme, // Use the correct enum value
+                PhoneNumber = "123456789", // Use correct property name
+                DateOfBirth = new DateTimeOffset(1990, 1, 1, 0, 0, 0, TimeSpan.Zero), // Use DateTimeOffset
+                Description = "Test user for integration test",
+                privacyPolicyConsent = true, // Use correct property name
+                dataProcessingConsent = true, // Use correct property name
+            };
+
+            var content = new StringContent(JsonSerializer.Serialize(userCreateDTO, jsonOptions), Encoding.UTF8, "application/json");
+
+            // Act
+            var response = await httpClient.PostAsync("/users/register", content);
+            var responseContent = await response.Content.ReadAsStringAsync();
+
+            // Assert
+            Assert.False(response.IsSuccessStatusCode, $"Response was successful. Status: {response.StatusCode}, Content: {responseContent}");
+            Assert.NotNull(responseContent);
+            Assert.NotEmpty(responseContent);
+
+            // Deserialize and verify the response structure
+            var deserializedResponse = JsonSerializer.Deserialize<ResponseDTO<UserResponseDTO>>(responseContent, jsonOptions);
+            Assert.NotNull(deserializedResponse);
+            Assert.NotNull(deserializedResponse.Message);
         }
     }
 }
