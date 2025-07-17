@@ -1,6 +1,7 @@
 using System;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using TerminalApi.Contexts;
 using TerminalApi.Models;
 using TerminalApi.Services;
@@ -16,6 +17,9 @@ namespace TerminalTest
 
         public OrderServiceTests()
         {
+            EnvironmentVariables.Initialize(new ConfigurationBuilder()
+                .AddJsonFile("appsettings.json")
+                .Build());
             var options = new DbContextOptionsBuilder<ApiDefaultContext>()
                 .UseInMemoryDatabase(databaseName: Guid.NewGuid().ToString())
                 .Options;
