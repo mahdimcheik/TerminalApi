@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using TerminalApi.Contexts;
+using TerminalApi.Interfaces;
 using TerminalApi.Models;
 using TerminalApi.Services;
 using TerminalApi.Utilities;
@@ -19,7 +20,7 @@ namespace TerminalApi.Controllers
     [Authorize(Policy = "NotBanned")]
     public class BookingController : ControllerBase
     {
-        private readonly BookingService bookingService;
+        private readonly IBookingService bookingService;
         private readonly ApiDefaultContext context;
 
         /// <summary>
@@ -27,7 +28,7 @@ namespace TerminalApi.Controllers
         /// </summary>
         /// <param name="bookingService">Service de gestion des r�servations inject�.</param>
         /// <param name="context">Contexte de base de donn�es inject�.</param>
-        public BookingController(BookingService bookingService, ApiDefaultContext context)
+        public BookingController(IBookingService bookingService, ApiDefaultContext context)
         {
             this.bookingService = bookingService;
             this.context = context;

@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using TerminalApi.Contexts;
+using TerminalApi.Interfaces;
 using TerminalApi.Models;
 using TerminalApi.Services;
 
@@ -17,7 +18,7 @@ namespace TerminalApi.Controllers
     //[Authorize]
     public class BillController : ControllerBase
     {
-        private readonly PdfService pdfService;
+        private readonly IPdfService pdfService;
         private readonly ApiDefaultContext context;
 
         /// <summary>
@@ -25,7 +26,7 @@ namespace TerminalApi.Controllers
         /// </summary>
         /// <param name="pdfService">Service utilisé pour générer des fichiers PDF.</param>
         /// <param name="context">Contexte de base de données pour accéder aux commandes et autres entités.</param>
-        public BillController(PdfService pdfService, ApiDefaultContext context)
+        public BillController(IPdfService pdfService, ApiDefaultContext context)
         {
             this.pdfService = pdfService;
             this.context = context;

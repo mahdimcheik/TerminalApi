@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using TerminalApi.Interfaces;
 using TerminalApi.Models;
 using TerminalApi.Services;
 
@@ -14,13 +15,13 @@ namespace TerminalApi.Controllers
     //[Authorize(Roles ="Admin")]
     public class AdminController : ControllerBase
     {
-        private readonly UsersService userService;
+        private readonly IUsersService userService;
 
         /// <summary>
         /// Initialise une nouvelle instance du contrôleur AdminController.
         /// </summary>
         /// <param name="userService">Service injecté pour la gestion des utilisateurs.</param>
-        public AdminController(UsersService userService)
+        public AdminController(IUsersService userService)
         {
             this.userService = userService;
         }

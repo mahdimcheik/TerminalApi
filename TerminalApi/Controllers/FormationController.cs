@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using TerminalApi.Contexts;
+using TerminalApi.Interfaces;
 using TerminalApi.Models;
 using TerminalApi.Services;
 using TerminalApi.Utilities;
@@ -19,14 +20,14 @@ namespace TerminalApi.Controllers
     public class FormationController : ControllerBase
     {
         private readonly ApiDefaultContext context;
-        private readonly FormationService formationService;
+        private readonly IFormationService formationService;
 
         /// <summary>
         /// Initialise une nouvelle instance du contrôleur avec les services nécessaires.
         /// </summary>
         /// <param name="context">Contexte de base de données injecté.</param>
         /// <param name="formationService">Service de gestion des formations injecté.</param>
-        public FormationController(ApiDefaultContext context, FormationService formationService)
+        public FormationController(ApiDefaultContext context, IFormationService formationService)
         {
             this.context = context;
             this.formationService = formationService;

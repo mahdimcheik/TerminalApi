@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using TerminalApi.Contexts;
+using TerminalApi.Interfaces;
 using TerminalApi.Models;
 using TerminalApi.Services;
 using TerminalApi.Utilities;
@@ -17,7 +18,7 @@ namespace TerminalApi.Controllers
     [Authorize]
     public class NotificationsController : ControllerBase
     {
-        private readonly NotificationService _notificationService;
+        private readonly INotificationService _notificationService;
         private readonly ApiDefaultContext context;
 
         /// <summary>
@@ -25,7 +26,7 @@ namespace TerminalApi.Controllers
         /// </summary>
         /// <param name="notificationService">Service pour la gestion des notifications.</param>
         /// <param name="context">Contexte de base de données pour accéder aux entités.</param>
-        public NotificationsController(NotificationService notificationService, ApiDefaultContext context)
+        public NotificationsController(INotificationService notificationService, ApiDefaultContext context)
         {
             _notificationService = notificationService;
             this.context = context;

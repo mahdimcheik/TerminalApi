@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
 using TerminalApi.Contexts;
+using TerminalApi.Interfaces;
 using TerminalApi.Models;
 using TerminalApi.Services;
 using TerminalApi.Utilities;
@@ -17,7 +18,7 @@ namespace TerminalApi.Controllers
     [Authorize]
     public class SlotController : ControllerBase
     {
-        private readonly SlotService slotService;
+        private readonly ISlotService slotService;
         private readonly ApiDefaultContext context;
 
         /// <summary>
@@ -25,7 +26,7 @@ namespace TerminalApi.Controllers
         /// </summary>
         /// <param name="slotService">Service pour la gestion des créneaux.</param>
         /// <param name="context">Contexte de base de données.</param>
-        public SlotController(SlotService slotService, ApiDefaultContext context)
+        public SlotController(ISlotService slotService, ApiDefaultContext context)
         {
             this.slotService = slotService;
             this.context = context;

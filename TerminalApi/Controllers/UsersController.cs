@@ -38,7 +38,7 @@ namespace TerminalApi.Controllers
         /// <summary>
         /// Service pour générer des données fictives.
         /// </summary>
-        private readonly IFakerService fakerService;
+        private readonly FakerService fakerService;
 
         /// <summary>
         /// Service d'authentification.
@@ -55,7 +55,7 @@ namespace TerminalApi.Controllers
         public UsersController(
             ApiDefaultContext context,
             UserManager<UserApp> userManager,
-            IFakerService fakerService,
+            FakerService fakerService,
             IAuthService authService
         )
         {

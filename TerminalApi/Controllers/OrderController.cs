@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using TerminalApi.Contexts;
+using TerminalApi.Interfaces;
 using TerminalApi.Models;
 using TerminalApi.Services;
 using TerminalApi.Utilities;
@@ -16,7 +17,7 @@ namespace TerminalApi.Controllers
     [Authorize]
     public class OrderController : ControllerBase
     {
-        private readonly OrderService orderService;
+        private readonly IOrderService orderService;
         private readonly ApiDefaultContext context;
 
         /// <summary>
@@ -24,7 +25,7 @@ namespace TerminalApi.Controllers
         /// </summary>
         /// <param name="orderService">Service pour g�rer les op�rations li�es aux commandes.</param>
         /// <param name="context">Contexte de base de donn�es pour acc�der aux donn�es utilisateur.</param>
-        public OrderController(OrderService orderService, ApiDefaultContext context)
+        public OrderController(IOrderService orderService, ApiDefaultContext context)
         {
             this.orderService = orderService;
             this.context = context;

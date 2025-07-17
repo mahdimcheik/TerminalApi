@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using TerminalApi.Contexts;
+using TerminalApi.Interfaces;
 using TerminalApi.Models;
 using TerminalApi.Services;
 using TerminalApi.Utilities;
@@ -16,14 +17,14 @@ namespace TerminalApi.Controllers
     [Authorize]
     public class MailController : Controller
     {
-        private readonly SendMailService mailService;
+        private readonly ISendMailService mailService;
         private readonly ApiDefaultContext context;
 
         /// <summary>
         /// Initialise une nouvelle instance du contrôleur <see cref="MailController"/>.
         /// </summary>
         /// <param name="mailService">Service injecté pour gérer l'envoi des emails.</param>
-        public MailController(SendMailService mailService, ApiDefaultContext context)
+        public MailController(ISendMailService mailService, ApiDefaultContext context)
         {
             this.mailService = mailService;
             this.context = context;

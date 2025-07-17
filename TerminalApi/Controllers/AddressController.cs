@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using TerminalApi.Contexts;
+using TerminalApi.Interfaces;
 using TerminalApi.Models;
 using TerminalApi.Services;
 using TerminalApi.Utilities;
@@ -21,7 +22,7 @@ namespace TerminalApi.Controllers
     {
         private readonly UserManager<UserApp> userManager;
         private readonly ApiDefaultContext context;
-        private readonly AddressService addressService;
+        private readonly IAddressService addressService;
 
         /// <summary>
         /// Constructeur du contr�leur AddressController.
@@ -32,7 +33,7 @@ namespace TerminalApi.Controllers
         public AddressController(
             UserManager<UserApp> userManager,
             ApiDefaultContext context,
-            AddressService addressService
+            IAddressService addressService
         )
         {
             this.userManager = userManager;

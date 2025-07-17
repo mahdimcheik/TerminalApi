@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using TerminalApi.Contexts;
+using TerminalApi.Interfaces;
 using TerminalApi.Models;
 using TerminalApi.Models.Slots;
 using TerminalApi.Services;
@@ -18,7 +19,7 @@ namespace TerminalApi.Controllers
     {
         private readonly ApiDefaultContext context;
         private readonly FakerService fakerService;
-        private readonly FormationService formationService;
+        private readonly IFormationService formationService;
 
         /// <summary>
         /// Initialise une nouvelle instance du contrôleur FixturesController.
@@ -26,7 +27,7 @@ namespace TerminalApi.Controllers
         /// <param name="context">Contexte de base de données utilisé pour accéder et manipuler les entités.</param>
         /// <param name="fakerService">Service utilisé pour générer des données fictives.</param>
         /// <param name="formationService">Service utilisé pour gérer les formations.</param>
-        public FixturesController(ApiDefaultContext context, FakerService fakerService, FormationService formationService)
+        public FixturesController(ApiDefaultContext context, FakerService fakerService, IFormationService formationService)
         {
             this.context = context;
             this.fakerService = fakerService;

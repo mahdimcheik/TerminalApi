@@ -1,3 +1,6 @@
+using System.Data;
+using System.Reflection;
+using System.Text;
 using Hangfire;
 using Hangfire.PostgreSql;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -8,9 +11,6 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using PuppeteerSharp;
-using System.Data;
-using System.Reflection;
-using System.Text;
 using TerminalApi.Contexts;
 using TerminalApi.Interfaces;
 using TerminalApi.Models;
@@ -22,23 +22,17 @@ namespace TerminalApi
 {
     public class Program
     {
-        private static string? cs = "";
         public static async Task Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
-            cs = builder.Configuration["ConnectionStrings:DefaultConnection"];
 
-            if (cs is null)
-            {
-                throw new Exception("Connection string 'DefaultConnection' not found in configuration.");
-            }
+            EnvironmentVariables.Initialize(builder.Configuration);
 
             var services = builder.Services;
 
             ConfigureServices(services);
             var toto = new BrowserFetcher().DownloadAsync().Result;
 
-            // browser execution configs
             var launchOptions = new LaunchOptions
             {
                 Headless = true, // = false for testing
@@ -65,13 +59,10 @@ namespace TerminalApi
 
         private static void ConfigureSwagger(IServiceCollection services)
         {
-            // Configuration Swagger
             services.AddSwaggerGen(c =>
             {
-                // Set the comments path for the Swagger JSON and UI.
                 var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
                 var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
-                //c.IncludeXmlComments(xmlPath);
 
                 c.AddSecurityDefinition(
                     "Bearer",
@@ -82,7 +73,7 @@ namespace TerminalApi
                         Name = "Authorization",
                         In = ParameterLocation.Header,
                         Type = SecuritySchemeType.ApiKey,
-                        Scheme = "Bearer"
+                        Scheme = "Bearer",
                     }
                 );
 
@@ -95,14 +86,14 @@ namespace TerminalApi
                                 Reference = new OpenApiReference
                                 {
                                     Type = ReferenceType.SecurityScheme,
-                                    Id = "Bearer"
+                                    Id = "Bearer",
                                 },
                                 Scheme = "oauth2",
                                 Name = "Bearer",
                                 In = ParameterLocation.Header,
                             },
                             new List<string>()
-                        }
+                        },
                     }
                 );
             });
@@ -112,7 +103,6 @@ namespace TerminalApi
 
         private static void ConfigureCors(IServiceCollection services)
         {
-            // Configurez CORS ici
             services.AddCors(options =>
             {
                 options.AddDefaultPolicy(builder =>
@@ -129,7 +119,6 @@ namespace TerminalApi
 
         private static void ConfigureControllers(IServiceCollection services)
         {
-            // Configuration des contr�leurs
             services.AddControllers();
         }
 
@@ -146,7 +135,6 @@ namespace TerminalApi
 
             services.Configure<IdentityOptions>(options =>
             {
-                // Password settings.
                 options.Password.RequireDigit = false;
                 options.Password.RequireLowercase = false;
                 options.Password.RequireNonAlphanumeric = false;
@@ -154,17 +142,14 @@ namespace TerminalApi
                 options.Password.RequiredLength = 8;
                 options.Password.RequiredUniqueChars = 1;
 
-                // Lockout settings.
                 options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(2);
                 options.Lockout.MaxFailedAccessAttempts = 5;
                 options.Lockout.AllowedForNewUsers = true;
 
-                // User settings.
                 options.User.AllowedUserNameCharacters =
                     " abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-._@+";
                 options.User.RequireUniqueEmail = true;
 
-                // Login settings.
                 options.SignIn.RequireConfirmedAccount = false;
                 options.SignIn.RequireConfirmedEmail = true;
                 options.SignIn.RequireConfirmedPhoneNumber = false;
@@ -173,7 +158,6 @@ namespace TerminalApi
 
         private static void ConfigureAuthentication(IServiceCollection services)
         {
-            // authentication
             services
                 .AddAuthentication(options =>
                 {
@@ -203,8 +187,8 @@ namespace TerminalApi
 
                             var path = context.HttpContext.Request.Path;
                             if (
-                            !string.IsNullOrEmpty(accessToken)
-                            && (path.StartsWithSegments("/notificationHub"))
+                                !string.IsNullOrEmpty(accessToken)
+                                && (path.StartsWithSegments("/notificationHub"))
                             )
                             {
                                 context.Token = accessToken;
@@ -212,17 +196,8 @@ namespace TerminalApi
                             return Task.CompletedTask;
                         },
                     };
-
                 });
-            //.AddGoogle(options =>
-            //{
-            //    options.ClientId = EnvironmentVariables.ID_CLIENT_GOOGLE;
-            //    options.ClientSecret = EnvironmentVariables.SECRET_CLIENT_GOOGLE;
-            //    options.CallbackPath = new PathString("/google-callback");
-            //});
 
-
-            // authorization
             services.AddAuthorization(options =>
             {
                 options.AddPolicy(
@@ -234,6 +209,9 @@ namespace TerminalApi
 
         private static void ConfigureServices(IServiceCollection services)
         {
+            var config = services.BuildServiceProvider().GetService<IConfiguration>();
+            services.Configure<AppSettings>(config!.GetSection("AppSettings"));
+
             services.AddSingleton<ISendMailService, SendMailService>();
             services.AddScoped<IAddressService, AddressService>();
             services.AddScoped<IFormationService, FormationService>();
@@ -241,7 +219,6 @@ namespace TerminalApi
             services.AddScoped<IBookingService, BookingService>();
             services.AddScoped<IOrderService, OrderService>();
             services.AddScoped<IPaymentsService, PaymentsService>();
-            services.AddScoped<IFakerService, FakerService>();
             services.AddScoped<IPdfService, PdfService>();
             services.AddScoped<IJobChron, JobChron>();
             services.AddScoped<INotificationService, NotificationService>();
@@ -249,11 +226,8 @@ namespace TerminalApi
             services.AddScoped<IAuthService, AuthService>();
             services.AddScoped<ICursusService, CursusService>();
             services.AddScoped<IAuthorizationHandler, NotBannedHandler>();
+            services.AddScoped<FakerService>();
 
-            // signalR
-            services.AddSignalR();
-
-            // logger
             services.AddLogging(loggingBuilder =>
             {
                 loggingBuilder.ClearProviders();
@@ -278,12 +252,9 @@ namespace TerminalApi
 
             services.AddDbContext<ApiDefaultContext>(options =>
             {
-                //options.UseNpgsql($"Host={EnvironmentVariables.DB_HOST};Port={EnvironmentVariables.DB_PORT};Database={EnvironmentVariables.DB_NAME};Username={EnvironmentVariables.DB_USER};Password={EnvironmentVariables.DB_PASSWORD};");
                 options.UseNpgsql(
-                    cs
-                    //EnvironmentVariables.DB_CONNECTION_STRING
-                    //$"Host=db;Port=5432;Database=terminaldb;Username=postgres;Password=beecoming;"
-                    );
+                    $"Host={EnvironmentVariables.DB_HOST};Port={EnvironmentVariables.DB_PORT};Database={EnvironmentVariables.DB_NAME};Username={EnvironmentVariables.DB_USER};Password={EnvironmentVariables.DB_PASSWORD};"
+                );
             });
 
             using (var scope = services.BuildServiceProvider().CreateScope())
@@ -297,7 +268,6 @@ namespace TerminalApi
                 options.TokenLifespan = TimeSpan.FromHours(1);
             });
 
-            // hangfire
             services.AddHangfire(configuration =>
                 configuration
                     .SetDataCompatibilityLevel(CompatibilityLevel.Version_180)
@@ -307,10 +277,7 @@ namespace TerminalApi
                         (options) =>
                         {
                             options.UseNpgsqlConnection(
-                                cs
-                            //"Host=localhost;Port=5432;Database=leprojet;Username=postgres;Password=beecoming;"
-                            //EnvironmentVariables.DB_CONNECTION_STRING
-                            //"Host=db;Port=5432;Database=terminaldb;Username=postgres;Password=beecoming;"
+                                $"Host={EnvironmentVariables.DB_HOST};Port={EnvironmentVariables.DB_PORT};Database={EnvironmentVariables.DB_NAME};Username={EnvironmentVariables.DB_USER};Password={EnvironmentVariables.DB_PASSWORD};"
                             );
                         }
                     )
@@ -326,12 +293,6 @@ namespace TerminalApi
 
         private static void ConfigureMiddlewarePipeline(WebApplication app)
         {
-            //app.Use(async (context, next) =>
-            //{
-            //    var toto = context.Request;
-            //    await next.Invoke();
-            //});
-            // Configure localization for supported cultures.
             var supportedCultures = new string[] { "fr-FR" };
             app.UseRequestLocalization(options =>
                 options
@@ -342,43 +303,27 @@ namespace TerminalApi
 
             app.UseStaticFiles();
 
-            // signalR
-            //app.MapHub<NotificationHub>("/signalhub");
-
-            // Enable authentication.
             app.UseAuthentication();
 
-            // Enable developer exception page if in development environment.
             if (app.Environment.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
             }
 
-            // Enable Swagger and Swagger UI.
             app.UseSwagger();
             app.UseSwaggerUI(c =>
             {
                 c.SwaggerEndpoint("/swagger/v1/swagger.json", "data_lib v1");
                 c.RoutePrefix = "swagger";
             });
-            // hangfire
             app.UseHangfireDashboard("/hangfire");
 
-            // Enable routing.
             app.UseRouting();
 
-
-
-            // Enable Cross-Origin Resource Sharing (CORS).
             app.UseCors();
 
-            // Enable HTTPS redirection (if needed).
-            // app.UseHttpsRedirection();
-
-            // Enable authorization.
             app.UseAuthorization();
 
-            // Map controllers.
             app.MapControllers();
             app.Use(
                 async (context, next) =>
@@ -402,23 +347,23 @@ namespace TerminalApi
             var context = serviceProvider.GetRequiredService<ApiDefaultContext>();
 
             string adminEmail = "teacher@skillhive.fr";
-            string adminPassword = "Admin123!"; // à stocker dans une configuration sécurisée
+            string adminPassword = "Admin123!";
 
             string adminRole = "Admin";
 
-            // Créer le rôle s'il n'existe pas
             if (!await roleManager.RoleExistsAsync(adminRole))
             {
-                await roleManager.CreateAsync(new Role
-                {
-                    Id = Guid.NewGuid().ToString(),
-                    Name = "Admin",
-                    NormalizedName = "ADMIN",
-                    ConcurrencyStamp = Guid.NewGuid().ToString()
-                });
+                await roleManager.CreateAsync(
+                    new Role
+                    {
+                        Id = Guid.NewGuid().ToString(),
+                        Name = "Admin",
+                        NormalizedName = "ADMIN",
+                        ConcurrencyStamp = Guid.NewGuid().ToString(),
+                    }
+                );
             }
 
-            // Vérifier si l'utilisateur existe
             var adminUser = await userManager.FindByEmailAsync(adminEmail);
             if (adminUser == null)
             {
@@ -440,26 +385,21 @@ namespace TerminalApi
                 }
                 else
                 {
-                    // Gérer les erreurs ici
-                    throw new Exception($"Erreur lors de la création de l'admin: {string.Join(", ", result.Errors.Select(e => e.Description))}");
+                    throw new Exception(
+                        $"Erreur lors de la création de l'admin: {string.Join(", ", result.Errors.Select(e => e.Description))}"
+                    );
                 }
             }
 
             var countTVA = context.TVARates.Count();
             if (countTVA == 0)
             {
-                TVARate defaultRate = new TVARate
-                {
-                    Rate = 0.2m,
-                    StartAt = DateTimeOffset.UtcNow
-                };
+                TVARate defaultRate = new TVARate { Rate = 0.2m, StartAt = DateTimeOffset.UtcNow };
                 context.TVARates.Add(defaultRate);
                 context.SaveChanges();
             }
         }
     }
-
-
 }
 
 

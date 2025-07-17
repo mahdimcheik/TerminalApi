@@ -5,6 +5,7 @@ using Stripe;
 using Stripe.Checkout;
 using Stripe.Climate;
 using TerminalApi.Contexts;
+using TerminalApi.Interfaces;
 using TerminalApi.Models;
 using TerminalApi.Services;
 using TerminalApi.Utilities;
@@ -21,15 +22,15 @@ namespace TerminalApi.Controllers
     public class PaymentsController : ControllerBase
     {
         private readonly ApiDefaultContext context;
-        private readonly PaymentsService paymentsService;
-        private readonly JobChron jobChron;
+        private readonly IPaymentsService paymentsService;
+        private readonly IJobChron jobChron;
 
         /// <summary>
         /// Initialise une nouvelle instance du contrôleur PaymentsController.
         /// </summary>
         /// <param name="context">Contexte de base de données utilisé pour accéder aux entités.</param>
         /// <param name="paymentsService">Service de gestion des paiements injecté.</param>
-        public PaymentsController(ApiDefaultContext context, PaymentsService paymentsService, JobChron jobChron)
+        public PaymentsController(ApiDefaultContext context, IPaymentsService paymentsService, IJobChron jobChron)
         {
             StripeConfiguration.ApiKey = EnvironmentVariables.STRIPE_SECRETKEY;
             this.context = context;
