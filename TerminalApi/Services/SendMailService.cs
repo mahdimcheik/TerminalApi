@@ -1,8 +1,6 @@
 using System.Net;
 using System.Net.Mail;
 using Hangfire;
-using iText.Layout.Element;
-using Microsoft.AspNetCore.Routing.Template;
 using RazorLight;
 using TerminalApi.Models;
 using TerminalApi.Services.Templates;

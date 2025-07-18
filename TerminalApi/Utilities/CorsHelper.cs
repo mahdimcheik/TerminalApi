@@ -17,11 +17,13 @@
                     "http://localhost:4201",
                     "http://localhost:7113",
                     "https://localhost:7113",
-                    "https://accounts.google.com",
-                    "https://accounts.google.com/o/oauth2/v2/auth",
                     EnvironmentVariables.API_BACK_URL,
                     EnvironmentVariables.API_FRONT_URL,
-                    "https://recette-tpeweb.e-transactions.fr"
+                    "https://recette-tpeweb.e-transactions.fr",
+                    "http://www.skill-hive.fr",
+                    "https://www.skill-hive.fr",
+                    "http://skill-hive.fr",
+                    "https://skill-hive.fr",
                 };
             return localUrls.Contains(origin);
         }
