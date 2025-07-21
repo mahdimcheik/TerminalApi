@@ -64,8 +64,8 @@ services:
       # Override the main connection string as well
       - ConnectionStrings__DefaultConnection=${DB_CONNECTION_STRING}
     ports:
-      - "8080:8080"
-      - "8081:8081"
+      - "7113:7113"
+      - "5113:5113"
     depends_on:
       - db
 
