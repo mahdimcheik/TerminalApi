@@ -26,7 +26,7 @@ public class CustomWebApplicationFactory : WebApplicationFactory<Program>, IAsyn
 
     public async Task InitializeAsync()
     {
-        await _postgresContainer.StartAsync();
+        //await _postgresContainer.StartAsync();
         
         // Set required environment variables for JWT authentication
         Environment.SetEnvironmentVariable("API_BACK_URL", "https://localhost:7113");
@@ -36,6 +36,34 @@ public class CustomWebApplicationFactory : WebApplicationFactory<Program>, IAsyn
         Environment.SetEnvironmentVariable("SMTP_BREVO_LOGIN", "test@example.com");
         Environment.SetEnvironmentVariable("SMTP_BREVO_KEY", "test-key");
         Environment.SetEnvironmentVariable("ASPNETCORE_ENVIRONMENT", "Testing");
+
+        // Démarre le conteneur Docker
+        await _postgresContainer.StartAsync();
+
+        // Crée une portée (scope) pour récupérer les services du bon conteneur DI
+        // On utilise "this.Services" qui est le VRAI service provider de l'application de test
+        using var scope = this.Services.CreateScope();
+        var services = scope.ServiceProvider;
+
+        try
+        {
+            var context = services.GetRequiredService<ApiDefaultContext>();
+            var userManager = services.GetRequiredService<UserManager<UserApp>>();
+            var roleManager = services.GetRequiredService<RoleManager<Role>>();
+
+            // Applique les migrations. C'est souvent mieux que EnsureCreated()
+            // car ça ressemble plus à un environnement de production.
+            await context.Database.MigrateAsync();
+
+            // Peuple la base de données avec les données de test
+            await SeedDataAsync(userManager, roleManager);
+        }
+        catch (Exception ex)
+        {
+            // Log l'erreur si besoin
+            Console.WriteLine($"An error occurred during database initialization: {ex.Message}");
+            throw;
+        }
     }
 
     public new async Task DisposeAsync()
@@ -44,53 +72,76 @@ public class CustomWebApplicationFactory : WebApplicationFactory<Program>, IAsyn
         await base.DisposeAsync();
     }
 
+    //protected override void ConfigureWebHost(IWebHostBuilder builder)
+    //{
+    //    builder.ConfigureServices(services =>
+    //    {
+    //        // Remove the existing database context registration
+    //        var descriptor = services.SingleOrDefault(d =>
+    //            d.ServiceType == typeof(DbContextOptions<ApiDefaultContext>)
+    //        );
+    //        if (descriptor != null)
+    //            services.Remove(descriptor);
+
+    //        // Add new database context with testcontainer connection string
+    //        services.AddDbContext<ApiDefaultContext>(options =>
+    //        {
+    //            options.UseNpgsql(_postgresContainer.GetConnectionString());
+    //            options.EnableSensitiveDataLogging(); // Helpful for debugging tests
+    //        });
+
+    //        // Build service provider to initialize the database
+    //        var serviceProvider = services.BuildServiceProvider();
+
+    //        // Create database and apply migrations
+    //        using var scope = serviceProvider.CreateScope();
+    //        var context = scope.ServiceProvider.GetRequiredService<ApiDefaultContext>();
+    //        var userManager = scope.ServiceProvider.GetRequiredService<UserManager<UserApp>>();
+    //        var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<Role>>();
+
+    //        try
+    //        {
+    //            // Ensure database is created and migrations are applied
+    //            context.Database.EnsureCreated();
+
+    //            // Seed test data
+    //            SeedDataAsync(userManager, roleManager).GetAwaiter().GetResult();
+    //        }
+    //        catch (Exception ex)
+    //        {
+    //            // Log any database initialization errors
+    //            Console.WriteLine($"Database initialization failed: {ex.Message}");
+    //            throw;
+    //        }
+    //    });
+
+    //    // Set the environment to Testing to avoid production-specific configurations
+    //    builder.UseEnvironment("Testing");
+    //}
+
     protected override void ConfigureWebHost(IWebHostBuilder builder)
     {
+        // On configure les services SANS construire le provider ici
         builder.ConfigureServices(services =>
         {
-            // Remove the existing database context registration
+            // 1. On supprime l'ancienne configuration du DbContext
             var descriptor = services.SingleOrDefault(d =>
-                d.ServiceType == typeof(DbContextOptions<ApiDefaultContext>)
-            );
-            if (descriptor != null)
-                services.Remove(descriptor);
+                d.ServiceType == typeof(DbContextOptions<ApiDefaultContext>));
 
-            // Add new database context with testcontainer connection string
+            if (descriptor != null)
+            {
+                services.Remove(descriptor);
+            }
+
+            // 2. On ajoute la nouvelle configuration avec la connexion de Testcontainers
             services.AddDbContext<ApiDefaultContext>(options =>
             {
                 options.UseNpgsql(_postgresContainer.GetConnectionString());
-                options.EnableSensitiveDataLogging(); // Helpful for debugging tests
             });
-
-            // Build service provider to initialize the database
-            var serviceProvider = services.BuildServiceProvider();
-
-            // Create database and apply migrations
-            using var scope = serviceProvider.CreateScope();
-            var context = scope.ServiceProvider.GetRequiredService<ApiDefaultContext>();
-            var userManager = scope.ServiceProvider.GetRequiredService<UserManager<UserApp>>();
-            var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<Role>>();
-
-            try
-            {
-                // Ensure database is created and migrations are applied
-                context.Database.EnsureCreated();
-
-                // Seed test data
-                SeedDataAsync(userManager, roleManager).GetAwaiter().GetResult();
-            }
-            catch (Exception ex)
-            {
-                // Log any database initialization errors
-                Console.WriteLine($"Database initialization failed: {ex.Message}");
-                throw;
-            }
         });
 
-        // Set the environment to Testing to avoid production-specific configurations
         builder.UseEnvironment("Testing");
     }
-
     private async Task SeedDataAsync(UserManager<UserApp> userManager, RoleManager<Role> roleManager)
     {
         // Seed Admin User (Email Confirmed)
