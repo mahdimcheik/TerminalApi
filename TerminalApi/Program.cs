@@ -250,6 +250,7 @@ namespace TerminalApi
                 EnvironmentVariables.DB_PROVIDER
             );
 
+
             services.AddDbContext<ApiDefaultContext>(options =>
             {
                 options.UseNpgsql(
@@ -268,22 +269,28 @@ namespace TerminalApi
                 options.TokenLifespan = TimeSpan.FromHours(1);
             });
 
-            services.AddHangfire(configuration =>
-                configuration
-                    .SetDataCompatibilityLevel(CompatibilityLevel.Version_180)
-                    .UseSimpleAssemblyNameTypeSerializer()
-                    .UseRecommendedSerializerSettings()
-                    .UsePostgreSqlStorage(
-                        (options) =>
-                        {
-                            options.UseNpgsqlConnection(
-                                $"Host={EnvironmentVariables.DB_HOST};Port={EnvironmentVariables.DB_PORT};Database={EnvironmentVariables.DB_NAME};Username={EnvironmentVariables.DB_USER};Password={EnvironmentVariables.DB_PASSWORD};"
-                            );
-                        }
-                    )
-            );
+            // Skip Hangfire in test environments to prevent integration test failures
+            var environment = services.BuildServiceProvider().GetService<IWebHostEnvironment>();
+            if (environment?.EnvironmentName != "Testing")
+            {
+                services.AddHangfire(configuration =>
+                    configuration
+                        .SetDataCompatibilityLevel(CompatibilityLevel.Version_180)
+                        .UseSimpleAssemblyNameTypeSerializer()
+                        .UseRecommendedSerializerSettings()
+                        .UsePostgreSqlStorage(
+                            (options) =>
+                            {
+                                options.UseNpgsqlConnection(
+                                    $"Host={EnvironmentVariables.DB_HOST};Port={EnvironmentVariables.DB_PORT};Database={EnvironmentVariables.DB_NAME};Username={EnvironmentVariables.DB_USER};Password={EnvironmentVariables.DB_PASSWORD};"
+                                );
+                            }
+                        )
+                );
 
-            services.AddHangfireServer();
+                services.AddHangfireServer();
+            }
+
             ConfigureCors(services);
             ConfigureControllers(services);
             ConfigureSwagger(services);
@@ -316,7 +323,12 @@ namespace TerminalApi
                 c.SwaggerEndpoint("/swagger/v1/swagger.json", "data_lib v1");
                 c.RoutePrefix = "swagger";
             });
-            app.UseHangfireDashboard("/hangfire");
+            
+            // Skip Hangfire in test environments to prevent integration test failures
+            if (!app.Environment.IsEnvironment("Testing"))
+            {
+                app.UseHangfireDashboard("/hangfire");
+            }
 
             app.UseRouting();
 
