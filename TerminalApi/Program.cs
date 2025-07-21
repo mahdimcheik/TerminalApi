@@ -258,10 +258,14 @@ namespace TerminalApi
                 );
             });
 
-            using (var scope = services.BuildServiceProvider().CreateScope())
+            var environment = services.BuildServiceProvider().GetService<IWebHostEnvironment>();
+            if (environment?.EnvironmentName != "Testing")
             {
-                var context = scope.ServiceProvider.GetRequiredService<ApiDefaultContext>();
-                context.Database.Migrate();
+                using (var scope = services.BuildServiceProvider().CreateScope())
+                {
+                    var context = scope.ServiceProvider.GetRequiredService<ApiDefaultContext>();
+                    context.Database.Migrate();
+                }
             }
 
             services.Configure<DataProtectionTokenProviderOptions>(options =>
@@ -270,7 +274,6 @@ namespace TerminalApi
             });
 
             // Skip Hangfire in test environments to prevent integration test failures
-            var environment = services.BuildServiceProvider().GetService<IWebHostEnvironment>();
             if (environment?.EnvironmentName != "Testing")
             {
                 services.AddHangfire(configuration =>
