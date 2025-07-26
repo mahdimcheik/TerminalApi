@@ -12,10 +12,10 @@ EXPOSE 8081
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 ARG BUILD_CONFIGURATION=Release
 WORKDIR /src
-COPY ["TerminalApi/TerminalApi.csproj", "TerminalApi/"]
-RUN dotnet restore "./TerminalApi/TerminalApi.csproj"
+COPY ["TerminalApi.csproj", "."]
+RUN dotnet restore "./TerminalApi.csproj"
 COPY . .
-WORKDIR "/src/TerminalApi"
+WORKDIR "/src/."
 RUN dotnet build "./TerminalApi.csproj" -c $BUILD_CONFIGURATION -o /app/build
 
 # This stage is used to publish the service project to be copied to the final stage
@@ -27,4 +27,4 @@ RUN dotnet publish "./TerminalApi.csproj" -c $BUILD_CONFIGURATION -o /app/publis
 FROM base AS final
 WORKDIR /app
 COPY --from=publish /app/publish .
-ENTRYPOINT ["dotnet", "TerminalApi.dll", "--environment", "Production", "--profile", "base"]
+ENTRYPOINT ["dotnet", "TerminalApi.dll"]
