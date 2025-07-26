@@ -2,7 +2,7 @@ name: Deploy Develop API
 
 on:
   workflow_run:
-    workflows: ["ci"]
+    workflows: ["CI pipeline for the API"]
     types:
       - completed
 
