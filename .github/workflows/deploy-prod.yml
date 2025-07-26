@@ -21,7 +21,7 @@ jobs:
           password: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
           
       - name: Build Docker image
-        run: docker build -t skillhive/api:prod ./TerminalApi
+        run: docker build -t mahdimcheik/api:prod ./TerminalApi
 
       - name: Push image to Docker Hub
         run: docker push mahdimcheik/api:prod
