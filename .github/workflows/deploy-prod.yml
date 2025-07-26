@@ -21,10 +21,10 @@ jobs:
           password: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
           
       - name: Build Docker image
-        run: docker build -t skillhive_prod/api:prod ./TerminalApi
+        run: docker build -t skillhive/api:prod ./TerminalApi
 
       - name: Push image to Docker Hub
-        run: docker push skillhive_prod/api:prod
+        run: docker push skillhive/api:prod
 
       - name: Deploy on VPS via SSH
         uses: appleboy/ssh-action@v1.0.0
