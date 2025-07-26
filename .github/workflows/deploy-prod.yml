@@ -33,5 +33,5 @@ jobs:
           username: ${{ secrets.VPS_USER }}
           key: ${{ secrets.VPS_SSH_PRIVATE_KEY }}
           script: |
-            docker pull skill_prod/api:prod
+            docker pull mahdimcheik/api:prod
             docker compose -f /chemin/vers/docker-compose.develop.yml up -d
