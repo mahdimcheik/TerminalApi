@@ -14,7 +14,7 @@ jobs:
       - name: Setup .NET
         uses: actions/setup-dotnet@v3
         with:
-          dotnet-version: "8.0.x" # Adapte à la version de ton SDK
+          dotnet-version: "8.0.x"
       - name: Restore dependencies
         run: dotnet restore
       - name: Build
@@ -38,3 +38,5 @@ jobs:
   #       run: dotnet build --no-restore
   #     - name: Lancer les tests d'intégration
   #       run: dotnet test --no-build --verbosity normal  ./TerminalTestIntegration/TerminalTestIntegration.csproj
+
+  #  test-performance:
