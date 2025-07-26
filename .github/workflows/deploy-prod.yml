@@ -24,7 +24,7 @@ jobs:
         run: docker build -t skillhive/api:prod ./TerminalApi
 
       - name: Push image to Docker Hub
-        run: docker push skillhive/api:prod
+        run: docker push mahdimcheik/api:prod
 
       - name: Deploy on VPS via SSH
         uses: appleboy/ssh-action@v1.0.0
