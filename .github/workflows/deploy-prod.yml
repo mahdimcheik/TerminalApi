@@ -37,4 +37,4 @@ jobs:
           key: ${{ secrets.VPS_SSH_PRIVATE_KEY }}
           script: |
             docker pull mahdimcheik/api:prod
-            docker compose -f /skillhive/backend/docker-compose.develop.yml up -d
+            docker compose -f /root/skillhive/backend/docker-compose.yml up -d
