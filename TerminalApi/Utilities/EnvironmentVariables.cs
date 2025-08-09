@@ -61,6 +61,7 @@ namespace TerminalApi.Utilities
         public static string TEACHER_PASSWORD => GetEnvVar("TEACHER_PASSWORD", "");
 
         public static string? STRIPE_SECRET_KEY => GetEnvVar("STRIPE_SECRET_KEY", "");
+        public static string? STRIPE_PUBLISHABLE_KEY => GetEnvVar("STRIPE_PUBLISHABLE_KEY", "");
         public static string? STRIPE_SECRET_ENDPOINT_TEST => GetEnvVar("STRIPE_SECRET_ENDPOINT_TEST", "");
 
         public static int CHECKOUT_EXPIRY_DELAY => GetEnvVarInt("CHECKOUT_EXPIRY_DELAY", 15);
