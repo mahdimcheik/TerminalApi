@@ -1,3 +1,4 @@
+using Bogus.DataSets;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
@@ -32,7 +33,7 @@ namespace TerminalApi.Controllers
         /// <param name="paymentsService">Service de gestion des paiements injecté.</param>
         public PaymentsController(ApiDefaultContext context, IPaymentsService paymentsService, IJobChron jobChron)
         {
-            StripeConfiguration.ApiKey = EnvironmentVariables.STRIPE_SECRETKEY;
+            StripeConfiguration.ApiKey = EnvironmentVariables.STRIPE_SECRET_KEY;
             this.context = context;
             this.paymentsService = paymentsService;
             this.jobChron = jobChron;
@@ -96,12 +97,15 @@ namespace TerminalApi.Controllers
                                     UnitAmount = (long)(result.order.TotalDiscountedPrice * 100),
                                     ProductData = new SessionLineItemPriceDataProductDataOptions
                                     {
-                                        Name = result.order.OrderNumber,
-                                        Description = result.order.OrderNumber,
+                                        //Name = result.order.OrderNumber,
+                                        //Description = result.order.OrderNumber,
+                                        Name = "Pack Premium",
+                                        Description= "Accès illimité pendant 1 an",
                                         Metadata = new Dictionary<string, string>
                                         {
                                             { "order_id", "12345" },
                                         },
+                                        Images = ["https://picsum.photos/50/50"]
                                     },
                                 },
                                 Quantity = 1,

@@ -26,8 +26,6 @@ namespace TerminalApi
         {
             var builder = WebApplication.CreateBuilder(args);
 
-            EnvironmentVariables.Initialize(builder.Configuration);
-
             var services = builder.Services;
 
             ConfigureServices(services);
@@ -361,8 +359,8 @@ namespace TerminalApi
             var roleManager = serviceProvider.GetRequiredService<RoleManager<Role>>();
             var context = serviceProvider.GetRequiredService<ApiDefaultContext>();
 
-            string adminEmail = "teacher@skillhive.fr";
-            string adminPassword = "Admin123!";
+            string adminEmail = EnvironmentVariables.TEACHER_EMAIL;
+            string adminPassword = EnvironmentVariables.TEACHER_PASSWORD;
 
             string adminRole = "Admin";
 

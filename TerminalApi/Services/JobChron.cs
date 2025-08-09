@@ -159,7 +159,7 @@ namespace TerminalApi.Services
                     throw new Exception("checkout est null");
                 }
 
-                StripeConfiguration.ApiKey = EnvironmentVariables.STRIPE_SECRETKEY;
+                StripeConfiguration.ApiKey = EnvironmentVariables.STRIPE_SECRET_KEY;
                 var service = new Stripe.Checkout.SessionService();
 
                 Stripe.Checkout.Session session = service.Expire(checkoutId);
