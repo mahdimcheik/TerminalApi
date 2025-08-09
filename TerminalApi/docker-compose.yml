@@ -1,73 +1,80 @@
 services:
-  db:
+  db_skill_hive:
     image: postgres:15
-    container_name: postgres_db
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    container_name: postgres_db_skill_hive
+    restart: always
     environment:
       POSTGRES_USER: ${DB_USER}
       POSTGRES_PASSWORD: ${DB_PASSWORD}
       POSTGRES_DB: ${DB_NAME}
     ports:
-      - "5432:5432"
+      - "${DB_PORT}:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
+    networks:
+      - reseau_interne_skill_hive
 
-  api:
-    build:
-      context: .
-      dockerfile: Dockerfile
-    container_name: terminal_api
+  api_skill_hive:
+    image: mahdimcheik/skill-hive-api:prod
+    # build:
+    #   context: .
+    #   dockerfile: Dockerfile
+    container_name: skill-hive-api
     environment:
-      # ASP.NET Core Environment
-      - ASPNETCORE_ENVIRONMENT=${ASPNETCORE_ENVIRONMENT}
-      
-      # Override AppSettings with environment variables
-      - AppSettings__Teacher__Guid=${TEACHER_GUID}
-      - AppSettings__Teacher__Email=${TEACHER_EMAIL}
-      
-      - AppSettings__Api__FrontUrl=${API_FRONT_URL}
-      - AppSettings__Api__BackUrl=${API_BACK_URL}
-      
-      - AppSettings__Database__Name=${DB_NAME}
-      - AppSettings__Database__Port=${DB_PORT}
-      - AppSettings__Database__User=${DB_USER}
-      - AppSettings__Database__Password=${DB_PASSWORD}
-      - AppSettings__Database__Host=${DB_HOST}
-      - AppSettings__Database__ConnectionString=${DB_CONNECTION_STRING}
-      - AppSettings__Database__Provider=${DB_PROVIDER}
-      
-      - AppSettings__Token__Audience=${TOKEN_AUDIENCE}
-      - AppSettings__Token__Issuer=${TOKEN_ISSUER}
-      - AppSettings__Token__JwtKey=${JWT_KEY}
-      - AppSettings__Token__ValidityMinutes=${TOKEN_VALIDITY_MINUTES}
-      
-      - AppSettings__Smtp__BrevoKey=${SMTP_BREVO_KEY}
-      - AppSettings__Smtp__BrevoServer=${SMTP_BREVO_SERVER}
-      - AppSettings__Smtp__BrevoPort=${SMTP_BREVO_PORT}
-      - AppSettings__Smtp__BrevoLogin=${SMTP_BREVO_LOGIN}
-      
-      - AppSettings__Mail__DoNotReplyMail=${DO_NO_REPLY_MAIL}
-      
-      - AppSettings__Google__ClientId=${GOOGLE_CLIENT_ID}
-      - AppSettings__Google__ClientSecret=${GOOGLE_CLIENT_SECRET}
-      - AppSettings__Google__RedirectUrl=${GOOGLE_REDIRECT_URL}
-      - AppSettings__Google__ApiKey=${GOOGLE_API_KEY}
-      
-      - AppSettings__Stripe__SecretKey=${STRIPE_SECRET_KEY}
-      - AppSettings__Stripe__PublishableKey=${STRIPE_PUBLISHABLE_KEY}
-      - AppSettings__Stripe__SecretEndpointTest=${STRIPE_SECRET_ENDPOINT_TEST}
-      
-      - AppSettings__Hangfire__OrderCleaningDelayMinutes=${HANGFIRE_ORDER_CLEANING_DELAY_MINUTES}
-      - AppSettings__Checkout__ExpiryDelayMinutes=${CHECKOUT_EXPIRY_DELAY_MINUTES}
-      - AppSettings__Cookies__ValidityDays=${COOKIES_VALIDITY_DAYS}
-      - AppSettings__Environment__DockerEnvironment=${DOCKER_ENVIRONMENT}
-      
-      # Override the main connection string as well
-      - ConnectionStrings__DefaultConnection=${DB_CONNECTION_STRING}
-    ports:
-      - "7113:7113"
-      - "5113:5113"
+      ASPNETCORE_URLS: ${ASPNETCORE_URLS}
+      HOST_IP: ${HOST_IP}
+      DB_USER: ${DB_USER}
+      DB_PASSWORD: ${DB_PASSWORD}
+      DB_NAME: ${DB_NAME}
+      DB_HOST: ${DB_HOST}
+      DB_PORT: ${DB_PORT}
+
+      JWT_KEY: ${JWT_KEY}
+      API_BACK_URL: ${API_BACK_URL}
+      API_FRONT_URL: ${API_FRONT_URL}
+      COOKIES_VALIDITY_DAYS: ${COOKIES_VALIDITY_DAYS}
+      TOKEN_VALIDATY_MINUTES: ${TOKEN_VALIDATY_MINUTES}
+
+      SMTP_BREVO_SERVER: ${SMTP_BREVO_SERVER}
+      SMTP_BREVO_LOGIN: ${SMTP_BREVO_LOGIN}
+      SMTP_BREVO_KEY: ${SMTP_BREVO_KEY}
+      SMTP_BREVO_PORT: ${SMTP_BREVO_PORT}
+      DO_NO_REPLY_MAIL: ${DO_NO_REPLY_MAIL}
+
+      TEACHER_PASSWORD: ${TEACHER_PASSWORD}
+      TEACHER_EMAIL: ${TEACHER_EMAIL}
+      TEACHER_ID: ${TEACHER_ID}
+
+      STRIPE_PUBLISHABLE_KEY: ${STRIPE_PUBLISHABLE_KEY}
+      STRIPE_SECRET_KEY: ${STRIPE_SECRET_KEY}
+      STRIPE_SECRET_ENDPOINT_TEST: ${STRIPE_SECRET_ENDPOINT_TEST}
+      CHECKOUT_EXPIRY_DELAY: ${CHECKOUT_EXPIRY_DELAY}
+
+      HANGFIRE_ORDER_CLEANING_DELAY: ${HANGFIRE_ORDER_CLEANING_DELAY}
+    #ports:
+    #  - "${API_PORT}:7113"
+    expose:
+      - ${ASPNETCORE_HTTPS_PORT}
+    networks:
+      - reseau_interne
+      - just-add-network
+
     depends_on:
-      - db
+      db:
+        condition: service_healthy
 
 volumes:
   postgres_data:
+  pgadmin_data:
+
+networks:
+  reseau_interne:
+    driver: bridge
+
+  just-add-network:
+    external: true
