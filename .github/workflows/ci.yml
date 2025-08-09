@@ -1,9 +1,9 @@
 name: CI pipeline for the API
 
-# on:
-#   push:
-#     branches:
-#       - main
+on:
+  push:
+    branches:
+      - main-test
 
 jobs:
   test-unitaire:
