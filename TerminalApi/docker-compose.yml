@@ -61,7 +61,7 @@ services:
     expose:
       - ${ASPNETCORE_HTTPS_PORT}
     networks:
-      - reseau_interne
+      - reseau_interne_skill_hive
       - just-add-network
 
     depends_on:
@@ -73,7 +73,7 @@ volumes:
   pgadmin_data:
 
 networks:
-  reseau_interne:
+  reseau_interne_skill_hive:
     driver: bridge
 
   just-add-network:
