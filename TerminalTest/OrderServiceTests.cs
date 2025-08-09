@@ -17,9 +17,6 @@ namespace TerminalTest
 
         public OrderServiceTests()
         {
-            EnvironmentVariables.Initialize(new ConfigurationBuilder()
-                .AddJsonFile("appsettings.json")
-                .Build());
             var options = new DbContextOptionsBuilder<ApiDefaultContext>()
                 .UseInMemoryDatabase(databaseName: Guid.NewGuid().ToString())
                 .Options;

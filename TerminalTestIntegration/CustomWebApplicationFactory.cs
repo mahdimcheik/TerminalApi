@@ -113,12 +113,7 @@ public class CustomWebApplicationFactory : WebApplicationFactory<Program>, IAsyn
         {
             // Build a temporary service provider to get configuration and initialize EnvironmentVariables
             var tempServiceProvider = services.BuildServiceProvider();
-            var configuration = tempServiceProvider.GetService<IConfiguration>();
-            
-            if (configuration != null)
-            {
-                EnvironmentVariables.Initialize(configuration);
-            }
+            var configuration = tempServiceProvider.GetService<IConfiguration>();   
 
             // Remove Hangfire services to prevent schema conflicts in tests
             var hangfireServices = services.Where(s => 
