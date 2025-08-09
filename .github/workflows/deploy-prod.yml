@@ -24,10 +24,10 @@ jobs:
           password: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
           
       - name: Build Docker image
-        run: docker build -t mahdimcheik/api:prod ./TerminalApi
+        run: docker build -t mahdimcheik/skill-hive-api:prod ./TerminalApi
 
       - name: Push image to Docker Hub
-        run: docker push mahdimcheik/api:prod
+        run: docker push mahdimcheik/skill-hive-api:prod
 
       - name: Deploy on VPS via SSH
         uses: appleboy/ssh-action@v1.0.0
@@ -36,5 +36,5 @@ jobs:
           username: ${{ secrets.VPS_USER }}
           key: ${{ secrets.VPS_SSH_PRIVATE_KEY }}
           script: |
-            docker pull mahdimcheik/api:prod
+            docker pull mahdimcheik/skill-hive-api:prod
             docker compose -f /root/skillhive/backend/docker-compose.yml up -d
