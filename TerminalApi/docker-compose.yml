@@ -20,10 +20,10 @@ services:
       - reseau_interne_skill_hive
 
   api_skill_hive:
-    image: mahdimcheik/skill-hive-api:prod
-    # build:
-    #   context: .
-    #   dockerfile: Dockerfile
+    # image: mahdimcheik/skill-hive-api:prod
+    build:
+      context: .
+      dockerfile: Dockerfile
     container_name: skill-hive-api
     environment:
       ASPNETCORE_URLS: ${ASPNETCORE_URLS}
@@ -38,7 +38,7 @@ services:
       API_BACK_URL: ${API_BACK_URL}
       API_FRONT_URL: ${API_FRONT_URL}
       COOKIES_VALIDITY_DAYS: ${COOKIES_VALIDITY_DAYS}
-      TOKEN_VALIDATY_MINUTES: ${TOKEN_VALIDATY_MINUTES}
+      TOKEN_VALIDITY_MINUTES: ${TOKEN_VALIDITY_MINUTES}
 
       SMTP_BREVO_SERVER: ${SMTP_BREVO_SERVER}
       SMTP_BREVO_LOGIN: ${SMTP_BREVO_LOGIN}
@@ -56,16 +56,16 @@ services:
       CHECKOUT_EXPIRY_DELAY: ${CHECKOUT_EXPIRY_DELAY}
 
       HANGFIRE_ORDER_CLEANING_DELAY: ${HANGFIRE_ORDER_CLEANING_DELAY}
-    #ports:
-    #  - "${API_PORT}:7113"
-    expose:
-      - ${ASPNETCORE_HTTPS_PORT}
+    ports:
+     - "${API_PORT}:${API_PORT}"
+    # expose:
+    #   - ${ASPNETCORE_HTTPS_PORT}
     networks:
       - reseau_interne_skill_hive
-      - just-add-network
+      # - just-add-network
 
     depends_on:
-      db:
+      db_skill_hive:
         condition: service_healthy
 
 volumes:
@@ -76,5 +76,5 @@ networks:
   reseau_interne_skill_hive:
     driver: bridge
 
-  just-add-network:
-    external: true
+  # just-add-network:
+  #   external: true

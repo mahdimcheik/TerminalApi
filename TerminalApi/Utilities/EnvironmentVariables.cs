@@ -71,6 +71,6 @@ namespace TerminalApi.Utilities
 
         // Authentification
         public static int COOKIES_VALIDITY_DAYS => GetEnvVarInt("COOKIES_VALIDITY_DAYS", 7);
-        public static int TOKEN_VALIDITY_MINUTES => GetEnvVarInt("TOKEN_VALIDATY_MINUTES", 15);
+        public static int TOKEN_VALIDITY_MINUTES => GetEnvVarInt("TOKEN_VALIDITY_MINUTES", 15);
     }
 }
