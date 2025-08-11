@@ -19,6 +19,7 @@
                     "https://localhost:7113",
                     EnvironmentVariables.API_BACK_URL,
                     EnvironmentVariables.API_FRONT_URL,
+                    $"api.${EnvironmentVariables.API_BACK_URL}",
                     "https://recette-tpeweb.e-transactions.fr",
                     "http://www.skill-hive.fr",
                     "https://www.skill-hive.fr",
