@@ -1,7 +1,5 @@
-using System.Data;
-using System.Reflection;
-using System.Text;
 using Hangfire;
+using Hangfire.Dashboard;
 using Hangfire.PostgreSql;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
@@ -11,6 +9,9 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using PuppeteerSharp;
+using System.Data;
+using System.Reflection;
+using System.Text;
 using TerminalApi.Contexts;
 using TerminalApi.Interfaces;
 using TerminalApi.Models;
@@ -291,6 +292,7 @@ namespace TerminalApi
                 );
 
                 services.AddHangfireServer();
+
                
             }
 
@@ -330,7 +332,10 @@ namespace TerminalApi
             // Skip Hangfire in test environments to prevent integration test failures
             if (!app.Environment.IsEnvironment("Testing"))
             {
-                app.UseHangfireDashboard("/hangfire");
+                app.UseHangfireDashboard("/hangfire", new DashboardOptions
+                {
+                    Authorization = new[] { new AllowAllAuthorizationFilter() }
+                });
             }
 
             app.UseRouting();
@@ -415,6 +420,14 @@ namespace TerminalApi
             }
         }
     }
+    public class AllowAllAuthorizationFilter : IDashboardAuthorizationFilter
+    {
+        public bool Authorize(DashboardContext context)
+        {
+            return true;
+        }
+    }
+
 }
 
 
