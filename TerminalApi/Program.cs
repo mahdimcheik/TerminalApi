@@ -330,7 +330,7 @@ namespace TerminalApi
             });
             
             // Skip Hangfire in test environments to prevent integration test failures
-            if (!app.Environment.IsEnvironment("Testing"))
+            if (!app.Environment.IsEnvironment("Testing") && !app.Environment.IsProduction())
             {
                 app.UseHangfireDashboard("/hangfire", new DashboardOptions
                 {
@@ -424,6 +424,11 @@ namespace TerminalApi
     {
         public bool Authorize(DashboardContext context)
         {
+            //using var scope = context.GetHttpContext().RequestServices.CreateScope();
+            //var userManager = scope.ServiceProvider
+            //    .GetRequiredService<UserManager<UserApp>>();
+            //var id = userManager.GetUserId(context.GetHttpContext().User);
+
             return true;
         }
     }
