@@ -274,7 +274,6 @@ namespace TerminalApi
             // Skip Hangfire in test environments to prevent integration test failures
             if (environment?.EnvironmentName != "Testing")
             {
-                Console.WriteLine($"Host=skill_hive_db;Port=5433;Database=skill_hive_db;Username=postgres;Password=beecoming;");
                 services.AddHangfire(configuration =>
                     configuration
                         .SetDataCompatibilityLevel(CompatibilityLevel.Version_180)
@@ -284,7 +283,7 @@ namespace TerminalApi
                             (options) =>
                             {
                                 options.UseNpgsqlConnection(
-                                    $"Host={EnvironmentVariables.DB_HOST};Port={EnvironmentVariables.DB_PORT};Database={EnvironmentVariables.DB_NAME};Username={EnvironmentVariables.DB_USER};Password={EnvironmentVariables.DB_PASSWORD};"
+                                    $"Host={EnvironmentVariables.DB_HOST};Port={EnvironmentVariables.DB_PORT};Database=hangfire;Username={EnvironmentVariables.DB_USER};Password={EnvironmentVariables.DB_PASSWORD};"
                                 );
                             }
                         )
