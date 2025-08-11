@@ -283,7 +283,7 @@ namespace TerminalApi
                             (options) =>
                             {
                                 options.UseNpgsqlConnection(
-                                    $"Host={EnvironmentVariables.DB_HOST};Port={EnvironmentVariables.DB_PORT};Database=hangfire;Username={EnvironmentVariables.DB_USER};Password={EnvironmentVariables.DB_PASSWORD};"
+                                    $"Host={EnvironmentVariables.DB_HOST};Port={EnvironmentVariables.DB_PORT};Database={EnvironmentVariables.DB_NAME};Username={EnvironmentVariables.DB_USER};Password={EnvironmentVariables.DB_PASSWORD};"
                                 );
                             }
                         )
