@@ -54,10 +54,11 @@
     </None>
   </ItemGroup>
 
-	<ItemGroup>
-		<Content Include="wwwroot/TemplatesInvoice/**/*">
-			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
-			<CopyToPublishDirectory>Always</CopyToPublishDirectory>
-		</Content>
-	</ItemGroup>
+  <ItemGroup>
+    <Content Update="wwwroot/TemplatesInvoice/*">
+		<CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		<CopyToPublishDirectory>Always</CopyToPublishDirectory>
+    </Content>
+  </ItemGroup>
+
 </Project>
