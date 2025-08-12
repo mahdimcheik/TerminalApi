@@ -43,11 +43,17 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Services\Templates\" />
+    <Folder Include="Services/Templates/" />
   </ItemGroup>
 
   <ItemGroup>
-    <None Include="wwwroot\TemplatesInvoice\Invoice.html" />
+    <None Include="wwwroot/TemplatesInvoice/Invoice.html" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Update="wwwroot/TemplatesInvoice/**.cshtml">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
 
 </Project>
