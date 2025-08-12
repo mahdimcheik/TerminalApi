@@ -93,8 +93,8 @@ namespace TerminalApi.Services
         {
             return type switch
             {
-                EnumNotificationType.AccountConfirmed => @"<span class=""text-surface-700 dark:text-surface-100"">Votre compte vient d'etre confirmé</span> ",
-                EnumNotificationType.AccountUpdated => @"<span class=""text-surface-700 dark:text-surface-100"">Votre compte vient d'etre mis à jour</span> ",
+                EnumNotificationType.AccountConfirmed => "Votre compte vient d'etre confirmé ",
+                EnumNotificationType.AccountUpdated => "Votre compte vient d'etre mis à jour",
 
                 EnumNotificationType.PasswordResetDemandAccepted
                     => "Un email de r�initialisation de mot de passe vient d'etre envoyé",
