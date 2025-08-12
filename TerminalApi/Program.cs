@@ -436,6 +436,6 @@ namespace TerminalApi
 }
 
 
-/*********** usefull command ***************/
+/*********** usefull command  ***************/
 // dotnet ef database update --context ApiDefaultContext -- --launch-profile  "Base"
 // stripe listen --forward-to https://localhost:7113/payments/webhook
