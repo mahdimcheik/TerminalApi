@@ -27,4 +27,5 @@ RUN dotnet publish "./TerminalApi.csproj" -c $BUILD_CONFIGURATION -o /app/publis
 FROM base AS final
 WORKDIR /app
 COPY --from=publish /app/publish .
+COPY wwwroot/TemplatesInvoice ./wwwroot/TemplatesInvoice
 ENTRYPOINT ["dotnet", "TerminalApi.dll"]
