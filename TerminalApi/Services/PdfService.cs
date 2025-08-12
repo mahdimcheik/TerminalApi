@@ -35,7 +35,16 @@ namespace TerminalApi.Services
                 string htmlContent = await _razorLightEngine.CompileRenderAsync(templatePath, order);
 
                 using var browser = await Puppeteer.LaunchAsync(
-                    new LaunchOptions { Headless = true }                        
+                    new LaunchOptions { Headless = true,
+                        Args = new[] {
+                                "--no-sandbox",
+                                "--disable-setuid-sandbox",
+                                "--disable-dev-shm-usage",
+                                "--disable-gpu",
+                                "--single-process",
+                                "--no-zygote"
+    }
+                    }
                 );
                 using var page = await browser.NewPageAsync();
 
