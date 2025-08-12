@@ -62,25 +62,25 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Content Update="wwwroot\TemplatesInvoice\ContactAdminCopyTemplate.cshtml">
+    <Content Update="wwwroot/TemplatesInvoice/ContactAdminCopyTemplate.cshtml">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Update="wwwroot\TemplatesInvoice\ContactAdminTemplate.cshtml">
+    <Content Update="wwwroot/TemplatesInvoice/ContactAdminTemplate.cshtml">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Update="wwwroot\TemplatesInvoice\Invoice.cshtml">
+    <Content Update="wwwroot/TemplatesInvoice/Invoice.cshtml">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Update="wwwroot\TemplatesInvoice\latestBlack.svg">
+    <Content Update="wwwroot/TemplatesInvoice/latestBlack.svg">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Update="wwwroot\TemplatesInvoice\PasswordResetTemplate.cshtml">
+    <Content Update="wwwroot/TemplatesInvoice/PasswordResetTemplate.cshtml">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Update="wwwroot\TemplatesInvoice\ValidationEmailTemplate.cshtml">
+    <Content Update="wwwroot/TemplatesInvoice/ValidationEmailTemplate.cshtml">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Update="wwwroot\TemplatesInvoice\ValidationPasswordTemplate.cshtml">
+    <Content Update="wwwroot/TemplatesInvoice/ValidationPasswordTemplate.cshtml">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
