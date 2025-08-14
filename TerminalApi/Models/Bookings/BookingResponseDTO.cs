@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using TerminalApi.Models.Bookings;
 using TerminalApi.Utilities;
 
 namespace TerminalApi.Models
@@ -32,6 +33,7 @@ namespace TerminalApi.Models
         public string? StudentLastName { get; set; }
         public string? StudentImgUrl { get; set; }
 
+        public ICollection<ChatMessage>? Communications { get; set; } = new List<ChatMessage>();
 
 
     }

@@ -39,7 +39,8 @@ namespace TerminalApi.Models
                 StudentId = booking.BookedById,
                 StudentFirstName = booking.Booker.FirstName,
                 StudentLastName = booking.Booker.LastName,
-                StudentImgUrl = booking.Booker.ImgUrl
+                StudentImgUrl = booking.Booker.ImgUrl,
+                Communications = booking.Communications
             };
         }
 
