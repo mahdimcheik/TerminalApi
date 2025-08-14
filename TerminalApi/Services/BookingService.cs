@@ -240,9 +240,22 @@ namespace TerminalApi.Services
                 return false;
             }
 
+            try
+            {
+
+            if(booking.Communications is null)
+            {
+                booking.Communications = new List<ChatMessage>();
+            }
+
             booking.Communications.Add(newMessage);
             await context.SaveChangesAsync();
             return true;
+            }
+            catch
+            {
+                throw;
+            }
         }
     }
 }

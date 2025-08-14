@@ -124,6 +124,21 @@ namespace TerminalApi.Controllers
         [HttpPost("communications/add-message/{bookingId:Guid}")]
         public async Task<ActionResult<bool>> AddMessage([FromRoute] Guid bookingId, [FromBody] ChatMessage newMessage )
         {
+            var user = CheckUser.GetUserFromClaim(HttpContext.User, context);
+            if(user is null)
+            {
+                BadRequest(new ResponseDTO<bool>
+                {
+                    Message = "Demande invalide",
+                    Status = 400
+                });
+            }
+            newMessage.userId = user.Id;
+            newMessage.Author = user.FirstName +  " . " + user.LastName[..1].ToUpper();
+
+            try
+            {
+
             var result = await bookingService.AddMessage(bookingId, newMessage);
             if(result)
             {
@@ -138,6 +153,14 @@ namespace TerminalApi.Controllers
                 Message = "Demande invalide",
                 Status = 400
             });
+            }catch(Exception ex)
+            {
+                return BadRequest(new ResponseDTO<bool>
+                {
+                    Message = ex.Message,
+                    Status = 400
+                });
+            }
         }
 
 

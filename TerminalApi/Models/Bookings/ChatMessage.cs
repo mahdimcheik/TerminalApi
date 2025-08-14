@@ -3,9 +3,9 @@
    
         public class ChatMessage
         {
-            public DateTimeOffset Date { get; set; }
-            public string Auteur { get; set; }
-            public string Message { get; set; }
-        
+        public DateTimeOffset? Date { get; set; } = DateTime.UtcNow;
+            public string? Author { get; set; }
+            public string? userId { get; set; }
+            public string Message { get; set; }        
     }
 }

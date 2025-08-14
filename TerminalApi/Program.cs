@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Mvc.Razor;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using Npgsql;
 using PuppeteerSharp;
 using System.Data;
 using System.Reflection;
@@ -249,12 +250,21 @@ namespace TerminalApi
                 EnvironmentVariables.DB_PROVIDER
             );
 
+            // db
+            var connString =
+                $"Host={EnvironmentVariables.DB_HOST};" +
+                $"Port={EnvironmentVariables.DB_PORT};" +
+                $"Database={EnvironmentVariables.DB_NAME};" +
+                $"Username={EnvironmentVariables.DB_USER};" +
+                $"Password={EnvironmentVariables.DB_PASSWORD};";
+
+            var dataSourceBuilder = new NpgsqlDataSourceBuilder(connString);
+            dataSourceBuilder.EnableDynamicJson();
+            var dataSource = dataSourceBuilder.Build();
 
             services.AddDbContext<ApiDefaultContext>(options =>
             {
-                options.UseNpgsql(
-                    $"Host={EnvironmentVariables.DB_HOST};Port={EnvironmentVariables.DB_PORT};Database={EnvironmentVariables.DB_NAME};Username={EnvironmentVariables.DB_USER};Password={EnvironmentVariables.DB_PASSWORD};"
-                );
+                options.UseNpgsql(dataSource);
             });
 
             var environment = services.BuildServiceProvider().GetService<IWebHostEnvironment>();
