@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using TerminalApi.Models.Bookings;
 using TerminalApi.Utilities;
 
 namespace TerminalApi.Models
@@ -17,5 +18,6 @@ namespace TerminalApi.Models
         public string? Subject { get; set; }
         public string? Description { get; set; }
         public EnumTypeHelp TypeHelp { get; set; } = 0;
+        public ICollection<ChatMessage>? Communications { get; set; }
     }
 }

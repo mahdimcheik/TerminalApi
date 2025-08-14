@@ -1,6 +1,7 @@
-﻿using System.Xml;
-using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
+using System.Reflection.Emit;
+using System.Xml;
 using TerminalApi.Models;
 using TerminalApi.Utilities;
 
@@ -367,6 +368,9 @@ namespace TerminalApi.Contexts
                     .WithMany(x => x.Bookings)
                     .HasForeignKey(x => x.OrderId)
                     .OnDelete(DeleteBehavior.Restrict);
+
+                entity.Property(r => r.Communications)
+                    .HasColumnType("jsonb");
             });
 
             // Order entity configuration

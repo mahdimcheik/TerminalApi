@@ -5,6 +5,7 @@ using Microsoft.IdentityModel.Tokens;
 using TerminalApi.Contexts;
 using TerminalApi.Interfaces;
 using TerminalApi.Models;
+using TerminalApi.Models.Bookings;
 using TerminalApi.Services;
 using TerminalApi.Utilities;
 
@@ -98,6 +99,46 @@ namespace TerminalApi.Controllers
             }
         }
 
+        [HttpGet("communications/{bookingId:Guid}")]
+        public async Task<ActionResult<List<ChatMessage>>> GetCommunicationsForBooking([FromRoute] Guid bookingId)
+        {
+            try
+            {
+                var communications = await bookingService.GetCommunicationsForBooking(bookingId);
+                return Ok(new ResponseDTO<List<ChatMessage>>
+                {
+                    Message = "demande valide",
+                    Data = communications,
+                    Status = 200
+                });
+            }catch(Exception ex)
+            {
+                return BadRequest(new ResponseDTO<List<ChatMessage>>
+                {
+                    Message = ex.Message,
+                    Status = 404
+                });
+            }
+        }
+
+        [HttpPost("communications/add-message/{bookingId:Guid}")]
+        public async Task<ActionResult<bool>> AddMessage([FromRoute] Guid bookingId, [FromBody] ChatMessage newMessage )
+        {
+            var result = await bookingService.AddMessage(bookingId, newMessage);
+            if(result)
+            {
+                return Ok(new ResponseDTO<bool>
+                {
+                    Message = "Demande valide",
+                    Status = 201
+                });
+            } 
+            return BadRequest(new ResponseDTO<bool>
+            {
+                Message = "Demande invalide",
+                Status = 400
+            });
+        }
 
 
 

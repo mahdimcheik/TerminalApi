@@ -3,6 +3,7 @@ using Microsoft.IdentityModel.Tokens;
 using TerminalApi.Contexts;
 using TerminalApi.Models;
 using TerminalApi.Interfaces;
+using TerminalApi.Models.Bookings;
 
 namespace TerminalApi.Services
 {
@@ -219,6 +220,29 @@ namespace TerminalApi.Services
                 .ToListAsync();
 
             return (count, result);
+        }
+
+        public async Task<List<ChatMessage>> GetCommunicationsForBooking(Guid bookingid)
+        {
+            var sqlQuery = await context
+               .Bookings
+               .Where(x =>  x.Id == bookingid)
+               .Select(x => x.Communications)
+               .FirstOrDefaultAsync();
+            return sqlQuery?.ToList() ?? [];
+        }
+
+        public async Task<bool> AddMessage(Guid bookingId, ChatMessage newMessage)
+        {
+            var booking = await context.Bookings.FirstOrDefaultAsync(b => b.Id == bookingId);
+            if(booking is null)
+            {
+                return false;
+            }
+
+            booking.Communications.Add(newMessage);
+            await context.SaveChangesAsync();
+            return true;
         }
     }
 }
