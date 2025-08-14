@@ -117,7 +117,7 @@ namespace TerminalApi.Controllers
             {
                 var result = await slotService.GetSlotsByStudent(user.Id, fromDate, toDate);
                 return Ok(
-                    new ResponseDTO<object> {
+                    new ResponseDTO<List<SlotResponseDTO>> {
                         Status = 200,
                         Message = "Liste de créneaux envoyée",
                         Data = result,

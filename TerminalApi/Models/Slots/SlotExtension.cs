@@ -39,7 +39,8 @@ namespace TerminalApi.Models.Slots
                 TypeHelp = slot.Booking?.TypeHelp ?? 0,
                 Subject = slot.Booking?.Subject ?? "",
                 Description = slot.Booking?.Description ?? "",
-                Status = slot.Booking?.Order?.Status ?? null
+                Status = slot.Booking?.Order?.Status ?? null,
+                Communications = slot?.Booking?.Communications ?? []
             };
          
         }

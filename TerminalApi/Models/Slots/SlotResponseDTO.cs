@@ -1,6 +1,7 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using Microsoft.EntityFrameworkCore;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using Microsoft.EntityFrameworkCore;
+using TerminalApi.Models.Bookings;
 using TerminalApi.Utilities;
 
 namespace TerminalApi.Models
@@ -28,5 +29,7 @@ namespace TerminalApi.Models
         public string? Description { get; set; }
         public EnumTypeHelp? TypeHelp { get; set; }
         public EnumBookingStatus? Status { get; set; }
+        public ICollection<ChatMessage>? Communications { get; set; } = new List<ChatMessage>();
+
     }
 }
