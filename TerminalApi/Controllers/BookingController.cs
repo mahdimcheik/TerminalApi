@@ -100,7 +100,7 @@ namespace TerminalApi.Controllers
         }
 
         [HttpGet("communications/{bookingId:Guid}")]
-        public async Task<ActionResult<List<ChatMessage>>> GetCommunicationsForBooking([FromRoute] Guid bookingId)
+        public async Task<ActionResult<ResponseDTO<List<ChatMessage>>>> GetCommunicationsForBooking([FromRoute] Guid bookingId)
         {
             try
             {
