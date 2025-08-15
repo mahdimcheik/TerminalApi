@@ -5,7 +5,7 @@ on:
     branches:
       - main
   # workflow_run:
-  #   workflows: ["CI pipeline  for the API"]
+  #   workflows: ["CI pipeline for the API"]
   #   types:
   #     - completed
 
@@ -16,13 +16,8 @@ jobs:
     steps:
 
       - name: Get version
-        id: get_version
-        run: |
-            if [ -f "./TerminalApi/version.txt" ]; then
-            echo "IMAGE_VERSION=$(cat ./TerminalApi/version.txt)" >> $GITHUB_ENV
-            else
-            echo "IMAGE_VERSION=rc-$(date +%Y%m%d)-${{ github.sha::8 }}" >> $GITHUB_ENV
-            fi
+        id: set_version
+        run: echo "IMAGE_VERSION=rc-1.0.0" >> $GITHUB_ENV
 
       - name: Checkout code
         uses: actions/checkout@v3
