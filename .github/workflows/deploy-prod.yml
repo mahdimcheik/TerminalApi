@@ -48,4 +48,4 @@ jobs:
             docker compose -f /root/skillhive/backend/docker-compose.yml up -d --force-recreate
           # script: |
           #   docker pull mahdimcheik/skill-hive-api:prod
-          #   docker compose -f /root/skillhive/backend/docker-compose.yml up --build -d --force-recreate
+          #   docker compose -f /root/skillhive/backend/docker-compose.yml up --build -d --force-recreate 
