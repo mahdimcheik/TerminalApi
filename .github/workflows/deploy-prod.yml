@@ -5,7 +5,7 @@ on:
     branches:
       - main
   # workflow_run:
-  #   workflows: ["CI pipeline for the API"]
+  #   workflows: ["CI pipeline  for the API"]
   #   types:
   #     - completed
 
