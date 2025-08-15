@@ -43,11 +43,7 @@ jobs:
           username: ${{ secrets.VPS_USER }}
           key: ${{ secrets.VPS_SSH_PRIVATE_KEY }}
           script: |
-            if grep -q "^API_VERSION=" /root/skillhive/backend/.env; then
-              sed -i "s/^API_VERSION=.*/API_VERSION=${{ env.IMAGE_VERSION }}/" /root/skillhive/backend/.env
-            else
-              echo "API_VERSION=${{ env.IMAGE_VERSION }}" >> /root/skillhive/backend/.env
-            fi
+            export API_VERSION=${{ env.IMAGE_VERSION }}
             docker pull mahdimcheik/skill-hive-api:${{ env.IMAGE_VERSION }}
             docker compose -f /root/skillhive/backend/docker-compose.yml up -d --force-recreate
           # script: |
