@@ -248,9 +248,8 @@ namespace TerminalApi.Services
                 booking.Communications = new List<ChatMessage>();
             }
 
-            var communications = new List<ChatMessage>( booking.Communications); //.Add(newMessage);
-            communications.Add(newMessage);
-            booking.Communications = communications;
+                booking.Communications.Add(newMessage);
+                context.Entry(booking).State = EntityState.Modified;
             await context.SaveChangesAsync();
             return true;
             }
