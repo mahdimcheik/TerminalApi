@@ -17,7 +17,12 @@ jobs:
 
       - name: Get version
         id: get_version
-        run: echo "IMAGE_VERSION=$(cat ./version.txt)" >> $GITHUB_ENV
+        run: |
+            if [ -f "./TerminalApi/version.txt" ]; then
+            echo "IMAGE_VERSION=$(cat ./TerminalApi/version.txt)" >> $GITHUB_ENV
+            else
+            echo "IMAGE_VERSION=rc-$(date +%Y%m%d)-${{ github.sha::8 }}" >> $GITHUB_ENV
+            fi
 
       - name: Checkout code
         uses: actions/checkout@v3
