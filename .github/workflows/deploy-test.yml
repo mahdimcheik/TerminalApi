@@ -1,0 +1,50 @@
+name: Deploy Develop API
+
+on:
+  push:
+    branches:
+      - test
+  # workflow_run:
+  #   workflows: ["CI pipeline for the API"]
+  #   types:
+  #     - completed
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Get version
+        id: set_version
+        run: echo "IMAGE_VERSION_TEST=test-1.0.1" >> $GITHUB_ENV
+
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Login to DockerHub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKER_HUB_USERNAME }}
+          password: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
+
+      - name: Build Docker image
+        run: docker build -t mahdimcheik/skill-hive-api:${{ env.IMAGE_VERSION_TEST }} ./TerminalApi
+        # run: docker build -t mahdimcheik/skill-hive-api:prod ./TerminalApi
+
+      - name: Push image to Docker Hub
+        run: docker push mahdimcheik/skill-hive-api:${{ env.IMAGE_VERSION_TEST }}
+        # run: docker push mahdimcheik/skill-hive-api:prod
+
+      - name: Deploy on VPS via SSH
+        uses: appleboy/ssh-action@v1.0.0
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          key: ${{ secrets.VPS_SSH_PRIVATE_KEY }}
+          script: |
+            export IMAGE_VERSION_TEST=${{ env.IMAGE_VERSION_TEST }}
+            docker pull mahdimcheik/skill-hive-api:${{ env.IMAGE_VERSION_TEST }}
+            docker compose -f /root/skillhive/backend/docker-compose.yml up -d --force-recreate
+          # script: |
+          #   docker pull mahdimcheik/skill-hive-api:prod
+          #   docker compose -f /root/skillhive/backend/docker-compose.yml up --build -d --force-recreate
