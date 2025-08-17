@@ -22,6 +22,8 @@
                     $"api.${EnvironmentVariables.API_BACK_URL}",
                     $"api-dev.${EnvironmentVariables.API_BACK_URL}",
                     $"api-test.${EnvironmentVariables.API_BACK_URL}",
+                    $"test.${EnvironmentVariables.API_BACK_URL}",
+                    $"dev.${EnvironmentVariables.API_BACK_URL}",
                     "https://recette-tpeweb.e-transactions.fr",
                     "http://www.skill-hive.fr",
                     "https://www.skill-hive.fr",
