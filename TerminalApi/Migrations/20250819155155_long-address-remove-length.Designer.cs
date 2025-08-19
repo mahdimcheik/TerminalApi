@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using TerminalApi.Contexts;
@@ -13,9 +14,11 @@ using TerminalApi.Models.Bookings;
 namespace TerminalApi.Migrations
 {
     [DbContext(typeof(ApiDefaultContext))]
-    partial class ApiDefaultContextModelSnapshot : ModelSnapshot
+    [Migration("20250819155155_long-address-remove-length")]
+    partial class longaddressremovelength
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -176,18 +179,18 @@ namespace TerminalApi.Migrations
 
                     b.Property<string>("City")
                         .IsRequired()
-                        .HasMaxLength(256)
-                        .HasColumnType("character varying(256)");
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
 
                     b.Property<string>("Country")
                         .IsRequired()
-                        .HasMaxLength(256)
-                        .HasColumnType("character varying(256)");
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
 
                     b.Property<string>("PostalCode")
                         .IsRequired()
-                        .HasMaxLength(256)
-                        .HasColumnType("character varying(256)");
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)");
 
                     b.Property<string>("State")
                         .IsRequired()
@@ -195,8 +198,8 @@ namespace TerminalApi.Migrations
 
                     b.Property<string>("Street")
                         .IsRequired()
-                        .HasMaxLength(256)
-                        .HasColumnType("character varying(256)");
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
 
                     b.Property<string>("StreetLine2")
                         .IsRequired()
@@ -696,9 +699,9 @@ namespace TerminalApi.Migrations
                     b.HasData(
                         new
                         {
-                            Id = new Guid("135abb07-3a12-429e-9061-cfe2aa7d7104"),
+                            Id = new Guid("712ad802-a9f9-41d9-a33a-9501af72bb3a"),
                             Rate = 0.2m,
-                            StartAt = new DateTime(2025, 8, 19, 15, 59, 47, 480, DateTimeKind.Utc).AddTicks(9331)
+                            StartAt = new DateTime(2025, 8, 19, 15, 51, 55, 492, DateTimeKind.Utc).AddTicks(976)
                         });
                 });
 

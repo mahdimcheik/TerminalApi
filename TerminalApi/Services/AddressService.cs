@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using TerminalApi.Contexts;
 using TerminalApi.Models;
 using TerminalApi.Interfaces;
+using TerminalApi.Utilities;
 
 namespace TerminalApi.Services
 {
@@ -13,15 +14,17 @@ namespace TerminalApi.Services
     public class AddressService : IAddressService
     {
         private readonly ApiDefaultContext context;
+        private readonly IEncryptionService encryptionService;
 
         /// <summary>
         /// Initialise une nouvelle instance du service AddressService.
         /// </summary>
         /// <param name="userManager">Service UserManager pour gérer les utilisateurs.</param>
         /// <param name="context">Contexte de base de données pour accéder aux entités.</param>
-        public AddressService( ApiDefaultContext context)
+        public AddressService( ApiDefaultContext context, IEncryptionService encryptionService)
         {
             this.context = context;
+            this.encryptionService = encryptionService;
         }
 
         /// <summary>
@@ -37,10 +40,12 @@ namespace TerminalApi.Services
         /// </remarks>
         public async Task<List<AddressResponseDTO>?> GetAddresses(string userId)
         {
-            return await context
+            var encryptedAddresses =  await context
                 .Addresses.Where(ad => ad.UserId == userId)
                 .Select(ad => ad.ToAddressDTO())
                 .ToListAsync();
+            var plainAddresses = encryptedAddresses.Select(x => AddressEncryptionHelper.DecryptAddressResponseDto(x, encryptionService)).ToList();
+            return plainAddresses;
         }
 
         /// <summary>
@@ -65,9 +70,11 @@ namespace TerminalApi.Services
                 {
                     throw new Exception("Nombre maximal d'adresses atteint");
                 }
-                var adress = addressCreate.ToAddress(userId);
+                var encryptedAddress = AddressEncryptionHelper.EncryptAddressDto(addressCreate, encryptionService);
+                var adress = encryptedAddress.ToAddress(userId);
                 context.Addresses.Add(adress);
                 await context.SaveChangesAsync();
+                AddressEncryptionHelper.DecryptAddress(adress,encryptionService);
                 return adress.ToAddressDTO();
             }
             catch (Exception ex)
@@ -93,6 +100,8 @@ namespace TerminalApi.Services
             try
             {
                 updatedAddressData.ToAddress(address);
+                var encryptedAddress = AddressEncryptionHelper.EncryptAddress(address, encryptionService);// encrypt et change address
+
                 await context.SaveChangesAsync();
                 return address.ToAddressDTO();
             }

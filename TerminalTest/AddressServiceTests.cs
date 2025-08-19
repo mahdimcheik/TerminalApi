@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using TerminalApi.Contexts;
+using TerminalApi.Interfaces;
 using TerminalApi.Models;
 using TerminalApi.Services;
 
@@ -9,6 +10,7 @@ namespace TerminalTest
     {
         private readonly ApiDefaultContext _context;
         private readonly AddressService _addressService;
+        private readonly EncryptionService _encryptionService;
 
         public AddressServiceTests()
         {
@@ -17,7 +19,7 @@ namespace TerminalTest
                 .Options;
             _context = new ApiDefaultContext(options);
 
-            _addressService = new AddressService(_context);
+            _addressService = new AddressService(_context, _encryptionService);
         }
 
         public void Dispose()

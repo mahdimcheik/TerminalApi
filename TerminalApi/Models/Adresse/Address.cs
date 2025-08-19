@@ -10,25 +10,19 @@ namespace TerminalApi.Models
         [Required]
         public int StreetNumber { get; set; }
         [Required]
-        [StringLength(100)]
         public string Street { get; set; }
 
-        [StringLength(150)]
         public string StreetLine2 { get; set; }
 
         [Required]
-        [StringLength(50)]
         public string City { get; set; }
 
-        [StringLength(150)]
         public string State { get; set; }
 
         [Required]
-        [StringLength(20)]
         public string PostalCode { get; set; }
 
         [Required]
-        [StringLength(50)]
         public string? Country { get; set; } = "France";
 
         [ForeignKey(nameof(user))]

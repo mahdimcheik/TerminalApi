@@ -225,6 +225,7 @@ namespace TerminalApi
             services.AddScoped<IUsersService, UsersService>();
             services.AddScoped<IAuthService, AuthService>();
             services.AddScoped<ICursusService, CursusService>();
+            services.AddScoped<IEncryptionService, EncryptionService>();
             services.AddScoped<IAuthorizationHandler, NotBannedHandler>();
             services.AddScoped<FakerService>();
 
