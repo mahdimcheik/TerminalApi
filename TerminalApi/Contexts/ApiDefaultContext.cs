@@ -223,19 +223,19 @@ namespace TerminalApi.Contexts
 
                 entity.Property(a => a.Street)
                     .IsRequired()
-                    .HasMaxLength(100);
+                    .HasMaxLength(256);
 
                 entity.Property(a => a.City)
                     .IsRequired()
-                    .HasMaxLength(50);
+                    .HasMaxLength(256);
 
                 entity.Property(a => a.PostalCode)
                     .IsRequired()
-                    .HasMaxLength(20);
+                    .HasMaxLength(256);
 
                 entity.Property(a => a.Country)
                     .IsRequired()
-                    .HasMaxLength(50);
+                    .HasMaxLength(256);
 
                 entity.Property(a => a.AddressType)
                     .IsRequired();
