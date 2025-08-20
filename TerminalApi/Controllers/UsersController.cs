@@ -44,6 +44,10 @@ namespace TerminalApi.Controllers
         /// Service d'authentification.
         /// </summary>
         private readonly IAuthService authService;
+        /// <summary>
+        /// Service de signalR , qui s occupe de la liste des client connectes
+        /// </summary>
+        private readonly ConnectionManager connectionManager;
 
         /// <summary>
         /// Constructeur du contrôleur des utilisateurs.
@@ -56,13 +60,15 @@ namespace TerminalApi.Controllers
             ApiDefaultContext context,
             UserManager<UserApp> userManager,
             FakerService fakerService,
-            IAuthService authService
+            IAuthService authService,
+            ConnectionManager connectionManager
         )
         {
             this._context = context;
             this._userManager = userManager;
             this.fakerService = fakerService;
             this.authService = authService;
+            this.connectionManager = connectionManager;
         }
 
         #endregion
@@ -426,7 +432,19 @@ namespace TerminalApi.Controllers
         [HttpGet("logout")]
         public async Task<ActionResult<ResponseDTO<object?>>> Logout()
         {
+            // Get current user's email/username for connection cleanup
+            var userEmail = HttpContext.User?.FindFirst(System.Security.Claims.ClaimTypes.Email)?.Value ??
+                           HttpContext.User?.FindFirst(System.Security.Claims.ClaimTypes.Name)?.Value ??
+                           HttpContext.User?.Identity?.Name;
+
             Response.Cookies.Delete("refreshToken");
+            
+            // Remove all SignalR connections for this user
+            if (!string.IsNullOrEmpty(userEmail))
+            {
+                connectionManager.RemoveUserConnections(userEmail);
+            }
+
             return Ok(new
             {
                 Message = "Vous êtes déconnecté",
