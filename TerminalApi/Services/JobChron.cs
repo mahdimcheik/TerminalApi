@@ -7,6 +7,7 @@ using TerminalApi.Contexts;
 using TerminalApi.Models;
 using TerminalApi.Utilities;
 using TerminalApi.Interfaces;
+using Microsoft.AspNetCore.SignalR;
 
 namespace TerminalApi.Services
 {
@@ -14,15 +15,71 @@ namespace TerminalApi.Services
     {
         private readonly ApiDefaultContext _context;
         private readonly INotificationService notificationService;
+        private readonly ConnectionManager _connectionManager;
+        private readonly IServiceProvider _serviceProvider;
 
         public static Hashtable ScheduleJobOrderTable { get; set; } = new();
 
-        public JobChron(ApiDefaultContext context, INotificationService notificationService)
+        public JobChron(
+            ApiDefaultContext context, 
+            INotificationService notificationService,
+            ConnectionManager connectionManager,
+            IServiceProvider serviceProvider)
         {
             _context = context;
             this.notificationService = notificationService;
-            //RecurringJob.AddOrUpdate("clean-database-orders", () => CleanOrders(), "*/10 * * * *");
-            RecurringJob.AddOrUpdate("delete-passed-jobs", () => RemoveFinishedJobs(), "*/10 * * * *");
+            _connectionManager = connectionManager;
+            _serviceProvider = serviceProvider;
+            
+            // Existing recurring jobs
+            RecurringJob.AddOrUpdate("delete-passed-jobs", () => RemoveFinishedJobs(), "*/15 * * * *");
+            
+            // NEW: Add SignalR connection cleanup job - runs every 2 minutes
+            RecurringJob.AddOrUpdate("cleanup-dead-connections", () => CleanupDeadSignalRConnections(), "*/2 * * * *");
+        }
+
+        // NEW: SignalR Connection cleanup method
+        public async Task CleanupDeadSignalRConnections()
+        {
+            try
+            {
+                using var scope = _serviceProvider.CreateScope();
+                var hubContext = scope.ServiceProvider.GetRequiredService<IHubContext<ChatHub>>();
+
+                var connections = _connectionManager.GetAllConnections().ToList();
+                var deadConnections = new List<string>();
+                var initialCount = connections.Count;
+
+                foreach (var connection in connections)
+                {
+                    try
+                    {
+                        // Try to ping the connection - if it throws, connection is dead
+                        await hubContext.Clients.Client(connection.Key).SendAsync("ping");
+                    }
+                    catch
+                    {
+                        // Connection is dead
+                        deadConnections.Add(connection.Key);
+                    }
+                }
+
+                // Remove all dead connections
+                foreach (var deadConnectionId in deadConnections)
+                {
+                    _connectionManager.RemoveConnection(deadConnectionId);
+                }
+
+                if (deadConnections.Count > 0)
+                {
+                    Console.WriteLine($"[Hangfire] Cleaned up {deadConnections.Count} dead SignalR connections. Active connections: {initialCount - deadConnections.Count}");
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"[Hangfire] Error during SignalR connection cleanup: {ex.Message}");
+                throw;
+            }
         }
 
         public async Task CleanOrders()
@@ -92,7 +149,6 @@ namespace TerminalApi.Services
             using (var connection = JobStorage.Current.GetConnection())
             {
                 var keys = ScheduleJobOrderTable.Keys;
-
                 var copy = DeepCopyScheduleJobOrderTable();
 
                 foreach (DictionaryEntry item in copy)
@@ -107,9 +163,9 @@ namespace TerminalApi.Services
                     }
                 }
             }
-
         }
 
+        // RESTORED: TrackOrder method
         public async Task TrackOrder(string orderId)
         {
             try
@@ -122,8 +178,7 @@ namespace TerminalApi.Services
                 if (order is not null)
                 {
                     _context.RemoveRange(
-                       order.Bookings.Where(x => x.OrderId == orderGuid
-                       )
+                       order.Bookings.Where(x => x.OrderId == orderGuid)
                    );
 
                     order.Reset();
@@ -132,7 +187,7 @@ namespace TerminalApi.Services
 
                     try
                     {
-                        if (order.CheckoutID.IsNullOrEmpty())
+                        if (!order.CheckoutID.IsNullOrEmpty())
                         {
                             await ExpireCheckout(order.CheckoutID);
                         }
@@ -149,11 +204,11 @@ namespace TerminalApi.Services
             }
         }
 
+        // RESTORED: ExpireCheckout method
         public async Task ExpireCheckout(string checkoutId)
         {
             try
             {
-
                 if (checkoutId.IsNullOrEmpty())
                 {
                     throw new Exception("checkout est null");
@@ -166,8 +221,10 @@ namespace TerminalApi.Services
             }
             catch
             {
+                // Silent catch as per original implementation
             }
         }
+
         public Hashtable DeepCopyScheduleJobOrderTable()
         {
             var deepCopy = new Hashtable();
