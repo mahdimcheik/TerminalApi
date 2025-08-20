@@ -228,8 +228,12 @@ namespace TerminalApi
             services.AddScoped<IEncryptionService, EncryptionService>();
             services.AddScoped<IAuthorizationHandler, NotBannedHandler>();
             services.AddScoped<FakerService>();
+            services.AddSingleton<ConnectionManager>();
 
-            services.AddSignalR();
+            services.AddSignalR(options =>
+            {
+                options.EnableDetailedErrors = true; // For debugging
+            });
 
             services.AddLogging(loggingBuilder =>
             {
