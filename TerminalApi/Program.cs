@@ -229,6 +229,8 @@ namespace TerminalApi
             services.AddScoped<IAuthorizationHandler, NotBannedHandler>();
             services.AddScoped<FakerService>();
 
+            services.AddSignalR();
+
             services.AddLogging(loggingBuilder =>
             {
                 loggingBuilder.ClearProviders();
@@ -356,6 +358,9 @@ namespace TerminalApi
             app.UseAuthorization();
 
             app.MapControllers();
+
+            app.MapHub<ChatHub>("/chathub");
+
             app.Use(
                 async (context, next) =>
                 {
