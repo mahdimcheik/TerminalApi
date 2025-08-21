@@ -229,6 +229,9 @@ namespace TerminalApi
             services.AddScoped<IAuthorizationHandler, NotBannedHandler>();
             services.AddScoped<FakerService>();
             services.AddSingleton<ConnectionManager>();
+            
+            // NEW: Add SignalR notification service instead of ChatHub directly
+            services.AddScoped<ISignalRNotificationService, SignalRNotificationService>();
 
             services.AddSignalR(options =>
             {

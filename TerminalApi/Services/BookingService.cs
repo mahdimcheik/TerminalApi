@@ -1,9 +1,10 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using TerminalApi.Contexts;
-using TerminalApi.Models;
 using TerminalApi.Interfaces;
+using TerminalApi.Models;
 using TerminalApi.Models.Bookings;
+using TerminalApi.Utilities;
 
 namespace TerminalApi.Services
 {
@@ -11,13 +12,23 @@ namespace TerminalApi.Services
     {
         private readonly ApiDefaultContext context;
         private readonly IOrderService orderService;
+        private readonly INotificationService notificationService;
         private readonly IJobChron jobChron;
+        private readonly ISignalRNotificationService signalRNotificationService;
 
-        public BookingService(ApiDefaultContext context, IOrderService orderService,  INotificationService notificationService, IJobChron jobChron)
+        public BookingService(
+            ApiDefaultContext context,
+            IOrderService orderService,
+            INotificationService notificationService,
+            IJobChron jobChron,
+            ISignalRNotificationService signalRNotificationService
+        )
         {
             this.context = context;
             this.orderService = orderService;
+            this.notificationService = notificationService;
             this.jobChron = jobChron;
+            this.signalRNotificationService = signalRNotificationService;
         }
 
         public async Task<bool> BookSlot(BookingCreateDTO newBookingCreateDTO, UserApp booker)
@@ -32,7 +43,6 @@ namespace TerminalApi.Services
 
             Order order = await orderService.GetOrCreateCurrentOrderByUserAsync(booker);
 
-
             if (slot is null || slot.Booking is not null || order is null)
             {
                 return false;
@@ -45,9 +55,7 @@ namespace TerminalApi.Services
                     await jobChron.ExpireCheckout(order.CheckoutID);
                     order.ResetCheckout();
                 }
-                catch
-                {
-                }
+                catch { }
             }
 
             Booking newBooking = newBookingCreateDTO.ToBooking(booker.Id, order.Id);
@@ -79,6 +87,7 @@ namespace TerminalApi.Services
                 throw new Exception("Réservation non créée");
             }
         }
+
         public async Task<bool> RemoveReservationByTeacher(string slotId)
         {
             var slot = await context
@@ -102,6 +111,7 @@ namespace TerminalApi.Services
                 throw new Exception("Résérvation non supprimée ou non existante");
             }
         }
+
         public async Task<bool> RemoveReservationByStudent(string slotId, string studentId)
         {
             var slot = await context
@@ -120,8 +130,10 @@ namespace TerminalApi.Services
                 var orderId = slot.Booking.OrderId;
                 var res = context.Bookings.Remove(slot.Booking);
 
-                var order = context.Orders
-                    .Where(x => x.Id == orderId).Include(x => x.Bookings).FirstOrDefault();
+                var order = context
+                    .Orders.Where(x => x.Id == orderId)
+                    .Include(x => x.Bookings)
+                    .FirstOrDefault();
 
                 if (order is not null && !order.CheckoutID.IsNullOrEmpty())
                 {
@@ -131,9 +143,9 @@ namespace TerminalApi.Services
 
                 var affectedLines = await context.SaveChangesAsync();
 
-                if(affectedLines != 0)
+                if (affectedLines != 0)
                 {
-                    if(order.Bookings is not null && order.Bookings.Count == 0)
+                    if (order.Bookings is not null && order.Bookings.Count == 0)
                     {
                         jobChron.CancelScheuledJob(order.Id.ToString());
                     }
@@ -145,12 +157,16 @@ namespace TerminalApi.Services
                 throw new Exception("Résérvation non supprimée ou non existante");
             }
         }
-        public async Task<(long Count, List<BookingResponseDTO>? Data)> GetTeacherReservations(QueryPagination query)
+
+        public async Task<(long Count, List<BookingResponseDTO>? Data)> GetTeacherReservations(
+            QueryPagination query
+        )
         {
             var sqlQuery = context
                 .Bookings.Include(re => re.Slot)
                 .Include(re => re.Order)
-                .Include(re => re.Booker).Where(x => x != null);
+                .Include(re => re.Booker)
+                .Where(x => x != null);
 
             if (!string.IsNullOrEmpty(query.StudentId))
             {
@@ -176,7 +192,11 @@ namespace TerminalApi.Services
 
             return (count, result);
         }
-        public async Task<(long Count, List<BookingResponseDTO>? Data)> GetStudentReservations(QueryPagination query, UserApp student)
+
+        public async Task<(long Count, List<BookingResponseDTO>? Data)> GetStudentReservations(
+            QueryPagination query,
+            UserApp student
+        )
         {
             var sqlQuery = context
                 .Bookings.Include(re => re.Slot)
@@ -206,7 +226,9 @@ namespace TerminalApi.Services
             }
             if (query.OrderByName is not null && query.OrderByName == -1)
             {
-                sqlQuery = sqlQuery.OrderByDescending(x => x.Booker.LastName).ThenByDescending(x => x.Booker.FirstName);
+                sqlQuery = sqlQuery
+                    .OrderByDescending(x => x.Booker.LastName)
+                    .ThenByDescending(x => x.Booker.FirstName);
             }
 
             var count = await sqlQuery.CountAsync();
@@ -225,33 +247,33 @@ namespace TerminalApi.Services
         public async Task<List<ChatMessage>> GetCommunicationsForBooking(Guid bookingid)
         {
             var sqlQuery = await context
-               .Bookings
-               .Where(x =>  x.Id == bookingid)
-               .Select(x => x.Communications)
-               .FirstOrDefaultAsync();
+                .Bookings.Where(x => x.Id == bookingid)
+                .Select(x => x.Communications)
+                .FirstOrDefaultAsync();
             return sqlQuery?.ToList() ?? [];
         }
 
         public async Task<bool> AddMessage(Guid bookingId, ChatMessage newMessage)
         {
-            var booking = await context.Bookings.FirstOrDefaultAsync(b => b.Id == bookingId);
-            if(booking is null)
+            var booking = await context.Bookings.Include(x => x.Booker).FirstOrDefaultAsync(b => b.Id == bookingId);
+            if (booking is null)
             {
                 return false;
             }
 
             try
             {
-
-            if(booking.Communications is null)
-            {
-                booking.Communications = new List<ChatMessage>();
-            }
+                if (booking.Communications is null)
+                {
+                    booking.Communications = new List<ChatMessage>();
+                }
 
                 booking.Communications.Add(newMessage);
                 context.Entry(booking).State = EntityState.Modified;
-            await context.SaveChangesAsync();
-            return true;
+                await context.SaveChangesAsync();
+                await signalRNotificationService.SendMessageByUserEmail(booking.Booker.Email, MessageTypeEnum.Chat, newMessage.Message);
+                await signalRNotificationService.SendMessageByUserEmail(EnvironmentVariables.TEACHER_EMAIL, MessageTypeEnum.Chat, newMessage.Message);
+                return true;
             }
             catch
             {

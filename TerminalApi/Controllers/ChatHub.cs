@@ -60,7 +60,7 @@ public class ChatHub : Hub
         return Task.FromResult(_connectionManager.GetConnectionCount());
     }
 
-    public async Task SendMessageByUserEmail(string email, MessageTypeEnum type, MessageDTO message)
+    public async Task SendMessageByUserEmail(string email, string type, string message)
     {
         try
         {
@@ -72,7 +72,7 @@ public class ChatHub : Hub
             if (userConnections.Count > 0)
             {
                 // Send message to all connections for this user
-                await Clients.Clients(userConnections).SendAsync(type.ToString(), message);
+                await Clients.Clients(userConnections).SendAsync(type, message);
             }
         }
         catch (Exception ex)
@@ -91,13 +91,14 @@ public enum MessageTypeEnum
 {
     Notification,
     Email,
-    Chat
+    Chat,
+    ping
 }
 
 public class MessageDTO
 {
-    public UserResponseDTO User { get; set; }
-    public string Content { get; set; }
+    public UserResponseDTO? User { get; set; }
+    public string? Content { get; set; }
     public MessageTypeEnum Type { get; set; }
     public DateTime Timestamp { get; set; } = DateTime.UtcNow;
 }

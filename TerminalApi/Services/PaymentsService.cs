@@ -3,9 +3,9 @@ using Microsoft.Extensions.Primitives;
 using Stripe;
 using Stripe.Checkout;
 using TerminalApi.Contexts;
+using TerminalApi.Interfaces;
 using TerminalApi.Models;
 using TerminalApi.Utilities;
-using TerminalApi.Interfaces;
 
 namespace TerminalApi.Services
 {
@@ -15,26 +15,27 @@ namespace TerminalApi.Services
         private readonly IOrderService orderService;
         private readonly INotificationService notificationService;
         private readonly IJobChron jobChron;
+        private readonly ISignalRNotificationService signalRService;
 
         public PaymentsService(
             ApiDefaultContext context,
             IOrderService orderService,
             INotificationService notificationService,
-            IJobChron jobChron
+            IJobChron jobChron,
+            ISignalRNotificationService signalRService
         )
         {
             this.context = context;
             this.orderService = orderService;
             this.notificationService = notificationService;
             this.jobChron = jobChron;
+            this.signalRService = signalRService;
         }
 
-        public async Task<(bool isValid, Order? order)> CheckOrder
-            (Guid orderId, string userId)
+        public async Task<(bool isValid, Order? order)> CheckOrder(Guid orderId, string userId)
         {
             var order = await context
-                .Orders
-                .Where(o => o.Id == orderId)
+                .Orders.Where(o => o.Id == orderId)
                 .Include(o => o.Booker)
                 .Include(o => o.Bookings)
                 .ThenInclude(b => b.Slot)
@@ -79,19 +80,16 @@ namespace TerminalApi.Services
                         {
                             Console.WriteLine($"Payment Order ID: {orderId}");
                             orderIds.orderId = orderId;
-                            // Update the order in your database as PAID
                         }
                         if (session.Metadata.TryGetValue("order_number", out string orderNumber))
                         {
                             Console.WriteLine($"Payment  number: {orderNumber}");
                             orderIds.orderNumber = orderNumber;
-                            // Update the order in your database as PAID
                         }
                         if (session.Metadata.TryGetValue("booker_id", out string bookerId))
                         {
                             Console.WriteLine($"Payment successful for bookerId: {bookerId}");
                             orderIds.bookerId = bookerId;
-                            // Update the order in your database as PAID
                         }
 
                         if (orderId is not null && session.PaymentIntentId is not null)
@@ -102,11 +100,7 @@ namespace TerminalApi.Services
                                 .Include(x => x.Booker)
                                 .FirstOrDefaultAsync();
 
-
-                            if (
-                                newOrder is not null
-                                && newOrder.Status != EnumBookingStatus.Paid
-                            )
+                            if (newOrder is not null && newOrder.Status != EnumBookingStatus.Paid)
                             {
                                 // paiement accepté
                                 await notificationService.AddNotification(
@@ -114,19 +108,20 @@ namespace TerminalApi.Services
                                     {
                                         Id = Guid.NewGuid(),
                                         RecipientId = newOrder.Booker.Id,
-                                        Type = EnumNotificationType.PaymentAccepted
+                                        Type = EnumNotificationType.PaymentAccepted,
                                     }
                                 );
-                                //await sseConnectionManager.SendMessageToUserAsync(newOrder.Booker.Id, "Test after payment");
+
                                 // réservation enregistrée
                                 await notificationService.AddNotification(
                                     new Notification
                                     {
                                         Id = Guid.NewGuid(),
                                         RecipientId = newOrder.Booker.Id,
-                                        Type = EnumNotificationType.ReservationAccepted
+                                        Type = EnumNotificationType.ReservationAccepted,
                                     }
                                 );
+
                                 // avertir le prof
                                 await notificationService.AddNotification(
                                     new Notification
@@ -134,8 +129,28 @@ namespace TerminalApi.Services
                                         Id = Guid.NewGuid(),
                                         SenderId = newOrder.Booker.Id,
                                         RecipientId = EnvironmentVariables.TEACHER_ID,
-                                        Type = EnumNotificationType.NewReservation
+                                        Type = EnumNotificationType.NewReservation,
                                     }
+                                );
+
+                                // FIXED: Use SignalR notification service instead of ChatHub directly
+                                var notificationMessage = new MessageDTO
+                                {
+                                    Content = "Payment successful! Your reservation is confirmed.",
+                                    Type = MessageTypeEnum.Notification,
+                                    Timestamp = DateTime.UtcNow,
+                                };
+
+                                await signalRService.SendMessageByUserEmail(
+                                    newOrder.Booker.Email,
+                                    MessageTypeEnum.Notification,
+                                    notificationMessage
+                                );
+
+                                await signalRService.SendMessageByUserEmail(
+                                    EnvironmentVariables.TEACHER_EMAIL,
+                                    MessageTypeEnum.Notification,
+                                    notificationMessage
                                 );
 
                                 jobChron.CancelScheuledJob(newOrder.Id.ToString());
