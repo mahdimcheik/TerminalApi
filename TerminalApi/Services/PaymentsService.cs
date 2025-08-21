@@ -97,6 +97,7 @@ namespace TerminalApi.Services
                             Guid orderGuid = Guid.Parse(orderId);
                             Order? newOrder = await context
                                 .Orders.Where(x => x.Id == orderGuid)
+                                .Include(o => o.Bookings)
                                 .Include(x => x.Booker)
                                 .FirstOrDefaultAsync();
 
@@ -113,12 +114,16 @@ namespace TerminalApi.Services
                                 );
 
                                 // réservation enregistrée
+                                foreach (var booking in newOrder.Bookings)
+                                {
+                                    
                                 await notificationService.AddNotification(
                                     new Notification
                                     {
                                         Id = Guid.NewGuid(),
                                         RecipientId = newOrder.Booker.Id,
                                         Type = EnumNotificationType.ReservationAccepted,
+                                        BookingId = booking.Id
                                     }
                                 );
 
@@ -130,8 +135,10 @@ namespace TerminalApi.Services
                                         SenderId = newOrder.Booker.Id,
                                         RecipientId = EnvironmentVariables.TEACHER_ID,
                                         Type = EnumNotificationType.NewReservation,
+                                        BookingId = booking.Id
                                     }
                                 );
+                                }
 
                                 // FIXED: Use SignalR notification service instead of ChatHub directly
                                 var notificationMessage = new MessageDTO

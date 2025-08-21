@@ -183,6 +183,23 @@ namespace TerminalApi.Services
                 sqlQuery = sqlQuery.Where(re => re.Slot.EndAt <= query.ToDate.Value);
             }
 
+            if (!string.IsNullOrEmpty(query.SearchWord))
+            {
+                var searchTerm = query.SearchWord.Trim().ToLower();
+                sqlQuery = sqlQuery.Where(re =>
+                    // Search in student names
+                    EF.Functions.ILike(re.Booker.FirstName, $"%{searchTerm}%") ||
+                    EF.Functions.ILike(re.Booker.LastName, $"%{searchTerm}%") ||
+                    EF.Functions.ILike(re.Booker.Email, $"%{searchTerm}%") ||
+                    // Search in booking details
+                    EF.Functions.ILike(re.Subject ?? "", $"%{searchTerm}%") ||
+                    EF.Functions.ILike(re.Description ?? "", $"%{searchTerm}%") ||
+                    // Keep ID search for power users
+                    re.Id.ToString() == searchTerm ||
+                    EF.Functions.ILike(re.Order.OrderNumber.ToLower(), $"%{searchTerm}%")
+                );
+            }
+
             var count = await sqlQuery.CountAsync();
             List<BookingResponseDTO>? result = await sqlQuery
                 .Skip(query.Start)
@@ -201,6 +218,7 @@ namespace TerminalApi.Services
             var sqlQuery = context
                 .Bookings.Include(re => re.Slot)
                 .Include(re => re.Order)
+                .Include(re => re.Booker)
                 .Where(x => x != null && x.BookedById == student.Id);
 
             if (query.FromDate.HasValue)
@@ -230,6 +248,25 @@ namespace TerminalApi.Services
                     .OrderByDescending(x => x.Booker.LastName)
                     .ThenByDescending(x => x.Booker.FirstName);
             }
+
+
+            if (!string.IsNullOrEmpty(query.SearchWord))
+            {
+                var searchTerm = query.SearchWord.Trim().ToLower();
+                sqlQuery = sqlQuery.Where(re =>
+                    // Search in student names
+                    EF.Functions.ILike(re.Booker.FirstName, $"%{searchTerm}%") ||
+                    EF.Functions.ILike(re.Booker.LastName, $"%{searchTerm}%") ||
+                    EF.Functions.ILike(re.Booker.Email, $"%{searchTerm}%") ||
+                    // Search in booking details
+                    EF.Functions.ILike(re.Subject ?? "", $"%{searchTerm}%") ||
+                    EF.Functions.ILike(re.Description ?? "", $"%{searchTerm}%") ||
+                    // Keep ID search for power users
+                    re.Id.ToString() == searchTerm ||
+                    EF.Functions.ILike(re.Order.OrderNumber.ToLower(), $"%{searchTerm}%")
+                );
+            }
+
 
             var count = await sqlQuery.CountAsync();
 
