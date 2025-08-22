@@ -188,9 +188,8 @@ namespace TerminalApi.Services
                 var searchTerm = query.SearchWord.Trim().ToLower();
                 sqlQuery = sqlQuery.Where(re =>
                     // Search in student names
-                    EF.Functions.ILike(re.Booker.FirstName, $"%{searchTerm}%") ||
-                    EF.Functions.ILike(re.Booker.LastName, $"%{searchTerm}%") ||
                     EF.Functions.ILike(re.Booker.Email, $"%{searchTerm}%") ||
+                    EF.Functions.ILike(string.Concat(re.Booker.FirstName.ToLower(), " ", re.Booker.LastName.ToLower()), $"%{searchTerm}%") ||
                     // Search in booking details
                     EF.Functions.ILike(re.Subject ?? "", $"%{searchTerm}%") ||
                     EF.Functions.ILike(re.Description ?? "", $"%{searchTerm}%") ||
@@ -255,9 +254,8 @@ namespace TerminalApi.Services
                 var searchTerm = query.SearchWord.Trim().ToLower();
                 sqlQuery = sqlQuery.Where(re =>
                     // Search in student names
-                    EF.Functions.ILike(re.Booker.FirstName, $"%{searchTerm}%") ||
-                    EF.Functions.ILike(re.Booker.LastName, $"%{searchTerm}%") ||
                     EF.Functions.ILike(re.Booker.Email, $"%{searchTerm}%") ||
+                    EF.Functions.ILike(string.Concat(re.Booker.FirstName.ToLower(), " ", re.Booker.LastName.ToLower()), $"%{searchTerm}%") ||
                     // Search in booking details
                     EF.Functions.ILike(re.Subject ?? "", $"%{searchTerm}%") ||
                     EF.Functions.ILike(re.Description ?? "", $"%{searchTerm}%") ||
