@@ -30,17 +30,17 @@ namespace TerminalApi.Services
             );
         }
 
-        public async Task<ResponseDTO<List<UserApp>>> GetAllStudentsDTO(QueryPagination query)
+        public async Task<ResponseDTO<List<UserResponseDTO>>> GetAllStudentsDTO(QueryPagination query)
         {
             var querySql = context.Users.Where(x => x.EmailConfirmed && x.Id != EnvironmentVariables.TEACHER_ID);
 
             if (query is null)
             {
                 var totalcount = await querySql.CountAsync();
-                return new ResponseDTO<List<UserApp>> {
+                return new ResponseDTO<List<UserResponseDTO>> {
                     Message = "Demande accept�e",
                     Count = totalcount,
-                    Data = querySql.Skip(0).Take(10).ToList()
+                    Data = querySql.Skip(0).Take(10).Select(x => x.ToUserResponseDTO(null)).ToList()
                 };
             }
 
@@ -56,8 +56,8 @@ namespace TerminalApi.Services
 
             querySql = querySql.Skip(query?.Start ?? 0).Take(query?.PerPage ?? 10);
 
-            var result = await querySql.ToListAsync();
-            return new ResponseDTO<List<UserApp>> {
+            var result = await querySql.Select(x => x.ToUserResponseDTO(null)).ToListAsync();
+            return new ResponseDTO<List<UserResponseDTO>> {
                 Message = "Demande accept�e",
                 Count = count,
                 Data = result

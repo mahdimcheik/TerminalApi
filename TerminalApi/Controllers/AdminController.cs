@@ -37,7 +37,7 @@ namespace TerminalApi.Controllers
         /// <response code="200">Retourne la liste des étudiants.</response>
         /// <response code="500">Erreur interne du serveur.</response>
         [HttpPost("all-students")]
-        public async Task<IActionResult> GetAllStudents([FromBody] QueryPagination query)
+        public async Task<ActionResult<ResponseDTO<List<UserResponseDTO>>>> GetAllStudents([FromBody] QueryPagination query)
         {
             var students = await userService.GetAllStudentsDTO(query);
             return Ok(students);
