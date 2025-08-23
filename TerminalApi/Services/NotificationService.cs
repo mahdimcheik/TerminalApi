@@ -22,7 +22,7 @@ namespace TerminalApi.Services
         {
             if (notification is null)
             {
-                throw new Exception("Erreur lors de la cr�ation de la notification");
+                throw new Exception("Erreur lors de la création de la notification");
             }
 
             try
@@ -51,7 +51,7 @@ namespace TerminalApi.Services
                 );
                 if (sender is null)
                 {
-                    throw new Exception("Erreur lors de la cr�ation de la notification");
+                    throw new Exception("Erreur lors de la création de la notification");
                 }
             }
 
@@ -62,7 +62,7 @@ namespace TerminalApi.Services
                 );
                 if (recipient is null)
                 {
-                    throw new Exception("Erreur lors de la cr�ation de la notification");
+                    throw new Exception("Erreur lors de la création de la notification");
                 }
             }
 
@@ -73,7 +73,7 @@ namespace TerminalApi.Services
                 );
                 if (booking is null)
                 {
-                    throw new Exception("Erreur lors de la cr�ation de la notification");
+                    throw new Exception("Erreur lors de la création de la notification");
                 }
             }
 
@@ -84,7 +84,7 @@ namespace TerminalApi.Services
                 );
                 if (order is null)
                 {
-                    throw new Exception("Erreur lors de la cr�ation de la notification");
+                    throw new Exception("Erreur lors de la création de la notification");
                 }
             }
         }
@@ -93,12 +93,12 @@ namespace TerminalApi.Services
         {
             return type switch
             {
-                EnumNotificationType.AccountConfirmed => "Votre compte vient d'etre confirmé ",
-                EnumNotificationType.AccountUpdated => "Votre compte vient d'etre mis à jour",
+                EnumNotificationType.AccountConfirmed => "Votre compte a été confirmé ",
+                EnumNotificationType.AccountUpdated => "Votre compte est mis à jour",
 
                 EnumNotificationType.PasswordResetDemandAccepted
-                    => "Un email de r�initialisation de mot de passe vient d'etre envoyé",
-                EnumNotificationType.NewAnnouncement => "Nouvelle annonce / Offres",
+                    => "Un email de réinitialisation de mot de passe q été envoyé",
+                EnumNotificationType.NewAnnouncement => "Nouvelle annonce / Offre",
                 EnumNotificationType.MessageReceived => "Vous avez reçu un message",
                 EnumNotificationType.GeneralReminder
                     => "Rappel: vous avez un rendez-vous aujourd'hui",
@@ -111,9 +111,9 @@ namespace TerminalApi.Services
                 EnumNotificationType.ReservationAccepted => "Votre réservation a été acceptée",
                 EnumNotificationType.NewReservation
                     => "Vous avez récu une nouvelle commande",
-                EnumNotificationType.ReservationCancelled => @"<span class=""text-surface-700 dark:text-surface-100"">Votre réservation a été  <span class=""text-primary font-bold"">annulée</span> </span> ",
+                EnumNotificationType.ReservationCancelled => "Votre réservation a été annulée ",
                 EnumNotificationType.ReservationCancelledTimeOut
-                    => @"<span class=""text-surface-700 dark:text-surface-100"">Votre réservation a été annulée <span class=""text-primary font-bold"">pour abscence de paiement</span></span> ",
+                    => "Votre réservation a été annulée pour abscence de paiement",
                 EnumNotificationType.ReservationRejected => "Votre réservation a été rejetée",
                 EnumNotificationType.ReservationReminder
                     => "Rappel: vous avez un rendez-vous aujourd'hui",
