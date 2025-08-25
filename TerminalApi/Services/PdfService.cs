@@ -34,9 +34,14 @@ namespace TerminalApi.Services
 
                 string htmlContent = await _razorLightEngine.CompileRenderAsync(templatePath, order);
 
+                bool inDebugMode = false;
+#if DEBUG
+                inDebugMode = true;
+#endif
+
                 using var browser = await Puppeteer.LaunchAsync(
                     new LaunchOptions { Headless = true,
-                        Args = new[] {
+                        Args =inDebugMode ? [] : new[] {
                                 "--no-sandbox",
                                 "--disable-setuid-sandbox",
                                 "--disable-dev-shm-usage",

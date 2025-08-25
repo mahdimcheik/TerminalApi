@@ -73,7 +73,7 @@ namespace TerminalApi.Controllers
                 //    );
                 //}
 
-                if(result.order is not null && !result.order.CheckoutID.IsNullOrEmpty())
+                if (result.order is not null && !result.order.CheckoutID.IsNullOrEmpty())
                 {
                     await jobChron.ExpireCheckout(result.order?.CheckoutID ?? "");
                     result.order.CheckoutID = null;
@@ -84,33 +84,35 @@ namespace TerminalApi.Controllers
 
                 var domain = EnvironmentVariables.API_FRONT_URL;
 
-                var options = new SessionCreateOptions
+                var lineItems = new List<SessionLineItemOptions>();
+
+                foreach (var booking in result.order.Bookings)
                 {
-                    PaymentMethodTypes = new List<string> { "card" },
-                    LineItems = new List<SessionLineItemOptions>
+                    lineItems.Add(new SessionLineItemOptions
+                    {
+                        PriceData = new SessionLineItemPriceDataOptions
                         {
-                            new()
+                            Currency = "EUR",
+                            UnitAmount = (long)(booking.Slot.DiscountedPrice * 100),
+                            ProductData = new SessionLineItemPriceDataProductDataOptions
                             {
-                                PriceData = new SessionLineItemPriceDataOptions
-                                {
-                                    Currency = "EUR",
-                                    UnitAmount = (long)(result.order.TotalDiscountedPrice * 100),
-                                    ProductData = new SessionLineItemPriceDataProductDataOptions
-                                    {
-                                        //Name = result.order.OrderNumber,
-                                        //Description = result.order.OrderNumber,
-                                        Name = "Pack Premium",
-                                        Description= "Accès illimité pendant 1 an",
-                                        Metadata = new Dictionary<string, string>
+                                Name = "Créneau",
+                                Description = $"le {booking.Slot.StartAt.ToString("g")}",
+                                Metadata = new Dictionary<string, string>
                                         {
                                             { "order_id", "12345" },
                                         },
-                                        Images = ["https://picsum.photos/50/50"]
-                                    },
-                                },
-                                Quantity = 1,
+                                Images = ["https://picsum.photos/50/50"]
                             },
                         },
+                        Quantity = 1,
+                    });
+                }
+
+                var options = new SessionCreateOptions
+                {
+                    PaymentMethodTypes = new List<string> { "card" },
+                    LineItems = lineItems,
                     Mode = "payment",
                     Metadata = new Dictionary<string, string>
                         {
@@ -145,7 +147,7 @@ namespace TerminalApi.Controllers
                     }
                 );
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 return BadRequest(
                     new { Message = ex.Message, status = 400 }
