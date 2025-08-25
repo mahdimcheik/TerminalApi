@@ -2,8 +2,8 @@
 using PuppeteerSharp.Media;
 using RazorLight;
 using TerminalApi.Contexts;
-using TerminalApi.Interfaces;
 using TerminalApi.Models;
+using TerminalApi.Interfaces;
 
 namespace TerminalApi.Services
 {
@@ -31,53 +31,33 @@ namespace TerminalApi.Services
             {
                 string templatePath = "Invoice.cshtml"; // Name of your template file
 
-                string htmlContent = await _razorLightEngine.CompileRenderAsync(
-                    templatePath,
-                    order
-                );
-                bool isDebugBuild = false;
 
-#if DEBUG
-                isDebugBuild = true;
-#endif
+                string htmlContent = await _razorLightEngine.CompileRenderAsync(templatePath, order);
 
                 using var browser = await Puppeteer.LaunchAsync(
-                    new LaunchOptions
-                    {
-                        Headless = true,
-                        Args = !isDebugBuild ? new[]
-                        {
-                            "--no-sandbox",
-                            "--disable-setuid-sandbox",
-                            "--disable-dev-shm-usage",
-                            "--disable-gpu",
-                            "--single-process",
-                            "--no-zygote",
-                        } : [],
+                    new LaunchOptions { Headless = true,
+                        Args = new[] {
+                                "--no-sandbox",
+                                "--disable-setuid-sandbox",
+                                "--disable-dev-shm-usage",
+                                "--disable-gpu",
+                                "--single-process",
+                                "--no-zygote"
+    }
                     }
                 );
-
-         
-
                 using var page = await browser.NewPageAsync();
 
                 await page.SetContentAsync(htmlContent);
-                var file = await page.PdfDataAsync(
-                    new PdfOptions
-                    {
-                        Format = PaperFormat.A4,
-                        DisplayHeaderFooter = true,
-                        FooterTemplate =
-                            @"<div style='width:100%;text-align:center;font-size:10px;padding:5px;'>
+                var file = await page.PdfDataAsync(new PdfOptions
+                {
+                    Format = PaperFormat.A4,
+                    DisplayHeaderFooter = true,
+                    FooterTemplate = @"<div style='width:100%;text-align:center;font-size:10px;padding:5px;'>
                     Page <span class='pageNumber'></span> / <span class='totalPages'></span>
                 </div>",
-                        MarginOptions = new PuppeteerSharp.Media.MarginOptions
-                        {
-                            Top = "40px",
-                            Bottom = "60px",
-                        },
-                    }
-                );
+                    MarginOptions = new PuppeteerSharp.Media.MarginOptions { Top = "40px", Bottom = "60px" }
+                });
 
                 return file;
             }
@@ -85,6 +65,7 @@ namespace TerminalApi.Services
             {
                 throw;
             }
+
         }
     }
 }
