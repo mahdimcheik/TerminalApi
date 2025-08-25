@@ -17,6 +17,7 @@ using TerminalApi.Contexts;
 using TerminalApi.Interfaces;
 using TerminalApi.Models;
 using TerminalApi.Services;
+using TerminalApi.Services.minio;
 using TerminalApi.Utilities;
 using TerminalApi.Utilities.Policies.NotBanned;
 
@@ -229,6 +230,7 @@ namespace TerminalApi
             services.AddScoped<IAuthorizationHandler, NotBannedHandler>();
             services.AddScoped<FakerService>();
             services.AddSingleton<ConnectionManager>();
+            services.AddTransient<MinioService>();
             
             // NEW: Add SignalR notification service instead of ChatHub directly
             services.AddScoped<ISignalRNotificationService, SignalRNotificationService>();

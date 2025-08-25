@@ -75,5 +75,8 @@ namespace TerminalApi.Utilities
 
         // Encryption
         public static string ENCRYPTION_KEY => GetEnvVar("ENCRYPTION_KEY", "J5ZbAaL+QrPoNOOTVAUDuYBS+rXDNnibzXwe3lQdL9s=");
+
+        //Minio
+        public static string MINIO_BUCKETNAME => GetEnvVar("MINIO_BUCKETNAME", "minio-skill-hive");
     }
 }

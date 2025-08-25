@@ -6,6 +6,7 @@ using TerminalApi.Contexts;
 using TerminalApi.Interfaces;
 using TerminalApi.Models;
 using TerminalApi.Services;
+using TerminalApi.Services.minio;
 
 namespace TerminalApi.Controllers
 {
@@ -20,16 +21,18 @@ namespace TerminalApi.Controllers
     {
         private readonly IPdfService pdfService;
         private readonly ApiDefaultContext context;
+        private readonly MinioService minioService;
 
         /// <summary>
         /// Initialise une nouvelle instance du contrôleur <see cref="BillController"/>.
         /// </summary>
         /// <param name="pdfService">Service utilisé pour générer des fichiers PDF.</param>
         /// <param name="context">Contexte de base de données pour accéder aux commandes et autres entités.</param>
-        public BillController(IPdfService pdfService, ApiDefaultContext context)
+        public BillController(IPdfService pdfService, ApiDefaultContext context, MinioService minioService  )
         {
             this.pdfService = pdfService;
             this.context = context;
+            this.minioService = minioService;
         }
 
         /// <summary>
@@ -81,5 +84,45 @@ namespace TerminalApi.Controllers
             // Retourne le fichier PDF avec un code 200
             return File(file, "application/pdf", "facture.pdf");
         }
+
+        /// <summary>
+        ///     Upload a file to the Minio server
+        /// </summary>
+        [HttpPost("file")]
+        [Consumes("multipart/form-data")]
+        public async Task<ActionResult<FileInfoResponse>> UploadFileAsync(IFormFile file, string minioFolderName,
+            string entityId)
+        {
+            var filePath = Path.Combine(Path.GetTempPath(), Path.GetRandomFileName());
+            await using (var stream = new FileStream(filePath, FileMode.Create))
+            {
+                await file.CopyToAsync(stream);
+            }
+
+            var metadata = new Dictionary<string, string>
+        {
+            { "Content-Type", file.ContentType },
+            { "x-amz-meta-content-disposition", "inline" }
+        };
+
+            var fileName = $"{minioFolderName}/{entityId}/{file.FileName}";
+            var response = await minioService.UploadFileAsync(fileName, filePath, metadata);
+            var url = await minioService.GetFileUrlAsync(response.ObjectName);
+
+            try
+            {
+                // Clean up the temporary file
+                System.IO.File.Delete(filePath);
+            }
+            catch (IOException)
+            {
+                // Handle the case where the file is already deleted or in use
+                Console.WriteLine($"Could not delete temporary file: {filePath}");
+            }
+
+
+            return new FileInfoResponse { Url = url };
+        }
+
     }
 }
