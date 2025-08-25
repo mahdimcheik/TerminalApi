@@ -98,6 +98,7 @@ namespace TerminalApi.Services
                             Order? newOrder = await context
                                 .Orders.Where(x => x.Id == orderGuid)
                                 .Include(o => o.Bookings)
+                                .ThenInclude(b => b.Slot)
                                 .Include(x => x.Booker)
                                 .FirstOrDefaultAsync();
 

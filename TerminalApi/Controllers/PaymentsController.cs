@@ -1,6 +1,7 @@
 using Bogus.DataSets;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.CodeAnalysis;
 using Microsoft.IdentityModel.Tokens;
 using Stripe;
 using Stripe.Checkout;
@@ -73,51 +74,41 @@ namespace TerminalApi.Controllers
                 //    );
                 //}
 
-                if(result.order is not null && !result.order.CheckoutID.IsNullOrEmpty())
+                var lineItems = new List<SessionLineItemOptions>();
+                if (result.order is not null && !result.order.CheckoutID.IsNullOrEmpty())
                 {
                     await jobChron.ExpireCheckout(result.order?.CheckoutID ?? "");
                     result.order.CheckoutID = null;
                     result.order.PaymentIntent = null;
+                }                
                     result.order.Status = EnumBookingStatus.Pending;
                     await context.SaveChangesAsync();
-                }
+
+                    foreach (var booking in result.order.Bookings)
+                    {
+                        lineItems.Add(new SessionLineItemOptions
+                        {
+                            PriceData = new SessionLineItemPriceDataOptions
+                            {
+                                Currency = "EUR",
+                                UnitAmount = (long)(booking.Slot.DiscountedPrice * 100),
+                                ProductData = new SessionLineItemPriceDataProductDataOptions
+                                {
+                                    Name = $"Créneau : {booking.Subject}",
+                                    Description = $"Le {booking.Slot.StartAt.ToString("g")} UTC",
+                                },
+                            },
+                            Quantity = 1,
+                        });
+                    }
 
                 var domain = EnvironmentVariables.API_FRONT_URL;
 
                 var options = new SessionCreateOptions
                 {
                     PaymentMethodTypes = new List<string> { "card" },
-                    LineItems = new List<SessionLineItemOptions>
-                        {
-                            new()
-                            {
-                                PriceData = new SessionLineItemPriceDataOptions
-                                {
-                                    Currency = "EUR",
-                                    UnitAmount = (long)(result.order.TotalDiscountedPrice * 100),
-                                    ProductData = new SessionLineItemPriceDataProductDataOptions
-                                    {
-                                        //Name = result.order.OrderNumber,
-                                        //Description = result.order.OrderNumber,
-                                        Name = "Pack Premium",
-                                        Description= "Accès illimité pendant 1 an",
-                                        Metadata = new Dictionary<string, string>
-                                        {
-                                            { "order_id", "12345" },
-                                        },
-                                        Images = ["https://picsum.photos/50/50"]
-                                    },
-                                },
-                                Quantity = 1,
-                            },
-                        },
+                    LineItems = lineItems,
                     Mode = "payment",
-                    Metadata = new Dictionary<string, string>
-                        {
-                            { "order_id", result.order.Id.ToString() },
-                            { "order_number", result.order.OrderNumber },
-                            { "booker_id", result.order.Booker.Id },
-                        },
                     SuccessUrl = $"{domain}/dashboard/success",
                     CancelUrl = $"{domain}/dashboard/cancel",
                 };
