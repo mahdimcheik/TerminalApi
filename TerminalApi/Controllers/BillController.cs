@@ -79,10 +79,11 @@ namespace TerminalApi.Controllers
             }
 
             // Génération du fichier PDF via le service PdfService
-            var file = await pdfService.GeneratePdfAsync(order.ToOrderResponseForStudentDTO());
+            //var file = await pdfService.GeneratePdfAsync(order.ToOrderResponseForStudentDTO());
+            var fileBis = await pdfService.GenerateQuestPdfAsync(order.ToOrderResponseForStudentDTO());
 
             // Retourne le fichier PDF avec un code 200
-            return File(file, "application/pdf", "facture.pdf");
+            return File(fileBis, "application/pdf", "facture.pdf");
         }
 
         /// <summary>
@@ -119,8 +120,6 @@ namespace TerminalApi.Controllers
                 // Handle the case where the file is already deleted or in use
                 Console.WriteLine($"Could not delete temporary file: {filePath}");
             }
-
-
             return new FileInfoResponse { Url = url };
         }
 

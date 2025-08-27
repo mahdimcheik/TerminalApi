@@ -10,6 +10,7 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using Npgsql;
 using PuppeteerSharp;
+using QuestPDF.Infrastructure;
 using System.Data;
 using System.Reflection;
 using System.Text;
@@ -231,7 +232,9 @@ namespace TerminalApi
             services.AddScoped<FakerService>();
             services.AddSingleton<ConnectionManager>();
             services.AddTransient<MinioService>();
-            
+
+            QuestPDF.Settings.License = LicenseType.Community;
+
             // NEW: Add SignalR notification service instead of ChatHub directly
             services.AddScoped<ISignalRNotificationService, SignalRNotificationService>();
 
