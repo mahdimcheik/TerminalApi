@@ -371,10 +371,11 @@ namespace TerminalApi.Services
             }));
 
             using var outputStream = new MemoryStream();
-            await image.SaveAsJpegAsync(outputStream, new JpegEncoder { Quality = 85 });
+            //await image.SaveAsJpegAsync(outputStream, new JpegEncoder { Quality = 85 });
+            await image.SaveAsWebpAsync(outputStream);
             outputStream.Seek(0, SeekOrigin.Begin);
 
-            string fileName = Guid.NewGuid() + "_avatar" + Path.GetExtension(file.FileName);
+            string fileName = Guid.NewGuid() + "_avatar.webp";// + Path.GetExtension(file.FileName);
             var filePath = Path.Combine(_env.WebRootPath, "images", fileName); // wwwroot + images + filename ???
 
             using (var stream = System.IO.File.Create(filePath))
