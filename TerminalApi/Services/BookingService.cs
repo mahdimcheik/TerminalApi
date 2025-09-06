@@ -164,7 +164,7 @@ namespace TerminalApi.Services
         {
             var sqlQuery = context
                 .Bookings.Include(re => re.Slot)
-                .Include(re => re.Order)
+                .Include(re => re.Order) 
                 .Include(re => re.Booker)
                 .Where(x => x != null);
 
