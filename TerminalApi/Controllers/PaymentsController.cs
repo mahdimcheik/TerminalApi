@@ -102,7 +102,7 @@ namespace TerminalApi.Controllers
                                         {
                                             { "order_id", "12345" },
                                         },
-                                Images = ["https://picsum.photos/50/50"]
+                                Images = [$"{EnvironmentVariables.API_BACK_URL}/images/logo.png"]
                             },
                         },
                         Quantity = 1,
