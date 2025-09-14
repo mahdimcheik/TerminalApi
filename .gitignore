@@ -486,3 +486,5 @@ $RECYCLE.BIN/
 *.dll
 
 *.exe
+
+TerminalTest/UsersControllerUnitTests.cs
