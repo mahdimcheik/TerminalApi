@@ -37,6 +37,6 @@ jobs:
       - name: Build
         run: dotnet build --no-restore
       - name: Lancer les tests d'intégration
-        run: dotnet test --no-build --verbosity normal  ./TerminalTestIntegration/TerminalTestIntegration.csproj
+        run: dotnet test --no-build --verbosity detailed  ./TerminalTestIntegration/TerminalTestIntegration.csproj
 
   #    start CD correct dockerhub 
