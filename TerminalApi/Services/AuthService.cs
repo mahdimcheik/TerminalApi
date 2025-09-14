@@ -1,3 +1,4 @@
+#nullable enable
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
@@ -15,7 +16,9 @@ using TerminalApi.Interfaces;
 
 namespace TerminalApi.Services
 {
-
+    /// <summary>
+    /// Service d'authentification pour gérer l'inscription, la connexion et les opérations liées aux utilisateurs
+    /// </summary>
     public class AuthService : IAuthService
     {
         private readonly ApiDefaultContext context;
@@ -24,6 +27,14 @@ namespace TerminalApi.Services
         private readonly INotificationService notificationService;
         private readonly IWebHostEnvironment _env;
 
+        /// <summary>
+        /// Initialise une nouvelle instance du service d'authentification
+        /// </summary>
+        /// <param name="context">Contexte de base de données</param>
+        /// <param name="userManager">Gestionnaire d'utilisateurs Identity</param>
+        /// <param name="mailService">Service d'envoi d'emails</param>
+        /// <param name="notificationService">Service de notifications</param>
+        /// <param name="env">Environnement d'hébergement web</param>
         public AuthService(
             ApiDefaultContext context,
             UserManager<UserApp> userManager,
@@ -39,18 +50,23 @@ namespace TerminalApi.Services
             this._env = env;
         }
 
+        /// <summary>
+        /// Enregistre un nouvel utilisateur
+        /// </summary>
+        /// <param name="model">Données de création de l'utilisateur</param>
+        /// <returns>Réponse contenant les informations de l'utilisateur créé</returns>
         public async Task<ResponseDTO<UserResponseDTO>> Register(UserCreateDTO model)
         {
             bool isEmailAlreadyUsed = await IsEmailAlreadyUsedAsync(model.Email);
 
-            // V�rifier si l'adresse e-mail est d�j� utilis�e
+            // Vérifier si l'adresse e-mail est déjà utilisée
             if (isEmailAlreadyUsed)
             {
-                // Si l'adresse e-mail est d�j� utilis�e, mettre � jour la r�ponse et sauter vers l'�tiquette UserAlreadyExisted
+                // Si l'adresse e-mail est déjà utilisée, mettre à jour la réponse et sauter vers l'étiquette UserAlreadyExisted
 
-                return new ResponseDTO<UserResponseDTO> { Status = 40, Message = "\"L'email est d�j� utilis�\"" };
+                return new ResponseDTO<UserResponseDTO> { Status = 40, Message = "\"L'email est déjà utilisé\"" };
             }
-            // Cr�er un nouvel utilisateur en utilisant les donn�es du mod�le et la base de donn�es contextuelle
+            // Créer un nouvel utilisateur en utilisant les données du modèle et la base de données contextuelle
             UserApp newUser = model.ToUser();
             newUser.CreatedAt = DateTime.Now;
             newUser.LastModifiedAt = DateTime.Now;
@@ -60,34 +76,35 @@ namespace TerminalApi.Services
             // Obtenir la date actuelle
             DateTimeOffset date = DateTimeOffset.Now;
 
-            // Tenter de cr�er un nouvel utilisateur avec le gestionnaire d'utilisateurs
+            // Tenter de créer un nouvel utilisateur avec le gestionnaire d'utilisateurs
             IdentityResult result = await userManager.CreateAsync(newUser, model.Password);
 
-            // Tenter d'ajouter l'utilisateur aux r�les sp�cifi�s dans le mod�le
+            // Tenter d'ajouter l'utilisateur aux rôles spécifiés dans le modèle
             IdentityResult roleResult = await userManager.AddToRolesAsync(
                 user: newUser,
                 roles: ["Student"]
             );
 
-            // V�rifier si la cr�ation de l'utilisateur a �chou�
+            // Vérifier si la création de l'utilisateur a échoué
             if (!result.Succeeded)
             {
-                // Si la cr�ation a �chou�, ajouter les erreurs au mod�le d'�tat pour retourner une r�ponse BadRequest
+                // Si la création a échoué, ajouter les erreurs au modèle d'état pour retourner une réponse BadRequest
                 var errors = Enumerable.Empty<string>();
                 foreach (var error in result.Errors)
                 {
                     errors.Append(error.Description);
                 }
 
-                // Retourner une r�ponse BadRequest avec le mod�le d'�tat contenant les erreurs
-                return new ResponseDTO<UserResponseDTO> {
-                    Message = "Cr�ation �chou�e",
+                // Retourner une réponse BadRequest avec le modèle d'état contenant les erreurs
+                return new ResponseDTO<UserResponseDTO>
+                {
+                    Message = "Création échouée",
                     Status = 401,
                     Data = null, // Setting to null as errors are IEnumerable<string> not UserResponseDTO
                 };
             }
 
-            // Si tout s'est bien d�roul�, enregistrer les changements dans le contexte de base de donn�es
+            // Si tout s'est bien déroulé, enregistrer les changements dans le contexte de base de données
             await context.SaveChangesAsync();
 
             try
@@ -103,9 +120,10 @@ namespace TerminalApi.Services
                     confirmationLink ?? ""
                 );
 
-                // Retourne une r�ponse avec le statut d�termin�, l'identifiant de l'utilisateur, le message de r�ponse et le statut complet
-                return new ResponseDTO<UserResponseDTO> {
-                    Message = "Profil cr��",
+                // Retourne une réponse avec le statut déterminé, l'identifiant de l'utilisateur, le message de réponse et le statut complet
+                return new ResponseDTO<UserResponseDTO>
+                {
+                    Message = "Profil créé",
                     Status = 201,
                     Data = newUser.ToUserResponseDTO(),
                 };
@@ -113,12 +131,17 @@ namespace TerminalApi.Services
             }
             catch (Exception e)
             {
-                // En cas d'exception, afficher la trace et retourner une r�ponse avec le statut appropri�
+                // En cas d'exception, afficher la trace et retourner une réponse avec le statut approprié
                 Console.WriteLine(e);
-                return new ResponseDTO<UserResponseDTO> { Status = 40, Message = "Le compte n'est pas cr��!!!" };
+                return new ResponseDTO<UserResponseDTO> { Status = 40, Message = "Le compte n'est pas créé!!!" };
             }
         }
 
+        /// <summary>
+        /// Renvoie un email de confirmation à l'utilisateur
+        /// </summary>
+        /// <param name="newUser">Utilisateur pour lequel renvoyer l'email</param>
+        /// <returns>Réponse indiquant le succès ou l'échec de l'envoi</returns>
         public async Task<ResponseDTO<UserResponseDTO>> ResendConfirmationMail(UserApp newUser)
         {
             try
@@ -134,9 +157,10 @@ namespace TerminalApi.Services
                     confirmationLink ?? ""
                 );
 
-                // Retourne une r�ponse avec le statut d�termin�, l'identifiant de l'utilisateur, le message de r�ponse et le statut complet
-                return new ResponseDTO<UserResponseDTO> {
-                    Message = "Email envoy�",
+                // Retourne une réponse avec le statut déterminé, l'identifiant de l'utilisateur, le message de réponse et le statut complet
+                return new ResponseDTO<UserResponseDTO>
+                {
+                    Message = "Email envoyé",
                     Status = 201,
                     Data = newUser.ToUserResponseDTO(),
                 };
@@ -144,18 +168,26 @@ namespace TerminalApi.Services
             }
             catch (Exception e)
             {
-                // En cas d'exception, afficher la trace et retourner une r�ponse avec le statut appropri�
+                // En cas d'exception, afficher la trace et retourner une réponse avec le statut approprié
                 Console.WriteLine(e);
-                return new ResponseDTO<UserResponseDTO> { Status = 40, Message = "L'email n'est pas envoy�!!!" };
+                return new ResponseDTO<UserResponseDTO> { Status = 40, Message = "L'email n'est pas envoyé!!!" };
             }
         }
 
+        /// <summary>
+        /// Met à jour les informations d'un utilisateur
+        /// </summary>
+        /// <param name="model">Données de mise à jour</param>
+        /// <param name="UserPrincipal">Principal de l'utilisateur connecté</param>
+        /// <returns>Réponse contenant les informations mises à jour</returns>
         public async Task<ResponseDTO<UserResponseDTO>> Update(UserUpdateDTO model, ClaimsPrincipal UserPrincipal)
         {
             var user = CheckUser.GetUserFromClaim(UserPrincipal, context);
             if (user is null)
             {
-                return new ResponseDTO<UserResponseDTO> { Status = 40,
+                return new ResponseDTO<UserResponseDTO>
+                {
+                    Status = 40,
                     Message = "Le compte n'existe pas ou ne correspond pas",
                 };
             }
@@ -182,35 +214,48 @@ namespace TerminalApi.Services
             }
 
             var userRoles = await userManager.GetRolesAsync(user);
-            return new ResponseDTO<UserResponseDTO> {
-                Message = "Profil mis � jour",
+            return new ResponseDTO<UserResponseDTO>
+            {
+                Message = "Profil mis à jour",
                 Status = 200,
                 Data = user.ToUserResponseDTO(userRoles),
             };
         }
 
+        /// <summary>
+        /// Confirme l'email d'un utilisateur
+        /// </summary>
+        /// <param name="userId">ID de l'utilisateur</param>
+        /// <param name="confirmationToken">Token de confirmation</param>
+        /// <returns>Réponse indiquant le succès ou l'échec de la confirmation</returns>
         public async Task<ResponseDTO<string?>> EmailConfirmation(string userId, string confirmationToken)
         {
             UserApp? user = await userManager.FindByIdAsync(userId);
             if (user is null)
             {
-                return new ResponseDTO<string?> { Message = "Validation �chou�e", Status = 400 };
+                return new ResponseDTO<string?> { Message = "Validation échouée", Status = 400 };
             }
 
             IdentityResult result = await userManager.ConfirmEmailAsync(user, confirmationToken);
 
             if (result.Succeeded)
             {
-                return new ResponseDTO<string?> {
+                return new ResponseDTO<string?>
+                {
                     Message =
                         $"{EnvironmentVariables.API_FRONT_URL}/auth/email-confirmation-success",
                     Status = 200
                 };
             }
 
-            return new ResponseDTO<string?> { Message = "Validation �chou�e", Status = 400 };
+            return new ResponseDTO<string?> { Message = "Validation échouée", Status = 400 };
         }
 
+        /// <summary>
+        /// Initie le processus de récupération de mot de passe
+        /// </summary>
+        /// <param name="model">Données de récupération</param>
+        /// <returns>Réponse contenant les informations de récupération</returns>
         public async Task<ResponseDTO<PasswordResetResponseDTO>> ForgotPassword(ForgotPasswordInput model)
         {
             var user = await userManager.FindByEmailAsync(model.Email);
@@ -228,11 +273,11 @@ namespace TerminalApi.Services
                         + "&resetToken="
                         + resetToken;
 
-                    // Tentative d'envoi de l'e-mail pour la reg�n�ration du mot de passe
+                    // Tentative d'envoi de l'e-mail pour la regénération du mot de passe
                     await mailService.ScheduleSendResetEmail(
                         new Mail
                         {
-                            MailSubject = "Mail de r�initialisation",
+                            MailSubject = "Mail de réinitialisation",
                             MailTo = user.Email,
                         },
                         resetLink
@@ -247,9 +292,10 @@ namespace TerminalApi.Services
                         }
                     );
 
-                    return new ResponseDTO<PasswordResetResponseDTO> {
+                    return new ResponseDTO<PasswordResetResponseDTO>
+                    {
                         Message =
-                            "Un email de r�initialisation vient d'�tre envoy� � cette adresse "
+                            "Un email de réinitialisation vient d'être envoyé à cette adresse "
                             + user.Email,
                         Status = 200,
                         Data = new PasswordResetResponseDTO
@@ -262,19 +308,26 @@ namespace TerminalApi.Services
                 }
                 catch
                 {
-                    return new ResponseDTO<PasswordResetResponseDTO> {
-                        Message = "Erreur de r�initialisation, r�essayez plus tard ",
+                    return new ResponseDTO<PasswordResetResponseDTO>
+                    {
+                        Message = "Erreur de réinitialisation, réessayez plus tard ",
                         Status = 400,
                     };
                 }
             }
 
-            return new ResponseDTO<PasswordResetResponseDTO> {
-                Message = "Erreur de r�initialisation, r�essayez plus tard ",
+            return new ResponseDTO<PasswordResetResponseDTO>
+            {
+                Message = "Erreur de réinitialisation, réessayez plus tard ",
                 Status = 400,
             };
         }
 
+        /// <summary>
+        /// Change le mot de passe d'un utilisateur
+        /// </summary>
+        /// <param name="model">Données de récupération de mot de passe</param>
+        /// <returns>Réponse indiquant le succès ou l'échec du changement</returns>
         public async Task<ResponseDTO<string?>> ChangePassword(PasswordRecoveryInput model)
         {
             UserApp? user = await userManager.FindByIdAsync(model.UserId);
@@ -303,18 +356,27 @@ namespace TerminalApi.Services
                         Type = EnumNotificationType.PasswordChanged
                     }
                 );
-                return new ResponseDTO<string?> {
-                    Message = "Mot de passe vient d'�tre modifi�",
+                return new ResponseDTO<string?>
+                {
+                    Message = "Mot de passe vient d'être modifié",
                     Status = 201,
                 };
             }
 
-            return new ResponseDTO<string?> {
-                Message = "Probl�me de validation, votre token est valid ?",
+            return new ResponseDTO<string?>
+            {
+                Message = "Problème de validation, votre token est valid ?",
                 Status = 404,
             };
         }
 
+        /// <summary>
+        /// Télécharge un avatar pour l'utilisateur
+        /// </summary>
+        /// <param name="file">Fichier image à télécharger</param>
+        /// <param name="UserPrincipal">Principal de l'utilisateur connecté</param>
+        /// <param name="request">Requête HTTP</param>
+        /// <returns>Réponse contenant les informations utilisateur mises à jour</returns>
         public async Task<ResponseDTO<UserResponseDTO>> UploadAvatar(
             IFormFile file,
             ClaimsPrincipal UserPrincipal,
@@ -323,12 +385,12 @@ namespace TerminalApi.Services
         {
             if (file == null)
             {
-                return new ResponseDTO<UserResponseDTO> { Message = "Aucun fichier t�l�vers�", Status = 400 };
+                return new ResponseDTO<UserResponseDTO> { Message = "Aucun fichier téléversé", Status = 400 };
             }
             var user = CheckUser.GetUserFromClaim(UserPrincipal, context);
             if (user is null)
             {
-                return new ResponseDTO<UserResponseDTO> { Status = 40, Message = "Demande refus�e" };
+                return new ResponseDTO<UserResponseDTO> { Status = 40, Message = "Demande refusée" };
             }
             //verifier si le type est image
             var allowedMimeTypes = new[] { "image/jpeg", "image/png", "image/gif", "image/bmp", "image/webp" };
@@ -340,8 +402,10 @@ namespace TerminalApi.Services
                 || !allowedExtensions.Contains(fileExtension)
             )
             {
-                return new ResponseDTO<UserResponseDTO> { Status = 40,
-                    Message = "le type du ficheir n'est pas autoris�'"
+                return new ResponseDTO<UserResponseDTO>
+                {
+                    Status = 40,
+                    Message = "le type du ficheir n'est pas autorisé'"
                 };
             }
 
@@ -388,13 +452,20 @@ namespace TerminalApi.Services
             user.ImgUrl = url;
             await context.SaveChangesAsync();
 
-            return new ResponseDTO<UserResponseDTO> {
-                Message = "Avatar t�l�vers�",
+            return new ResponseDTO<UserResponseDTO>
+            {
+                Message = "Avatar téléversé",
                 Status = 200,
                 Data = user.ToUserResponseDTO()
             };
         }
 
+        /// <summary>
+        /// Met à jour le token de rafraîchissement
+        /// </summary>
+        /// <param name="refreshToken">Token de rafraîchissement</param>
+        /// <param name="httpContext">Contexte HTTP</param>
+        /// <returns>Réponse contenant les nouvelles informations de connexion</returns>
         public async Task<ResponseDTO<LoginOutputDTO>> UpdateRefreshToken(
             string refreshToken,
             HttpContext httpContext
@@ -407,18 +478,19 @@ namespace TerminalApi.Services
 
             if (refreshTokenDB is null || refreshTokenDB.User is null || refreshTokenDB.IsExpired())
             {
-                return new ResponseDTO<LoginOutputDTO> { Message = "Token expir� ou non valide", Status = 401, };
+                return new ResponseDTO<LoginOutputDTO> { Message = "Token expiré ou non valide", Status = 401, };
             }
 
-            httpContext.Response.Headers.Add(
+            httpContext.Response.Headers.Append(
                 key: "Access-Control-Allow-Credentials",
                 value: "true"
             );
 
             var userRoles = await userManager.GetRolesAsync(refreshTokenDB.User);
 
-            return new ResponseDTO<LoginOutputDTO> {
-                Message = "Autorisation renouvel�e",
+            return new ResponseDTO<LoginOutputDTO>
+            {
+                Message = "Autorisation renouvelée",
                 Data = new LoginOutputDTO
                 {
                     User = refreshTokenDB.User.ToUserResponseDTO(userRoles),
@@ -429,6 +501,12 @@ namespace TerminalApi.Services
             };
         }
 
+        /// <summary>
+        /// Connecte un utilisateur
+        /// </summary>
+        /// <param name="model">Données de connexion</param>
+        /// <param name="response">Réponse HTTP</param>
+        /// <returns>Réponse contenant les informations de connexion</returns>
         public async Task<ResponseDTO<LoginOutputDTO>> Login(UserLoginDTO model, HttpResponse response)
         {
             var user = await userManager.FindByEmailAsync(model.Email);
@@ -441,16 +519,16 @@ namespace TerminalApi.Services
             var result = await userManager.CheckPasswordAsync(user: user, password: model.Password);
             if (!userManager.CheckPasswordAsync(user: user, password: model.Password).Result)
             {
-                return new ResponseDTO<LoginOutputDTO> { Message = "Connexion �chou�e", Status = 401 };
+                return new ResponseDTO<LoginOutputDTO> { Message = "Connexion échouée", Status = 401 };
             }
 
-            // � la connection, je cr�e ou je met � jour le refreshtoken
+            // à la connection, je crée ou je met à jour le refreshtoken
             var refreshToken = await CreateOrUpdateTokenAsync(user, forceReset: true);
 
             user.LastLogginAt = DateTime.Now;
             await context.SaveChangesAsync();
             // to allow cookies sent from the front end
-            response.Headers.Add(key: "Access-Control-Allow-Credentials", value: "true");
+            response.Headers.Append(key: "Access-Control-Allow-Credentials", value: "true");
             var userRoles = await userManager.GetRolesAsync(user);
 
             response.Cookies.Append(
@@ -465,8 +543,9 @@ namespace TerminalApi.Services
                 }
             );
 
-            return new ResponseDTO<LoginOutputDTO> {
-                Message = "Connexion r�ussite",
+            return new ResponseDTO<LoginOutputDTO>
+            {
+                Message = "Connexion réussite",
                 Status = 200,
                 Data = new LoginOutputDTO
                 {
@@ -482,7 +561,7 @@ namespace TerminalApi.Services
             bool forceReset = false
         )
         {
-            // � la connection, je cr�e ou je met � jour le refreshtoken
+            // à la connection, je crée ou je met à jour le refreshtoken
             var refreshToken = context.RefreshTokens.FirstOrDefault(x => x.UserId == user.Id);
 
             if (refreshToken is null)
@@ -537,6 +616,11 @@ namespace TerminalApi.Services
             return refreshToken;
         }
 
+        /// <summary>
+        /// Génère un token d'accès JWT pour l'utilisateur
+        /// </summary>
+        /// <param name="user">Utilisateur pour lequel générer le token</param>
+        /// <returns>Token JWT en string</returns>
         public async Task<string> GenerateAccessTokenAsync(UserApp user)
         {
             var securityKey = new SymmetricSecurityKey(

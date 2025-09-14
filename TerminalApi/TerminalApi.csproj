@@ -9,6 +9,8 @@
 	  <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
 	  <DockerfileContext>.</DockerfileContext>
 	  <GenerateDocumentationFile>True</GenerateDocumentationFile>
+    <CodePage>65001</CodePage>
+    <Utf8Output>true</Utf8Output>
   </PropertyGroup>
 
   <ItemGroup>
