@@ -12,6 +12,7 @@ using TerminalApi.Interfaces;
 using Testcontainers.PostgreSql;
 using System.Collections.Generic;
 using Hangfire;
+using TerminalTestIntegration.Tests;
 
 namespace TerminalTestIntegration;
 
@@ -31,7 +32,8 @@ public class CustomWebApplicationFactory : WebApplicationFactory<Program>, IAsyn
     public async Task InitializeAsync()
     {
         await _postgresContainer.StartAsync();
-        
+        await PuppeteerSetup.EnsureBrowserDownloadedAsync();
+
         Environment.SetEnvironmentVariable("API_BACK_URL", "https://localhost:7113");
         Environment.SetEnvironmentVariable("API_FRONT_URL", "https://localhost:4200");
         Environment.SetEnvironmentVariable("SMTP_BREVO_PORT", "587");

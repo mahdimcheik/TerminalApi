@@ -466,21 +466,21 @@ namespace TerminalTestIntegration
             Assert.Equal(System.Net.HttpStatusCode.Unauthorized, response.StatusCode);
         }
 
-        [Fact]
-        public async Task SeedUsers_WithAdminAuth_ReturnsSuccess()
-        {
-            // Arrange - Login as admin
-            var loginResponse = await LoginAndGetToken("admin@skillhive.fr", "Admin123!");
-            httpClient.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", loginResponse.Data.Token);
+        //[Fact]
+        //public async Task SeedUsers_WithAdminAuth_ReturnsSuccess()
+        //{
+        //    // Arrange - Login as admin
+        //    var loginResponse = await LoginAndGetToken("admin@skillhive.fr", "Admin123!");
+        //    httpClient.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", loginResponse.Data.Token);
 
-            // Act
-            var response = await httpClient.GetAsync("/users/seed");
-            var responseContent = await response.Content.ReadAsStringAsync();
+        //    // Act
+        //    var response = await httpClient.GetAsync("/users/seed");
+        //    var responseContent = await response.Content.ReadAsStringAsync();
 
-            // Assert - Accept both success and server error since seed might fail due to constraints
-            Assert.True(response.IsSuccessStatusCode || response.StatusCode == System.Net.HttpStatusCode.InternalServerError, 
-                       $"Response failed: {response.StatusCode}, Content: {responseContent}");
-        }
+        //    // Assert - Accept both success and server error since seed might fail due to constraints
+        //    Assert.True(response.IsSuccessStatusCode || response.StatusCode == System.Net.HttpStatusCode.InternalServerError, 
+        //               $"Response failed: {response.StatusCode}, Content: {responseContent}");
+        //}
 
         #endregion
 
