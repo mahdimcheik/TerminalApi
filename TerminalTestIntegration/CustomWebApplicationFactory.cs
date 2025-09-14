@@ -30,10 +30,8 @@ public class CustomWebApplicationFactory : WebApplicationFactory<Program>, IAsyn
 
     public async Task InitializeAsync()
     {
-        // Start the PostgreSQL container first
         await _postgresContainer.StartAsync();
         
-        // Set required environment variables for JWT authentication
         Environment.SetEnvironmentVariable("API_BACK_URL", "https://localhost:7113");
         Environment.SetEnvironmentVariable("API_FRONT_URL", "https://localhost:4200");
         Environment.SetEnvironmentVariable("SMTP_BREVO_PORT", "587");
@@ -42,10 +40,8 @@ public class CustomWebApplicationFactory : WebApplicationFactory<Program>, IAsyn
         Environment.SetEnvironmentVariable("SMTP_BREVO_KEY", "test-key");
         Environment.SetEnvironmentVariable("ASPNETCORE_ENVIRONMENT", "Testing");
         
-        // CRITICAL: Set the JWT key that's required for authentication
         Environment.SetEnvironmentVariable("JWT_KEY", "i7RdBacZPsi7RdBacZPsi7RdBacZPsi7RdBacZPsi7RdBacZPsi7RdBacZPsi7RdBacZPsi7RdBacZPsi7RdBacZPsi7RdBacZPs");
         
-        // Set additional required environment variables
         Environment.SetEnvironmentVariable("TEACHER_GUID", "44ea5267-31c5-44a6-94a3-bac6efd009c7");
         Environment.SetEnvironmentVariable("TEACHER_EMAIL", "teacher@skillhive.fr");
         Environment.SetEnvironmentVariable("TOKEN_AUDIENCE", "https://localhost:7113");
@@ -55,7 +51,6 @@ public class CustomWebApplicationFactory : WebApplicationFactory<Program>, IAsyn
         Environment.SetEnvironmentVariable("COOKIES_VALIDITY_DAYS", "7");
         Environment.SetEnvironmentVariable("DOCKER_ENVIRONMENT", "false");
         
-        // Wait a moment for the container to be fully ready
         await Task.Delay(1000);
     }
 
@@ -71,6 +66,7 @@ public class CustomWebApplicationFactory : WebApplicationFactory<Program>, IAsyn
         builder.ConfigureAppConfiguration((context, config) =>
         {
             // Override connection string and other settings for testing
+            /*
             config.AddInMemoryCollection(new Dictionary<string, string>
             {
                 {"ConnectionStrings:DefaultConnection", _postgresContainer.GetConnectionString()},
@@ -105,17 +101,17 @@ public class CustomWebApplicationFactory : WebApplicationFactory<Program>, IAsyn
                 {"AppSettings:Environment:DockerEnvironment", "false"},
                 {"AppSettings:Teacher:Guid", "44ea5267-31c5-44a6-94a3-bac6efd009c7"},
                 {"AppSettings:Teacher:Email", "teacher@skillhive.fr"}
-            });
+            });*/
         });
 
         // Configure services
         builder.ConfigureServices(services =>
         {
-            // Build a temporary service provider to get configuration and initialize EnvironmentVariables
+            // Ajouter le service provider pour injjecter les services necessaires
             var tempServiceProvider = services.BuildServiceProvider();
-            var configuration = tempServiceProvider.GetService<IConfiguration>();   
+            var configuration = tempServiceProvider.GetService<IConfiguration>();
 
-            // Remove Hangfire services to prevent schema conflicts in tests
+            // hangfire me causer des problemes dans les tests, on le vire
             var hangfireServices = services.Where(s => 
                 s.ServiceType.Name.Contains("Hangfire") || 
                 s.ServiceType.Name.Contains("BackgroundJob") ||
@@ -129,7 +125,8 @@ public class CustomWebApplicationFactory : WebApplicationFactory<Program>, IAsyn
                 services.Remove(service);
             }
 
-            // Replace email service with a mock to prevent test failures
+            // le service d'envoi de mail ne fonctionne pas en test, parce que ca demande un vrai serveur smtp
+            // on le vire et on met un mock a la place
             var emailServiceDescriptor = services.SingleOrDefault(d =>
                 d.ServiceType == typeof(ISendMailService)
             );
@@ -139,7 +136,7 @@ public class CustomWebApplicationFactory : WebApplicationFactory<Program>, IAsyn
             }
             services.AddScoped<ISendMailService, MockEmailService>();
 
-            // Remove the existing database context registration
+            // chercher le service DbContextOptions<ApiDefaultContext> et le supprimer
             var descriptor = services.SingleOrDefault(d =>
                 d.ServiceType == typeof(DbContextOptions<ApiDefaultContext>));
 
@@ -148,17 +145,17 @@ public class CustomWebApplicationFactory : WebApplicationFactory<Program>, IAsyn
                 services.Remove(descriptor);
             }
 
-            // Add new database context with testcontainer connection string
+            // le remplacer par un qui pointe sur la base de test (overrider)
             services.AddDbContext<ApiDefaultContext>(options =>
             {
                 options.UseNpgsql(_postgresContainer.GetConnectionString());
-                options.EnableSensitiveDataLogging(); // Helpful for debugging tests
+                options.EnableSensitiveDataLogging();
             });
 
-            // Build service provider to initialize the database
+            //// Build service provider to initialize the database
             var serviceProvider = services.BuildServiceProvider();
 
-            // Create database and apply migrations
+            // creer la base de donnees et appliquer les migrations de base
             using var scope = serviceProvider.CreateScope();
             var context = scope.ServiceProvider.GetRequiredService<ApiDefaultContext>();
             var userManager = scope.ServiceProvider.GetRequiredService<UserManager<UserApp>>();
@@ -166,27 +163,27 @@ public class CustomWebApplicationFactory : WebApplicationFactory<Program>, IAsyn
 
             try
             {
-                // Ensure database is created and migrations are applied
+                // creer la base de donnees
                 context.Database.EnsureCreated();
 
-                // Seed test data
+                // ajouter les données de test
                 SeedDataAsync(userManager, roleManager).GetAwaiter().GetResult();
             }
             catch (Exception ex)
             {
-                // Log any database initialization errors
+                // pour pouvoir debogger plus facilement
                 Console.WriteLine($"Database initialization failed: {ex.Message}");
                 Console.WriteLine($"Stack trace: {ex.StackTrace}");
                 throw;
             }
         });
 
-        // Set the environment to Testing
+        // cette varaible d'environnement est lue dans Program.cs pour activer certains comportements (hangfire)
         builder.UseEnvironment("Testing");
     }
     private async Task SeedDataAsync(UserManager<UserApp> userManager, RoleManager<Role> roleManager)
     {
-        // Seed Admin User (Email Confirmed)
+        // Admin
         var adminUser = new UserApp
         {
             Email = "admin@skillhive.fr",
@@ -208,7 +205,7 @@ public class CustomWebApplicationFactory : WebApplicationFactory<Program>, IAsyn
             await userManager.AddToRoleAsync(adminUser, "Admin");
         }
 
-        // Seed Student User (Email Confirmed)
+        // Seed Etudiant
         var studentUser = new UserApp
         {
             Email = "student@skillhive.fr",
@@ -230,7 +227,7 @@ public class CustomWebApplicationFactory : WebApplicationFactory<Program>, IAsyn
             await userManager.AddToRoleAsync(studentUser, "Student");
         }
 
-        // Seed Unconfirmed User (Email Not Confirmed)
+        // Seed Etuduiant non confirme' (Email Not Confirmed)
         var unconfirmedUser = new UserApp
         {
             Email = "unconfirmed@skillhive.fr",
@@ -252,7 +249,7 @@ public class CustomWebApplicationFactory : WebApplicationFactory<Program>, IAsyn
             await userManager.AddToRoleAsync(unconfirmedUser, "Student");
         }
 
-        // Seed Banned User (Email Confirmed but Banned)
+        // Etudiant banni (Banned User)
         var bannedUser = new UserApp
         {
             Email = "banned@skillhive.fr",
@@ -276,7 +273,7 @@ public class CustomWebApplicationFactory : WebApplicationFactory<Program>, IAsyn
             await userManager.AddToRoleAsync(bannedUser, "Student");
         }
 
-        // Seed Client User (Email Confirmed)
+        // un autre etudiant
         var clientUser = new UserApp
         {
             Email = "client@skillhive.fr",
@@ -298,7 +295,8 @@ public class CustomWebApplicationFactory : WebApplicationFactory<Program>, IAsyn
             await userManager.AddToRoleAsync(clientUser, "Client");
         }
 
-        // Seed User for Update Testing
+        // un autre etudiant
+
         var updateUser = new UserApp
         {
             Email = "update@skillhive.fr",
