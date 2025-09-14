@@ -45,7 +45,7 @@ namespace TerminalApi.Controllers
         /// </summary>
         private readonly IAuthService authService;
         /// <summary>
-        /// Service de signalR , qui s occupe de la liste des client connectes
+        /// Service de SignalR, qui s'occupe de la liste des clients connectés.
         /// </summary>
         private readonly ConnectionManager connectionManager;
 
@@ -56,6 +56,7 @@ namespace TerminalApi.Controllers
         /// <param name="userManager">Gestionnaire des utilisateurs.</param>
         /// <param name="fakerService">Service pour générer des données fictives.</param>
         /// <param name="authService">Service d'authentification.</param>
+        /// <param name="connectionManager">Gestionnaire des connexions SignalR.</param>
         public UsersController(
             ApiDefaultContext context,
             UserManager<UserApp> userManager,
@@ -89,7 +90,7 @@ namespace TerminalApi.Controllers
             if (!ModelState.IsValid)
             {
                 return BadRequest(
-                    new ResponseDTO<object> { Status = 404, Message = "problème de validation" }
+                    new ResponseDTO<object> { Status = 404, Message = "Problème de validation" }
                 );
             }
 
@@ -432,14 +433,14 @@ namespace TerminalApi.Controllers
         [HttpGet("logout")]
         public async Task<ActionResult<ResponseDTO<object?>>> Logout()
         {
-            // Get current user's email/username for connection cleanup
+            // Récupération de l'email/nom d'utilisateur actuel pour nettoyer les connexions
             var userEmail = HttpContext.User?.FindFirst(System.Security.Claims.ClaimTypes.Email)?.Value ??
                            HttpContext.User?.FindFirst(System.Security.Claims.ClaimTypes.Name)?.Value ??
                            HttpContext.User?.Identity?.Name;
 
             Response.Cookies.Delete("refreshToken");
             
-            // Remove all SignalR connections for this user
+            // Suppression de toutes les connexions SignalR pour cet utilisateur
             if (!string.IsNullOrEmpty(userEmail))
             {
                 connectionManager.RemoveUserConnections(userEmail);
@@ -488,6 +489,9 @@ namespace TerminalApi.Controllers
     }
 
     #region google models
+    /// <summary>
+    /// Modèle de réponse pour les tokens d'authentification Google.
+    /// </summary>
     public class TokenResponse
     {
         [JsonPropertyName("access_token")]
@@ -509,6 +513,9 @@ namespace TerminalApi.Controllers
         public string IdToken { get; set; }
     }
 
+    /// <summary>
+    /// Modèle pour les informations utilisateur Google.
+    /// </summary>
     public class UserInfo
     {
         [JsonPropertyName("id")]

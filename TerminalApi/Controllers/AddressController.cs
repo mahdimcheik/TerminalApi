@@ -13,7 +13,7 @@ namespace TerminalApi.Controllers
 {
 
     /// <summary>
-    /// Contr�leur pour g�rer les adresses des utilisateurs.
+    /// Contrôleur pour gérer les adresses des utilisateurs.
     /// </summary>
     [Route("[controller]")]
     [ApiController]
@@ -25,11 +25,11 @@ namespace TerminalApi.Controllers
         private readonly IAddressService addressService;
 
         /// <summary>
-        /// Constructeur du contr�leur AddressController.
+        /// Constructeur du contrôleur AddressController.
         /// </summary>
         /// <param name="userManager">Gestionnaire des utilisateurs.</param>
-        /// <param name="context">Contexte de la base de donn�es.</param>
-        /// <param name="addressService">Service pour g�rer les adresses.</param>
+        /// <param name="context">Contexte de la base de données.</param>
+        /// <param name="addressService">Service pour gérer les adresses.</param>
         public AddressController(
             UserManager<UserApp> userManager,
             ApiDefaultContext context,
@@ -42,7 +42,7 @@ namespace TerminalApi.Controllers
         }
 
         /// <summary>
-        /// R�cup�re toutes les adresses associ�es � un utilisateur donn�.
+        /// Récupère toutes les adresses associées à un utilisateur donné.
         /// </summary>
         /// <param name="userId">Identifiant de l'utilisateur.</param>
         /// <returns>Liste des adresses de l'utilisateur.</returns>
@@ -61,7 +61,7 @@ namespace TerminalApi.Controllers
                 return Ok(
                     new ResponseDTO<List<AddressResponseDTO>> {
                         Status = 200,
-                        Message = "Liste d'adresses envoy�e",
+                        Message = "Liste d'adresses envoyée",
                         Data = result,
                     }
                 );
@@ -73,99 +73,97 @@ namespace TerminalApi.Controllers
         }
 
         /// <summary>
-        /// Ajoute une nouvelle adresse pour l'utilisateur connect�.
+        /// Ajoute une nouvelle adresse pour l'utilisateur connecté.
         /// </summary>
-        /// <param name="addressCreate">Donn�es de l'adresse � ajouter.</param>
-        /// <returns>Adresse ajout�e.</returns>
+        /// <param name="addressCreate">Données de l'adresse à ajouter.</param>
+        /// <returns>Adresse ajoutée.</returns>
         [HttpPost]
         public async Task<ActionResult<ResponseDTO<AddressResponseDTO>>> AddAddress([FromBody] AddressCreateDTO addressCreate)
         {
             if (addressCreate is null)
             {
-                return BadRequest(new ResponseDTO<AddressResponseDTO> { Status = 40, Message = "Demande refus�e" });
+                return BadRequest(new ResponseDTO<object> { Status = 400, Message = "Demande refusée" });
             }
             var user = CheckUser.GetUserFromClaim(HttpContext.User, context);
             if (user is null)
             {
-                return BadRequest(new ResponseDTO<AddressResponseDTO> { Status = 40, Message = "Demande refus�e" });
+                return BadRequest(new ResponseDTO<object> { Status = 40, Message = "Demande refusée" });
             }
 
             try
             {
                 var result = await addressService.AddAddress(addressCreate, user.Id);
-                return Ok(new ResponseDTO<AddressResponseDTO> { Data = result, Message = "Adresse ajout�e", Status = 200 });
+                return Ok(new ResponseDTO<object> { Data = result, Message = "Adresse ajoutée", Status = 200 });
             }
             catch (Exception ex)
             {
-                return BadRequest(new ResponseDTO<AddressResponseDTO> { Status = 40, Message = ex.Message });
+                return BadRequest(new ResponseDTO<object> { Status = 40, Message = ex.Message });
             }
         }
 
         /// <summary>
-        /// Met � jour une adresse existante pour l'utilisateur connect�.
+        /// Met à jour une adresse existante pour l'utilisateur connecté.
         /// </summary>
-        /// <param name="addressDTO">Donn�es de l'adresse � mettre � jour.</param>
-        /// <returns>Adresse mise � jour.</returns>
+        /// <param name="addressDTO">Données de l'adresse à mettre à jour.</param>
+        /// <returns>Adresse mise à jour.</returns>
         [HttpPut]
         public async Task<ActionResult<ResponseDTO<AddressResponseDTO>>> UpdateAddress([FromBody] AddressUpdateDTO addressDTO)
         {
             if (addressDTO is null)
             {
-                return BadRequest(new ResponseDTO<AddressResponseDTO> { Status = 40, Message = "Demande refus�e" });
+                return BadRequest(new ResponseDTO<object> { Status = 40, Message = "Demande refusée" });
             }
             var user = CheckUser.GetUserFromClaim(HttpContext.User, context);
 
             if (user is null)
             {
-                return BadRequest(new ResponseDTO<AddressResponseDTO> { Status = 40, Message = "Demande refus�e" });
+                return BadRequest(new ResponseDTO<object> { Status = 40, Message = "Demande refusée" });
             }
 
-            var AddressFromDb = await context.Addresses.FirstOrDefaultAsync(x => x.Id == Guid.Parse(addressDTO.Id) && x.UserId == user.Id);
+            var addressFromDb = await context.Addresses.FirstOrDefaultAsync(x => x.Id == Guid.Parse(addressDTO.Id) && x.UserId == user.Id);
 
-            if (AddressFromDb is null)
+            if (addressFromDb is null)
             {
-                return BadRequest(new ResponseDTO<AddressResponseDTO> { Status = 40, Message = "Demande refus�e" });
+                return BadRequest(new ResponseDTO<object> { Status = 40, Message = "Demande refusée" });
             }
 
             try
             {
-                var result = await addressService.UpdateAddress(addressDTO, AddressFromDb);
-                return Ok(new ResponseDTO<AddressResponseDTO> { Data = result, Message = "Adresse mise � jour", Status = 200 });
+                var result = await addressService.UpdateAddress(addressDTO, addressFromDb);
+                return Ok(new ResponseDTO<object> { Data = result, Message = "Adresse mise à jour", Status = 200 });
             }
             catch (Exception ex)
             {
-                return BadRequest(new ResponseDTO<AddressResponseDTO> { Status = 40, Message = ex.Message });
+                return BadRequest(new ResponseDTO<object> { Status = 40, Message = ex.Message });
             }
         }
 
         /// <summary>
-        /// Supprime une adresse pour l'utilisateur connect�.
+        /// Supprime une adresse existante pour l'utilisateur connecté.
         /// </summary>
-        /// <param name="addressId">Identifiant de l'adresse � supprimer.</param>
-        /// <returns>Statut de la suppression.</returns>
+        /// <param name="addressId">Identifiant de l'adresse à supprimer.</param>
+        /// <returns>Confirmation de suppression.</returns>
         [HttpDelete]
-        public async Task<ActionResult<ResponseDTO<string?>>> DeleteAddress([FromQuery] string addressId)
+        public async Task<ActionResult<ResponseDTO<object>>> DeleteAddress([FromQuery] string addressId)
         {
             try
             {
                 if (addressId.IsNullOrEmpty())
                 {
-                    return BadRequest(new ResponseDTO<string?> { Status = 40, Message = "Demande refus�e" });
+                    return BadRequest(new ResponseDTO<object> { Status = 40, Message = "Demande refusée" });
                 }
                 var user = CheckUser.GetUserFromClaim(HttpContext.User, context);
                 if (user is null)
                 {
-                    return BadRequest(new ResponseDTO<string?> { Status = 40, Message = "Demande refus�e" });
+                    return BadRequest(new ResponseDTO<object> { Status = 40, Message = "Demande refusée" });
                 }
                 var resultDelete = await addressService.DeleteAddress(user.Id, addressId);
-                return Ok(new ResponseDTO<string?> { Message = "L'adresse est supprim�e", Status = 204 });
+                return Ok(new ResponseDTO<object> { Message = "L'adresse est supprimée", Status = 204 });
             }
             catch (Exception ex)
             {
-                return BadRequest(new ResponseDTO<string?> { Status = 40, Message = ex.Message });
+                return BadRequest(new ResponseDTO<object> { Status = 40, Message = ex.Message });
             }
         }
     }
-
-
 }
