@@ -32,7 +32,7 @@ public class CustomWebApplicationFactory : WebApplicationFactory<Program>, IAsyn
     public async Task InitializeAsync()
     {
         await _postgresContainer.StartAsync();
-        await PuppeteerSetup.EnsureBrowserDownloadedAsync();
+        //await PuppeteerSetup.EnsureBrowserDownloadedAsync();
         Console.OutputEncoding = System.Text.Encoding.UTF8;
 
 
@@ -171,7 +171,7 @@ public class CustomWebApplicationFactory : WebApplicationFactory<Program>, IAsyn
                 // creer la base de donnees
                 context.Database.EnsureCreated();
 
-                // ajouter les données de test
+                // ajouter les donnÃ©es de test
                 SeedDataAsync(userManager, roleManager).GetAwaiter().GetResult();
             }
             catch (Exception ex)

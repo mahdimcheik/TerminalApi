@@ -6,14 +6,11 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc.Razor;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using Npgsql;
-using PuppeteerSharp;
 using QuestPDF.Infrastructure;
 using System.Data;
-using System.Reflection;
 using System.Text;
 using TerminalApi.Contexts;
 using TerminalApi.Interfaces;
@@ -35,12 +32,12 @@ namespace TerminalApi
             var services = builder.Services;
 
             ConfigureServices(services);
-            var toto = new BrowserFetcher().DownloadAsync().Result;
+            //var toto = new BrowserFetcher().DownloadAsync().Result;
 
-            var launchOptions = new LaunchOptions
-            {
-                Headless = true, // = false for testing
-            };
+            //var launchOptions = new LaunchOptions
+            //{
+            //    Headless = true, // = false for testing
+            //};
 
             var app = builder.Build();
             ConfigureMiddlewarePipeline(app);
@@ -305,7 +302,8 @@ namespace TerminalApi
 
             // Skip Hangfire in test environments to prevent integration test failures
             if (environment?.EnvironmentName != "Testing")
-            {                Console.WriteLine($"Host=skill_hive_db;Port=5433;Database=skill_hive_db;Username=postgres;Password=beecoming;");
+            {
+                Console.WriteLine($"Host=skill_hive_db;Port=5433;Database=skill_hive_db;Username=postgres;Password=beecoming;");
 
                 services.AddHangfire(configuration =>
                     configuration
@@ -324,7 +322,7 @@ namespace TerminalApi
 
                 services.AddHangfireServer();
 
-               
+
             }
 
             ConfigureCors(services);
@@ -359,7 +357,7 @@ namespace TerminalApi
                 c.SwaggerEndpoint("/swagger/v1/swagger.json", "data_lib v1");
                 c.RoutePrefix = "swagger";
             });
-            
+
             // Skip Hangfire in test environments to prevent integration test failures
             if (!app.Environment.IsEnvironment("Testing") && !app.Environment.IsProduction())
             {

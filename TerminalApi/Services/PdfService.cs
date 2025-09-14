@@ -1,12 +1,9 @@
-﻿using PuppeteerSharp;
-using PuppeteerSharp.Media;
-using RazorLight;
-using TerminalApi.Contexts;
-using TerminalApi.Models;
-using TerminalApi.Interfaces;
 using QuestPDF.Fluent;
 using QuestPDF.Helpers;
 using QuestPDF.Infrastructure;
+using RazorLight;
+using TerminalApi.Interfaces;
+using TerminalApi.Models;
 
 namespace TerminalApi.Services
 {
@@ -32,42 +29,45 @@ namespace TerminalApi.Services
 
             try
             {
-                string templatePath = "Invoice.cshtml"; // Name of your template file
+//                string templatePath = "Invoice.cshtml"; // Name of your template file
 
 
-                string htmlContent = await _razorLightEngine.CompileRenderAsync(templatePath, order);
+//                string htmlContent = await _razorLightEngine.CompileRenderAsync(templatePath, order);
 
-                bool inDebugMode = false;
-#if DEBUG
-                inDebugMode = true;
-#endif
+//                bool inDebugMode = false;
+//#if DEBUG
+//                inDebugMode = true;
+//#endif
 
-                using var browser = await Puppeteer.LaunchAsync(
-                    new LaunchOptions { Headless = true,
-                        Args =inDebugMode ? [] : new[] {
-                                "--no-sandbox",
-                                "--disable-setuid-sandbox",
-                                "--disable-dev-shm-usage",
-                                "--disable-gpu",
-                                "--single-process",
-                                "--no-zygote"
-    }
-                    }
-                );
-                using var page = await browser.NewPageAsync();
+//                using var browser = await Puppeteer.LaunchAsync(
+//                    new LaunchOptions
+//                    {
+//                        Headless = true,
+//                        Args = inDebugMode ? [] : new[] {
+//                                "--no-sandbox",
+//                                "--disable-setuid-sandbox",
+//                                "--disable-dev-shm-usage",
+//                                "--disable-gpu",
+//                                "--single-process",
+//                                "--no-zygote"
+//    }
+//                    }
+//                );
+//                using var page = await browser.NewPageAsync();
 
-                await page.SetContentAsync(htmlContent);
-                var file = await page.PdfDataAsync(new PdfOptions
-                {
-                    Format = PaperFormat.A4,
-                    DisplayHeaderFooter = true,
-                    FooterTemplate = @"<div style='width:100%;text-align:center;font-size:10px;padding:5px;'>
-                    Page <span class='pageNumber'></span> / <span class='totalPages'></span>
-                </div>",
-                    MarginOptions = new PuppeteerSharp.Media.MarginOptions { Top = "40px", Bottom = "60px" }
-                });
+//                await page.SetContentAsync(htmlContent);
+//                var file = await page.PdfDataAsync(new PdfOptions
+//                {
+//                    Format = PaperFormat.A4,
+//                    DisplayHeaderFooter = true,
+//                    FooterTemplate = @"<div style='width:100%;text-align:center;font-size:10px;padding:5px;'>
+//                    Page <span class='pageNumber'></span> / <span class='totalPages'></span>
+//                </div>",
+//                    MarginOptions = new PuppeteerSharp.Media.MarginOptions { Top = "40px", Bottom = "60px" }
+//                });
 
-                return file;
+                //return file;
+                return new byte[0];
             }
             catch (Exception ex)
             {
