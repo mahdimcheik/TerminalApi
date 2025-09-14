@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http.Json;
@@ -402,6 +402,7 @@ namespace TerminalTestIntegration
 
             // Assert
             Assert.True(response.IsSuccessStatusCode);
+            Console.WriteLine(responseContent);
             Assert.Contains("déconnecté", responseContent);
         }
 

@@ -33,6 +33,8 @@ public class CustomWebApplicationFactory : WebApplicationFactory<Program>, IAsyn
     {
         await _postgresContainer.StartAsync();
         await PuppeteerSetup.EnsureBrowserDownloadedAsync();
+        Console.OutputEncoding = System.Text.Encoding.UTF8;
+
 
         Environment.SetEnvironmentVariable("API_BACK_URL", "https://localhost:7113");
         Environment.SetEnvironmentVariable("API_FRONT_URL", "https://localhost:4200");

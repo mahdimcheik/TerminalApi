@@ -14,7 +14,7 @@ using TerminalApi.Utilities;
 namespace TerminalApi.Controllers
 {
     /// <summary>
-    /// Contrôleur pour gérer les utilisateurs.
+    /// ContrÃ´leur pour gÃ©rer les utilisateurs.
     /// </summary>
     [Route("[controller]")]
     [Authorize]
@@ -26,7 +26,7 @@ namespace TerminalApi.Controllers
         #region Attributes
 
         /// <summary>
-        /// Contexte de la base de données.
+        /// Contexte de la base de donnÃ©es.
         /// </summary>
         private readonly ApiDefaultContext _context;
 
@@ -36,7 +36,7 @@ namespace TerminalApi.Controllers
         private readonly UserManager<UserApp> _userManager;
 
         /// <summary>
-        /// Service pour générer des données fictives.
+        /// Service pour gÃ©nÃ©rer des donnÃ©es fictives.
         /// </summary>
         private readonly FakerService fakerService;
 
@@ -50,11 +50,11 @@ namespace TerminalApi.Controllers
         private readonly ConnectionManager connectionManager;
 
         /// <summary>
-        /// Constructeur du contrôleur des utilisateurs.
+        /// Constructeur du contrÃ´leur des utilisateurs.
         /// </summary>
-        /// <param name="context">Contexte de la base de données.</param>
+        /// <param name="context">Contexte de la base de donnÃ©es.</param>
         /// <param name="userManager">Gestionnaire des utilisateurs.</param>
-        /// <param name="fakerService">Service pour générer des données fictives.</param>
+        /// <param name="fakerService">Service pour gÃ©nÃ©rer des donnÃ©es fictives.</param>
         /// <param name="authService">Service d'authentification.</param>
         public UsersController(
             ApiDefaultContext context,
@@ -78,8 +78,8 @@ namespace TerminalApi.Controllers
         /// <summary>
         /// Enregistre un nouvel utilisateur.
         /// </summary>
-        /// <param name="model">Données de création de l'utilisateur.</param>
-        /// <returns>Résultat de l'opération.</returns>
+        /// <param name="model">DonnÃ©es de crÃ©ation de l'utilisateur.</param>
+        /// <returns>RÃ©sultat de l'opÃ©ration.</returns>
         [AllowAnonymous]
         [EnableCors]
         [Route("register")]
@@ -89,7 +89,7 @@ namespace TerminalApi.Controllers
             if (!ModelState.IsValid)
             {
                 return BadRequest(
-                    new ResponseDTO<object> { Status = 404, Message = "problème de validation" }
+                    new ResponseDTO<object> { Status = 404, Message = "problÃ¨me de validation" }
                 );
             }
 
@@ -103,10 +103,10 @@ namespace TerminalApi.Controllers
         }
 
         /// <summary>
-        /// Met à jour les informations d'un utilisateur.
+        /// Met Ã  jour les informations d'un utilisateur.
         /// </summary>
-        /// <param name="model">Données de mise à jour de l'utilisateur.</param>
-        /// <returns>Résultat de l'opération.</returns>
+        /// <param name="model">DonnÃ©es de mise Ã  jour de l'utilisateur.</param>
+        /// <returns>RÃ©sultat de l'opÃ©ration.</returns>
         [EnableCors]
         [Route("update")]
         [HttpPatch]
@@ -127,10 +127,10 @@ namespace TerminalApi.Controllers
         }
 
         /// <summary>
-        /// Télécharge un avatar (image) pour l'utilisateur.
+        /// TÃ©lÃ©charge un avatar (image) pour l'utilisateur.
         /// </summary>
         /// <param name="file">Fichier de l'avatar.</param>
-        /// <returns>Résultat de l'opération.</returns>
+        /// <returns>RÃ©sultat de l'opÃ©ration.</returns>
         [HttpPost("upload-avatar")]
         [Consumes("multipart/form-data")]
         [Produces("application/json")]
@@ -156,8 +156,8 @@ namespace TerminalApi.Controllers
         /// <summary>
         /// Connecte un utilisateur.
         /// </summary>
-        /// <param name="model">Données de connexion de l'utilisateur.</param>
-        /// <returns>Résultat de l'opération.</returns>
+        /// <param name="model">DonnÃ©es de connexion de l'utilisateur.</param>
+        /// <returns>RÃ©sultat de l'opÃ©ration.</returns>
         [AllowAnonymous]
         [Route("login")]
         [HttpPost]
@@ -166,7 +166,7 @@ namespace TerminalApi.Controllers
             if (!ModelState.IsValid)
                 return BadRequest(
                     new ResponseDTO<object> {
-                        Message = "Connexion échouée",
+                        Message = "Connexion Ã©chouÃ©e",
                         Status = 401,
                         Data = ModelState,
                     }
@@ -189,7 +189,7 @@ namespace TerminalApi.Controllers
         /// </summary>
         /// <param name="userId">Identifiant de l'utilisateur.</param>
         /// <param name="confirmationToken">Token de confirmation.</param>
-        /// <returns>Résultat de l'opération.</returns>
+        /// <returns>RÃ©sultat de l'opÃ©ration.</returns>
         [AllowAnonymous]
         [Route("email-confirmation")]
         [HttpGet]
@@ -208,9 +208,9 @@ namespace TerminalApi.Controllers
         }
 
         /// <summary>
-        /// Récupère un nouveau lien de confirmation.
+        /// RÃ©cupÃ¨re un nouveau lien de confirmation.
         /// </summary>
-        /// <returns>Résultat de l'opération.</returns>
+        /// <returns>RÃ©sultat de l'opÃ©ration.</returns>
         [AllowAnonymous]
         [HttpGet("resend-confirmation-link")]
         public async Task<ActionResult<ResponseDTO<UserResponseDTO>?>> ResendConfirmationLink()
@@ -219,7 +219,7 @@ namespace TerminalApi.Controllers
 
             if (user == null)
                 return BadRequest(
-                    new ResponseDTO<object> { Message = "Vous n'êtes pas connecté", Status = 401 }
+                    new ResponseDTO<object> { Message = "Vous n'Ãªtes pas connectÃ©", Status = 401 }
                 );
 
             var res = await authService.ResendConfirmationMail(user);
@@ -232,7 +232,7 @@ namespace TerminalApi.Controllers
         #region CurrentUser informations
 
         /// <summary>
-        /// Récupère les informations de l'utilisateur connecté.
+        /// RÃ©cupÃ¨re les informations de l'utilisateur connectÃ©.
         /// </summary>
         /// <returns>Informations de l'utilisateur.</returns>
         [HttpGet("my-informations")]
@@ -242,7 +242,7 @@ namespace TerminalApi.Controllers
 
             if (user == null)
                 return BadRequest(
-                    new ResponseDTO<object> { Message = "Vous n'êtes pas connecté", Status = 401 }
+                    new ResponseDTO<object> { Message = "Vous n'Ãªtes pas connectÃ©", Status = 401 }
                 );
 
             var result = user.ToUserResponseDTO();
@@ -250,7 +250,7 @@ namespace TerminalApi.Controllers
 
             return Ok(
                 new ResponseDTO<object> {
-                    Message = "Demande acceptée",
+                    Message = "Demande acceptÃ©e",
                     Status = 200,
                     Data = new
                     {
@@ -262,7 +262,7 @@ namespace TerminalApi.Controllers
         }
 
         /// <summary>
-        /// Récupère les informations publiques d'un utilisateur.
+        /// RÃ©cupÃ¨re les informations publiques d'un utilisateur.
         /// </summary>
         /// <param name="userId">Identifiant de l'utilisateur.</param>
         /// <returns>Informations publiques de l'utilisateur.</returns>
@@ -276,7 +276,7 @@ namespace TerminalApi.Controllers
             if (userId.ToLower().Trim().IsNullOrEmpty())
             {
                 return BadRequest(
-                    new ResponseDTO<ResponseDTO<UserResponseDTO?>?> { Message = "Aucun profil trouvé", Status = 404 }
+                    new ResponseDTO<ResponseDTO<UserResponseDTO?>?> { Message = "Aucun profil trouvÃ©", Status = 404 }
                 );
             }
             if (userId.ToLower().Trim() == "teacher")
@@ -292,12 +292,12 @@ namespace TerminalApi.Controllers
 
             if (user == null)
                 return BadRequest(
-                    new ResponseDTO<ResponseDTO<UserResponseDTO?>?> { Message = "Vous n'êtes pas connecté", Status = 401 }
+                    new ResponseDTO<ResponseDTO<UserResponseDTO?>?> { Message = "Vous n'Ãªtes pas connectÃ©", Status = 401 }
                 );
 
             return Ok(
                 new ResponseDTO<UserResponseDTO?> {
-                    Message = "Demande acceptée",
+                    Message = "Demande acceptÃ©e",
                     Status = 200,
                     Data = user.ToUserResponseDTO()
                 }
@@ -309,10 +309,10 @@ namespace TerminalApi.Controllers
         #region POST AskForPasswordRecoveryMail
 
         /// <summary>
-        /// Demande un e-mail de récupération de mot de passe.
+        /// Demande un e-mail de rÃ©cupÃ©ration de mot de passe.
         /// </summary>
-        /// <param name="model">Données pour la récupération du mot de passe.</param>
-        /// <returns>Résultat de l'opération.</returns>
+        /// <param name="model">DonnÃ©es pour la rÃ©cupÃ©ration du mot de passe.</param>
+        /// <returns>RÃ©sultat de l'opÃ©ration.</returns>
         [AllowAnonymous]
         [Route("forgot-password")]
         [HttpPost]
@@ -322,7 +322,7 @@ namespace TerminalApi.Controllers
         {
             if (!ModelState.IsValid)
             {
-                return BadRequest(new ResponseDTO<PasswordResetResponseDTO?> { Message = "Demande refusée", Status = 400 });
+                return BadRequest(new ResponseDTO<PasswordResetResponseDTO?> { Message = "Demande refusÃ©e", Status = 400 });
             }
 
             var result = await authService.ForgotPassword(model);
@@ -339,10 +339,10 @@ namespace TerminalApi.Controllers
         #region PasswordChange after recovery
 
         /// <summary>
-        /// Change le mot de passe après une récupération.
+        /// Change le mot de passe aprÃ¨s une rÃ©cupÃ©ration.
         /// </summary>
-        /// <param name="model">Données pour changer le mot de passe.</param>
-        /// <returns>Résultat de l'opération.</returns>
+        /// <param name="model">DonnÃ©es pour changer le mot de passe.</param>
+        /// <returns>RÃ©sultat de l'opÃ©ration.</returns>
         [AllowAnonymous]
         [Route("reset-password")]
         [HttpPost]
@@ -352,7 +352,7 @@ namespace TerminalApi.Controllers
         {
             if (!ModelState.IsValid || model.Password != model.PasswordConfirmation)
             {
-                return BadRequest(new ResponseDTO<string?> { Message = "Demande refusée", Status = 400 });
+                return BadRequest(new ResponseDTO<string?> { Message = "Demande refusÃ©e", Status = 400 });
             }
 
             var result = await authService.ChangePassword(model);
@@ -369,9 +369,9 @@ namespace TerminalApi.Controllers
         #region refresh token
 
         /// <summary>
-        /// Met à jour le token de rafraîchissement.
+        /// Met Ã  jour le token de rafraÃ®chissement.
         /// </summary>
-        /// <returns>Résultat de l'opération.</returns>
+        /// <returns>RÃ©sultat de l'opÃ©ration.</returns>
         [Route("refresh-token")]
         [AllowAnonymous]
         [HttpGet]
@@ -399,10 +399,10 @@ namespace TerminalApi.Controllers
         #endregion
 
         /// <summary>
-        /// Récupère tous les utilisateurs avec pagination.
+        /// RÃ©cupÃ¨re tous les utilisateurs avec pagination.
         /// </summary>
-        /// <param name="first">Index de départ.</param>
-        /// <param name="rows">Nombre d'utilisateurs à récupérer.</param>
+        /// <param name="first">Index de dÃ©part.</param>
+        /// <param name="rows">Nombre d'utilisateurs Ã  rÃ©cupÃ©rer.</param>
         /// <returns>Liste des utilisateurs.</returns>
         [HttpGet("all")]
         [Authorize(Roles = "Admin")]
@@ -425,9 +425,9 @@ namespace TerminalApi.Controllers
         }
 
         /// <summary>
-        /// Déconnecte l'utilisateur.
+        /// DÃ©connecte l'utilisateur.
         /// </summary>
-        /// <returns>Résultat de l'opération.</returns>
+        /// <returns>RÃ©sultat de l'opÃ©ration.</returns>
         [AllowAnonymous]
         [HttpGet("logout")]
         public async Task<ActionResult<ResponseDTO<object?>>> Logout()
@@ -447,7 +447,7 @@ namespace TerminalApi.Controllers
 
             return Ok(new
             {
-                Message = "Vous êtes déconnecté",
+                Message = "Vous Ãªtes dÃ©connectÃ©",
                 Status = 200
             });
         }
@@ -455,9 +455,9 @@ namespace TerminalApi.Controllers
         #region fixture
 
         /// <summary>
-        /// Génère des utilisateurs fictifs pour les tests.
+        /// GÃ©nÃ¨re des utilisateurs fictifs pour les tests.
         /// </summary>
-        /// <returns>Liste des utilisateurs générés.</returns>
+        /// <returns>Liste des utilisateurs gÃ©nÃ©rÃ©s.</returns>
         [HttpGet("seed")]
         [Authorize(Roles = "Admin")]
         public async Task<ActionResult> SeedUsers()
