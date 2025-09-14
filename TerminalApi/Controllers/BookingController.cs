@@ -12,8 +12,8 @@ using TerminalApi.Utilities;
 namespace TerminalApi.Controllers
 {
     /// <summary>
-    /// Contr�leur responsable de la gestion des r�servations.
-    /// Permet aux utilisateurs de r�server, annuler et consulter leurs r�servations.
+    /// Contrôleur responsable de la gestion des réservations.
+    /// Permet aux utilisateurs de réserver, annuler et consulter leurs réservations.
     /// </summary>
     [Route("[controller]")]
     [ApiController]
@@ -25,10 +25,10 @@ namespace TerminalApi.Controllers
         private readonly ApiDefaultContext context;
 
         /// <summary>
-        /// Initialise une nouvelle instance du contr�leur BookingController.
+        /// Initialise une nouvelle instance du contrôleur BookingController.
         /// </summary>
-        /// <param name="bookingService">Service de gestion des r�servations inject�.</param>
-        /// <param name="context">Contexte de base de donn�es inject�.</param>
+        /// <param name="bookingService">Service de gestion des réservations injecté.</param>
+        /// <param name="context">Contexte de base de données injecté.</param>
         public BookingController(IBookingService bookingService, ApiDefaultContext context)
         {
             this.bookingService = bookingService;
@@ -36,12 +36,12 @@ namespace TerminalApi.Controllers
         }
 
         /// <summary>
-        /// Permet � un utilisateur de r�server un cr�neau horaire.
+        /// Permet à un utilisateur de réserver un créneau horaire.
         /// </summary>
-        /// <param name="bookingCreateDTO">Donn�es de la r�servation � cr�er.</param>
-        /// <returns>Un objet <see cref="ResponseDTO"/> indiquant le succ�s ou l'�chec de l'op�ration.</returns>
-        /// <response code="204">R�servation enregistr�e avec succ�s.</response>
-        /// <response code="400">Demande invalide ou cr�neau d�j� r�serv�.</response>
+        /// <param name="bookingCreateDTO">Données de la réservation à créer.</param>
+        /// <returns>Un objet <see cref="ResponseDTO"/> indiquant le succès ou l'échec de l'opération.</returns>
+        /// <response code="204">Réservation enregistrée avec succès.</response>
+        /// <response code="400">Demande invalide ou créneau déjà réservé.</response>
         [HttpPost("book")]
         public async Task<ActionResult<ResponseDTO<string?>>> BookSlot([FromBody] BookingCreateDTO bookingCreateDTO)
         {
@@ -49,19 +49,19 @@ namespace TerminalApi.Controllers
             {
                 if (bookingCreateDTO.SlotId.IsNullOrEmpty())
                 {
-                    return BadRequest(new ResponseDTO<string?> { Status = 40, Message = "Demande refus�e" });
+                    return BadRequest(new ResponseDTO<string?> { Status = 40, Message = "Demande refusée" });
                 }
                 var user = CheckUser.GetUserFromClaim(HttpContext.User, context);
                 if (user is null)
                 {
-                    return BadRequest(new ResponseDTO<string?> { Status = 40, Message = "Demande refus�e" });
+                    return BadRequest(new ResponseDTO<string?> { Status = 40, Message = "Demande refusée" });
                 }
                 var resultBooking = await bookingService.BookSlot(bookingCreateDTO, user);
                 if (resultBooking)
                 {
-                    return Ok(new ResponseDTO<string?> { Message = "La r�s�rvation est enregistr�e", Status = 204 });
+                    return Ok(new ResponseDTO<string?> { Message = "La réservation est enregistrée", Status = 204 });
                 }
-                return BadRequest(new ResponseDTO<string?> { Status = 40, Message = "Demande refus�e, cr�neau d�j� r�s�rv� ?" });
+                return BadRequest(new ResponseDTO<string?> { Status = 40, Message = "Demande refusée, créneau déjà réservé ?" });
             }
             catch (Exception ex)
             {
@@ -70,12 +70,12 @@ namespace TerminalApi.Controllers
         }
 
         /// <summary>
-        /// Permet � un administrateur d'annuler une r�servation pour un cr�neau sp�cifique.
+        /// Permet à un administrateur d'annuler une réservation pour un créneau spécifique.
         /// </summary>
-        /// <param name="slotId">Identifiant du cr�neau � annuler.</param>
-        /// <returns>Un objet <see cref="ResponseDTO"/> indiquant le succ�s ou l'�chec de l'op�ration.</returns>
-        /// <response code="204">R�servation annul�e avec succ�s.</response>
-        /// <response code="400">Demande invalide ou r�servation inexistante.</response>
+        /// <param name="slotId">Identifiant du créneau à annuler.</param>
+        /// <returns>Un objet <see cref="ResponseDTO"/> indiquant le succès ou l'échec de l'opération.</returns>
+        /// <response code="204">Réservation annulée avec succès.</response>
+        /// <response code="400">Demande invalide ou réservation inexistante.</response>
         [HttpDelete("unbook")]
         [Authorize(Roles = "Admin")]
         public async Task<ActionResult<ResponseDTO<string?>>> RemoveReservationByTeacher([FromQuery] string slotId)
@@ -84,14 +84,14 @@ namespace TerminalApi.Controllers
             {
                 if (slotId.IsNullOrEmpty())
                 {
-                    return BadRequest(new ResponseDTO<string?> { Status = 40, Message = "Demande refus�e, la r�servation n'existe pas!!!" });
+                    return BadRequest(new ResponseDTO<string?> { Status = 40, Message = "Demande refusée, la réservation n'existe pas !" });
                 }
                 var resultBooking = await bookingService.RemoveReservationByTeacher(slotId);
                 if (resultBooking)
                 {
-                    return Ok(new ResponseDTO<string?> { Message = "La r�s�rvation est annul�e", Status = 204 });
+                    return Ok(new ResponseDTO<string?> { Message = "La réservation est annulée", Status = 204 });
                 }
-                return BadRequest(new ResponseDTO<string?> { Status = 40, Message = "Demande refus�e ?" });
+                return BadRequest(new ResponseDTO<string?> { Status = 40, Message = "Demande refusée ?" });
             }
             catch (Exception ex)
             {
@@ -99,6 +99,13 @@ namespace TerminalApi.Controllers
             }
         }
 
+        /// <summary>
+        /// Récupère les communications associées à une réservation spécifique.
+        /// </summary>
+        /// <param name="bookingId">Identifiant de la réservation.</param>
+        /// <returns>Liste des messages de communication pour cette réservation.</returns>
+        /// <response code="200">Communications récupérées avec succès.</response>
+        /// <response code="404">Réservation non trouvée.</response>
         [HttpGet("communications/{bookingId:Guid}")]
         public async Task<ActionResult<ResponseDTO<List<ChatMessage>>>> GetCommunicationsForBooking([FromRoute] Guid bookingId)
         {
@@ -107,7 +114,7 @@ namespace TerminalApi.Controllers
                 var communications = await bookingService.GetCommunicationsForBooking(bookingId);
                 return Ok(new ResponseDTO<List<ChatMessage>>
                 {
-                    Message = "demande valide",
+                    Message = "Demande valide",
                     Data = communications,
                     Status = 200
                 });
@@ -121,6 +128,14 @@ namespace TerminalApi.Controllers
             }
         }
 
+        /// <summary>
+        /// Ajoute un nouveau message à la communication d'une réservation.
+        /// </summary>
+        /// <param name="bookingId">Identifiant de la réservation.</param>
+        /// <param name="newMessage">Nouveau message à ajouter.</param>
+        /// <returns>Confirmation de l'ajout du message.</returns>
+        /// <response code="201">Message ajouté avec succès.</response>
+        /// <response code="400">Demande invalide.</response>
         [HttpPost("communications/add-message/{bookingId:Guid}")]
         public async Task<ActionResult<bool>> AddMessage([FromRoute] Guid bookingId, [FromBody] ChatMessage newMessage )
         {
@@ -163,15 +178,13 @@ namespace TerminalApi.Controllers
             }
         }
 
-
-
         /// <summary>
-        /// Permet � un �tudiant d'annuler sa propre r�servation.
+        /// Permet à un étudiant d'annuler sa propre réservation.
         /// </summary>
-        /// <param name="slotId">Identifiant du cr�neau � annuler.</param>
-        /// <returns>Un objet <see cref="ResponseDTO"/> indiquant le succ�s ou l'�chec de l'op�ration.</returns>
-        /// <response code="204">R�servation annul�e avec succ�s.</response>
-        /// <response code="400">Demande invalide ou r�servation inexistante.</response>
+        /// <param name="slotId">Identifiant du créneau à annuler.</param>
+        /// <returns>Un objet <see cref="ResponseDTO"/> indiquant le succès ou l'échec de l'opération.</returns>
+        /// <response code="204">Réservation annulée avec succès.</response>
+        /// <response code="400">Demande invalide ou réservation inexistante.</response>
         [HttpDelete("student/unbook")]
         public async Task<ActionResult<ResponseDTO<string?>>> RemoveReservationByStudent([FromQuery] string slotId)
         {
@@ -180,20 +193,20 @@ namespace TerminalApi.Controllers
                 var user = CheckUser.GetUserFromClaim(HttpContext.User, context);
                 if (user is null)
                 {
-                    return BadRequest(new ResponseDTO<string?> { Status = 40, Message = "Demande refus�e" });
+                    return BadRequest(new ResponseDTO<string?> { Status = 40, Message = "Demande refusée" });
                 }
 
                 if (slotId.IsNullOrEmpty())
                 {
-                    return BadRequest(new ResponseDTO<string?> { Status = 40, Message = "Demande refus�e" });
+                    return BadRequest(new ResponseDTO<string?> { Status = 40, Message = "Demande refusée" });
                 }
 
                 var resultRemove = await bookingService.RemoveReservationByStudent(slotId, user.Id);
                 if (resultRemove)
                 {
-                    return Ok(new ResponseDTO<string?> { Message = "La r�s�rvation est annul�e", Status = 204 });
+                    return Ok(new ResponseDTO<string?> { Message = "La réservation est annulée", Status = 204 });
                 }
-                return BadRequest(new ResponseDTO<string?> { Status = 40, Message = "Demande refus�e ?" });
+                return BadRequest(new ResponseDTO<string?> { Status = 40, Message = "Demande refusée ?" });
             }
             catch (Exception ex)
             {
@@ -201,16 +214,13 @@ namespace TerminalApi.Controllers
             }
         }
 
-
-
-
         /// <summary>
-        /// Permet � un utilisateur de r�server plusieurs cr�neaux payants.
+        /// Permet à un utilisateur de réserver plusieurs créneaux payants.
         /// </summary>
-        /// <param name="slotIds">Liste des identifiants des cr�neaux � r�server.</param>
-        /// <returns>Un objet <see cref="ResponseDTO"/> indiquant le succ�s ou l'�chec de l'op�ration.</returns>
-        /// <response code="204">R�servations enregistr�es avec succ�s.</response>
-        /// <response code="400">Demande invalide ou cr�neaux indisponibles.</response>
+        /// <param name="slotIds">Liste des identifiants des créneaux à réserver.</param>
+        /// <returns>Un objet <see cref="ResponseDTO"/> indiquant le succès ou l'échec de l'opération.</returns>
+        /// <response code="204">Réservations enregistrées avec succès.</response>
+        /// <response code="400">Demande invalide ou créneaux indisponibles.</response>
         [Authorize]
         [HttpPost("book-paid")]
         public async Task<ActionResult<ResponseDTO<string?>>> BookingPaid([FromBody] List<string> slotIds)
@@ -220,12 +230,12 @@ namespace TerminalApi.Controllers
             {
                 if (slotIds is null || !slotIds.Any())
                 {
-                    return BadRequest(new ResponseDTO<string?> { Status = 40, Message = "Demande refus�e" });
+                    return BadRequest(new ResponseDTO<string?> { Status = 40, Message = "Demande refusée" });
                 }
                 var user = CheckUser.GetUserFromClaim(HttpContext.User, context);
                 if (user is null)
                 {
-                    return BadRequest(new ResponseDTO<string?> { Status = 40, Message = "Demande refus�e ?" });
+                    return BadRequest(new ResponseDTO<string?> { Status = 40, Message = "Demande refusée ?" });
                 }
 
                 var checkAvailability = await context.Slots
@@ -233,14 +243,14 @@ namespace TerminalApi.Controllers
                     .ToListAsync();
                 if (checkAvailability.Count != slotIds.Count)
                 {
-                    return BadRequest(new ResponseDTO<string?> { Status = 40, Message = "Demande refus�e ?" });
+                    return BadRequest(new ResponseDTO<string?> { Status = 40, Message = "Demande refusée ?" });
                 }
                 else
                 {
                     var bookings = new List<Booking>();
                     foreach (var slotId in slotIds)
                     {
-                        // checks here
+                        // vérifications ici
                     }
                     await context.Bookings.AddRangeAsync(bookings);
                     await context.SaveChangesAsync();
@@ -258,7 +268,7 @@ namespace TerminalApi.Controllers
                     await context.SaveChangesAsync();
 
                     transaction.Commit();
-                    return Ok(new ResponseDTO<string?> { Message = "La r�s�rvation est enregistr�e", Status = 204 });
+                    return Ok(new ResponseDTO<string?> { Message = "La réservation est enregistrée", Status = 204 });
                 }
 
             }
@@ -270,11 +280,11 @@ namespace TerminalApi.Controllers
         }
 
         /// <summary>
-        /// R�cup�re les r�servations associ�es � un enseignant.
+        /// Récupère les réservations associées à un enseignant.
         /// </summary>
-        /// <param name="query">Param�tres de pagination et de recherche.</param>
-        /// <returns>Un objet <see cref="ResponseDTO"/> contenant les r�servations.</returns>
-        /// <response code="200">R�servations r�cup�r�es avec succ�s.</response>
+        /// <param name="query">Paramètres de pagination et de recherche.</param>
+        /// <returns>Un objet <see cref="ResponseDTO"/> contenant les réservations.</returns>
+        /// <response code="200">Réservations récupérées avec succès.</response>
         /// <response code="400">Demande invalide.</response>
         [HttpPost("reservations-teacher")]
         [Authorize(Roles = "Admin")]
@@ -285,15 +295,15 @@ namespace TerminalApi.Controllers
                 //var user = CheckUser.GetUserFromClaim(HttpContext.User, context);
                 //if (user is null)
                 //{
-                //    return BadRequest(new ResponseDTO<List<BookingResponseDTO>> { Status = 40, Message = "Demande refus�e" });
+                //    return BadRequest(new ResponseDTO<List<BookingResponseDTO>> { Status = 40, Message = "Demande refusée" });
                 //}
                 if (query is null || query.PerPage <= 0 || query.Start < 0)
                 {
-                    return BadRequest(new ResponseDTO<List<BookingResponseDTO>> { Status = 40, Message = "Demande refus�e" });
+                    return BadRequest(new ResponseDTO<List<BookingResponseDTO>> { Status = 40, Message = "Demande refusée" });
                 }
 
                 var result = await bookingService.GetTeacherReservations(query);
-                return Ok(new ResponseDTO<List<BookingResponseDTO>> { Message = "Demande accept�e", Status = 200, Count = result.Count, Data = result.Data });
+                return Ok(new ResponseDTO<List<BookingResponseDTO>> { Message = "Demande acceptée", Status = 200, Count = result.Count, Data = result.Data });
             }
             catch (Exception ex)
             {
@@ -301,15 +311,12 @@ namespace TerminalApi.Controllers
             }
         }
 
-
-
-
         /// <summary>
-        /// R�cup�re les r�servations associ�es � un �tudiant.
+        /// Récupère les réservations associées à un étudiant.
         /// </summary>
-        /// <param name="query">Param�tres de pagination et de recherche.</param>
-        /// <returns>Un objet <see cref="ResponseDTO"/> contenant les r�servations.</returns>
-        /// <response code="200">R�servations r�cup�r�es avec succ�s.</response>
+        /// <param name="query">Paramètres de pagination et de recherche.</param>
+        /// <returns>Un objet <see cref="ResponseDTO"/> contenant les réservations.</returns>
+        /// <response code="200">Réservations récupérées avec succès.</response>
         /// <response code="400">Demande invalide.</response>
         [Authorize(Roles = "Student")]
         [HttpPost("reservations-student")]
@@ -320,15 +327,15 @@ namespace TerminalApi.Controllers
                 var user = CheckUser.GetUserFromClaim(HttpContext.User, context);
                 if (user is null)
                 {
-                    return BadRequest(new ResponseDTO<List<BookingResponseDTO>> { Status = 40, Message = "Demande refus�e" });
+                    return BadRequest(new ResponseDTO<List<BookingResponseDTO>> { Status = 40, Message = "Demande refusée" });
                 }
                 if (query is null || query.PerPage <= 0 || query.Start < 0)
                 {
-                    return BadRequest(new ResponseDTO<List<BookingResponseDTO>> { Status = 40, Message = "Demande refus�e" });
+                    return BadRequest(new ResponseDTO<List<BookingResponseDTO>> { Status = 40, Message = "Demande refusée" });
                 }
 
                 var result = await bookingService.GetStudentReservations(query, user);
-                return Ok(new ResponseDTO<List<BookingResponseDTO>> { Message = "Demande accept�e", Status = 200, Count = result.Count, Data = result.Data });
+                return Ok(new ResponseDTO<List<BookingResponseDTO>> { Message = "Demande acceptée", Status = 200, Count = result.Count, Data = result.Data });
             }
             catch (Exception ex)
             {

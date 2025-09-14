@@ -11,8 +11,8 @@ using TerminalApi.Services.minio;
 namespace TerminalApi.Controllers
 {
     /// <summary>
-    /// ContrÙleur responsable de la gestion des factures liÈes aux commandes.
-    /// Permet de gÈnÈrer et de rÈcupÈrer des factures au format PDF.
+    /// Contr√¥leur responsable de la gestion des factures li√©es aux commandes.
+    /// Permet de g√©n√©rer et de r√©cup√©rer des factures au format PDF.
     /// </summary>
     [Route("[controller]")]
     [ApiController]
@@ -24,11 +24,12 @@ namespace TerminalApi.Controllers
         private readonly MinioService minioService;
 
         /// <summary>
-        /// Initialise une nouvelle instance du contrÙleur <see cref="BillController"/>.
+        /// Initialise une nouvelle instance du contr√¥leur <see cref="BillController"/>.
         /// </summary>
-        /// <param name="pdfService">Service utilisÈ pour gÈnÈrer des fichiers PDF.</param>
-        /// <param name="context">Contexte de base de donnÈes pour accÈder aux commandes et autres entitÈs.</param>
-        public BillController(IPdfService pdfService, ApiDefaultContext context, MinioService minioService  )
+        /// <param name="pdfService">Service utilis√© pour g√©n√©rer des fichiers PDF.</param>
+        /// <param name="context">Contexte de base de donn√©es pour acc√©der aux commandes et autres entit√©s.</param>
+        /// <param name="minioService">Service de gestion des fichiers Minio.</param>
+        public BillController(IPdfService pdfService, ApiDefaultContext context, MinioService minioService)
         {
             this.pdfService = pdfService;
             this.context = context;
@@ -36,25 +37,25 @@ namespace TerminalApi.Controllers
         }
 
         /// <summary>
-        /// RÈcupËre une facture au format PDF pour une commande donnÈe.
+        /// R√©cup√®re une facture au format PDF pour une commande donn√©e.
         /// </summary>
-        /// <param name="orderId">Identifiant unique de la commande pour laquelle gÈnÈrer la facture.</param>
+        /// <param name="orderId">Identifiant unique de la commande pour laquelle g√©n√©rer la facture.</param>
         /// <returns>
-        /// Un fichier PDF contenant la facture si la commande est trouvÈe.
+        /// Un fichier PDF contenant la facture si la commande est trouv√©e.
         /// Retourne un code HTTP 200 avec le fichier PDF, 
         /// un code HTTP 404 si la commande n'existe pas, 
         /// ou un code HTTP 400 si l'identifiant de la commande est invalide.
         /// </returns>
-        /// <response code="200">Facture gÈnÈrÈe avec succËs.</response>
-        /// <response code="400">RequÍte invalide, identifiant de commande manquant ou incorrect.</response>
-        /// <response code="404">Commande non trouvÈe.</response>
+        /// <response code="200">Facture g√©n√©r√©e avec succ√®s.</response>
+        /// <response code="400">Requ√™te invalide, identifiant de commande manquant ou incorrect.</response>
+        /// <response code="404">Commande non trouv√©e.</response>
         [HttpGet("export")]
         [Produces("application/pdf")]
         public async Task<IActionResult> Get([FromQuery] string orderId)
         {
             Console.WriteLine(orderId);
 
-            // VÈrifie si l'identifiant de commande est vide ou invalide
+            // V√©rifie si l'identifiant de commande est vide ou invalide
             if (orderId.Trim().IsNullOrEmpty())
             {
                 return BadRequest(
@@ -62,7 +63,7 @@ namespace TerminalApi.Controllers
                 );
             }
 
-            // Recherche de la commande dans la base de donnÈes
+            // Recherche de la commande dans la base de donn√©es
             var order = context
                 .Orders.Where(x => x.Id == Guid.Parse(orderId))
                 .Include(x => x.Booker)
@@ -78,7 +79,7 @@ namespace TerminalApi.Controllers
                 );
             }
 
-            // GÈnÈration du fichier PDF via le service PdfService
+            // G√©n√©ration du fichier PDF via le service PdfService
             //var file = await pdfService.GeneratePdfAsync(order.ToOrderResponseForStudentDTO());
             var fileBis = await pdfService.GenerateQuestPdfAsync(order.ToOrderResponseForStudentDTO());
 
@@ -87,8 +88,14 @@ namespace TerminalApi.Controllers
         }
 
         /// <summary>
-        ///     Upload a file to the Minio server
+        /// T√©l√©charge un fichier vers le serveur Minio.
         /// </summary>
+        /// <param name="file">Fichier √† t√©l√©charger.</param>
+        /// <param name="minioFolderName">Nom du dossier dans Minio.</param>
+        /// <param name="entityId">Identifiant de l'entit√© associ√©e.</param>
+        /// <returns>Informations sur le fichier t√©l√©charg√© avec son URL d'acc√®s.</returns>
+        /// <response code="200">Fichier t√©l√©charg√© avec succ√®s.</response>
+        /// <response code="400">Erreur lors du t√©l√©chargement du fichier.</response>
         [HttpPost("file")]
         [Consumes("multipart/form-data")]
         public async Task<ActionResult<FileInfoResponse>> UploadFileAsync(IFormFile file, string minioFolderName,
@@ -112,13 +119,13 @@ namespace TerminalApi.Controllers
 
             try
             {
-                // Clean up the temporary file
+                // Nettoyage du fichier temporaire
                 System.IO.File.Delete(filePath);
             }
             catch (IOException)
             {
-                // Handle the case where the file is already deleted or in use
-                Console.WriteLine($"Could not delete temporary file: {filePath}");
+                // Gestion du cas o√π le fichier est d√©j√† supprim√© ou en cours d'utilisation
+                Console.WriteLine($"Impossible de supprimer le fichier temporaire : {filePath}");
             }
             return new FileInfoResponse { Url = url };
         }

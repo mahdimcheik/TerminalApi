@@ -10,8 +10,8 @@ using TerminalApi.Utilities;
 namespace TerminalApi.Controllers
 {
     /// <summary>
-    /// Contrôleur responsable de la gestion des créneaux horaires (Slots).
-    /// Permet de récupérer, ajouter, mettre à jour et supprimer des créneaux.
+    /// ContrÃ´leur responsable de la gestion des crÃ©neaux horaires (Slots).
+    /// Permet de rÃ©cupÃ©rer, ajouter, mettre Ã  jour et supprimer des crÃ©neaux.
     /// </summary>
     [Route("[controller]")]
     [ApiController]
@@ -22,10 +22,10 @@ namespace TerminalApi.Controllers
         private readonly ApiDefaultContext context;
 
         /// <summary>
-        /// Initialise une nouvelle instance du contrôleur avec les services nécessaires.
+        /// Initialise une nouvelle instance du contrÃ´leur avec les services nÃ©cessaires.
         /// </summary>
-        /// <param name="slotService">Service pour la gestion des créneaux.</param>
-        /// <param name="context">Contexte de base de données.</param>
+        /// <param name="slotService">Service pour la gestion des crÃ©neaux.</param>
+        /// <param name="context">Contexte de base de donnÃ©es.</param>
         public SlotController(ISlotService slotService, ApiDefaultContext context)
         {
             this.slotService = slotService;
@@ -33,25 +33,25 @@ namespace TerminalApi.Controllers
         }
 
         /// <summary>
-        /// Récupère un créneau spécifique par son identifiant.
+        /// RÃ©cupÃ¨re un crÃ©neau spÃ©cifique par son identifiant.
         /// </summary>
-        /// <param name="slotId">Identifiant du créneau.</param>
-        /// <returns>Un objet <see cref="ResponseDTO"/> contenant les détails du créneau.</returns>
-        /// <response code="200">Créneau trouvé et retourné avec succès.</response>
-        /// <response code="400">Requête invalide ou erreur interne.</response>
+        /// <param name="slotId">Identifiant du crÃ©neau.</param>
+        /// <returns>Un objet <see cref="ResponseDTO"/> contenant les dÃ©tails du crÃ©neau.</returns>
+        /// <response code="200">CrÃ©neau trouvÃ© et retournÃ© avec succÃ¨s.</response>
+        /// <response code="400">RequÃªte invalide ou erreur interne.</response>
         [HttpGet("slotId/{slotId}")]
         [Authorize]
         public async Task<ActionResult<ResponseDTO<List<SlotResponseDTO>>>> GetSlotsForStudent([FromRoute] string slotId)
         {
             var user = CheckUser.GetUserFromClaim(HttpContext.User, context);
-            if (user is null) return BadRequest(new ResponseDTO<object> { Status = 40, Message = "Quelque chose ne va pas !!!" });
+            if (user is null) return BadRequest(new ResponseDTO<object> { Status = 40, Message = "Quelque chose ne va pas !" });
             try
             {
                 var result = await slotService.GetSlotsById(slotId);
                 return Ok(
                     new ResponseDTO<object> {
                         Status = 200,
-                        Message = "Créneau envoyé",
+                        Message = "CrÃ©neau envoyÃ©",
                         Data = result,
                     }
                 );
@@ -63,15 +63,15 @@ namespace TerminalApi.Controllers
         }
 
         /// <summary>
-        /// Récupère les créneaux créés par un utilisateur spécifique dans une plage de dates.
+        /// RÃ©cupÃ¨re les crÃ©neaux crÃ©Ã©s par un utilisateur spÃ©cifique dans une plage de dates.
         /// </summary>
-        /// <param name="userId">Identifiant de l'utilisateur créateur.</param>
-        /// <param name="fromDate">Date de début de la plage.</param>
+        /// <param name="userId">Identifiant de l'utilisateur crÃ©ateur.</param>
+        /// <param name="fromDate">Date de dÃ©but de la plage.</param>
         /// <param name="toDate">Date de fin de la plage.</param>
-        /// <returns>Une liste de créneaux sous forme de <see cref="ResponseDTO"/>.</returns>
-        /// <response code="200">Liste des créneaux retournée avec succès.</response>
-        /// <response code="404">Utilisateur non trouvé.</response>
-        /// <response code="400">Requête invalide ou erreur interne.</response>
+        /// <returns>Une liste de crÃ©neaux sous forme de <see cref="ResponseDTO"/>.</returns>
+        /// <response code="200">Liste des crÃ©neaux retournÃ©e avec succÃ¨s.</response>
+        /// <response code="404">Utilisateur non trouvÃ©.</response>
+        /// <response code="400">RequÃªte invalide ou erreur interne.</response>
         [HttpGet]
         [Authorize(Roles = "Admin")]
         public async Task<ActionResult<ResponseDTO<List<SlotResponseDTO>>>> GetSlotsByCreatorId([FromQuery] string userId, [FromQuery] DateTimeOffset fromDate, [FromQuery] DateTimeOffset toDate)
@@ -89,7 +89,7 @@ namespace TerminalApi.Controllers
                 return Ok(
                     new ResponseDTO<object> {
                         Status = 200,
-                        Message = "Liste de créneaux envoyée",
+                        Message = "Liste de crÃ©neaux envoyÃ©e",
                         Data = result,
                     }
                 );
@@ -101,25 +101,25 @@ namespace TerminalApi.Controllers
         }
 
         /// <summary>
-        /// Récupère les créneaux associés à un étudiant dans une plage de dates.
+        /// RÃ©cupÃ¨re les crÃ©neaux associÃ©s Ã  un Ã©tudiant dans une plage de dates.
         /// </summary>
-        /// <param name="fromDate">Date de début de la plage.</param>
+        /// <param name="fromDate">Date de dÃ©but de la plage.</param>
         /// <param name="toDate">Date de fin de la plage.</param>
-        /// <returns>Une liste de créneaux sous forme de <see cref="ResponseDTO"/>.</returns>
-        /// <response code="200">Liste des créneaux retournée avec succès.</response>
-        /// <response code="400">Requête invalide ou erreur interne.</response>
+        /// <returns>Une liste de crÃ©neaux sous forme de <see cref="ResponseDTO"/>.</returns>
+        /// <response code="200">Liste des crÃ©neaux retournÃ©e avec succÃ¨s.</response>
+        /// <response code="400">RequÃªte invalide ou erreur interne.</response>
         [HttpGet("student")]
         public async Task<ActionResult<ResponseDTO<List<SlotResponseDTO>>>> GetSlotsForStudent([FromQuery] DateTimeOffset fromDate, [FromQuery] DateTimeOffset toDate)
         {
             var user = CheckUser.GetUserFromClaim(HttpContext.User, context);
-            if (user is null) return BadRequest(new ResponseDTO<object> { Status = 40, Message = "Quelque chose ne va pas !!!" });
+            if (user is null) return BadRequest(new ResponseDTO<object> { Status = 40, Message = "Quelque chose ne va pas !" });
             try
             {
                 var result = await slotService.GetSlotsByStudent(user.Id, fromDate, toDate);
                 return Ok(
                     new ResponseDTO<List<SlotResponseDTO>> {
                         Status = 200,
-                        Message = "Liste de créneaux envoyée",
+                        Message = "Liste de crÃ©neaux envoyÃ©e",
                         Data = result,
                     }
                 );
@@ -131,30 +131,30 @@ namespace TerminalApi.Controllers
         }
 
         /// <summary>
-        /// Ajoute un nouveau créneau.
+        /// Ajoute un nouveau crÃ©neau.
         /// </summary>
-        /// <param name="slotCreateDTO">Données du créneau à créer.</param>
-        /// <returns>Le créneau créé sous forme de <see cref="ResponseDTO"/>.</returns>
-        /// <response code="200">Créneau ajouté avec succès.</response>
-        /// <response code="400">Requête invalide ou erreur interne.</response>
+        /// <param name="slotCreateDTO">DonnÃ©es du crÃ©neau Ã  crÃ©er.</param>
+        /// <returns>Le crÃ©neau crÃ©Ã© sous forme de <see cref="ResponseDTO"/>.</returns>
+        /// <response code="200">CrÃ©neau ajoutÃ© avec succÃ¨s.</response>
+        /// <response code="400">RequÃªte invalide ou erreur interne.</response>
         [Authorize(Roles = "Admin")]
         [HttpPost]
         public async Task<ActionResult<ResponseDTO<SlotResponseDTO>>> AddSlot([FromBody] SlotCreateDTO slotCreateDTO)
         {
-            if (slotCreateDTO is null) return BadRequest(new ResponseDTO<object> { Status = 40, Message = "Demande refusée" });
-            if (slotCreateDTO.StartAt < DateTimeOffset.Now) return BadRequest(new ResponseDTO<object> { Status = 40, Message = "Demande refusée" });
-            if (slotCreateDTO.StartAt >= slotCreateDTO.EndAt) return BadRequest(new ResponseDTO<object> { Status = 40, Message = "Demande refusée" });
+            if (slotCreateDTO is null) return BadRequest(new ResponseDTO<object> { Status = 40, Message = "Demande refusÃ©e" });
+            if (slotCreateDTO.StartAt < DateTimeOffset.Now) return BadRequest(new ResponseDTO<object> { Status = 40, Message = "Demande refusÃ©e" });
+            if (slotCreateDTO.StartAt >= slotCreateDTO.EndAt) return BadRequest(new ResponseDTO<object> { Status = 40, Message = "Demande refusÃ©e" });
 
             var user = CheckUser.GetUserFromClaim(HttpContext.User, context);
             if (user is null)
             {
-                return BadRequest(new ResponseDTO<object> { Status = 40, Message = "Demande refusée" });
+                return BadRequest(new ResponseDTO<object> { Status = 40, Message = "Demande refusÃ©e" });
             }
 
             try
             {
                 var result = await slotService.AddSlot(slotCreateDTO, user.Id);
-                return Ok(new ResponseDTO<object> { Data = result, Message = "Créneau ajoutée", Status = 200 });
+                return Ok(new ResponseDTO<object> { Data = result, Message = "CrÃ©neau ajoutÃ©", Status = 200 });
             }
             catch (Exception ex)
             {
@@ -163,27 +163,27 @@ namespace TerminalApi.Controllers
         }
 
         /// <summary>
-        /// Met à jour un créneau existant.
+        /// Met Ã  jour un crÃ©neau existant.
         /// </summary>
-        /// <param name="slotUpdateDTO">Données du créneau à mettre à jour.</param>
-        /// <returns>Le créneau mis à jour sous forme de <see cref="ResponseDTO"/>.</returns>
-        /// <response code="200">Créneau mis à jour avec succès.</response>
-        /// <response code="400">Requête invalide ou erreur interne.</response>
+        /// <param name="slotUpdateDTO">DonnÃ©es du crÃ©neau Ã  mettre Ã  jour.</param>
+        /// <returns>Le crÃ©neau mis Ã  jour sous forme de <see cref="ResponseDTO"/>.</returns>
+        /// <response code="200">CrÃ©neau mis Ã  jour avec succÃ¨s.</response>
+        /// <response code="400">RequÃªte invalide ou erreur interne.</response>
         [HttpPut]
         [Authorize(Roles = "Admin")]
         public async Task<ActionResult<ResponseDTO<SlotResponseDTO>>> UpdateSlot([FromBody] SlotUpdateDTO slotUpdateDTO)
         {
-            if (slotUpdateDTO is null) return BadRequest(new ResponseDTO<object> { Status = 40, Message = "Demande refusée" });
+            if (slotUpdateDTO is null) return BadRequest(new ResponseDTO<object> { Status = 40, Message = "Demande refusÃ©e" });
             var user = CheckUser.GetUserFromClaim(HttpContext.User, context);
             if (user is null)
             {
-                return BadRequest(new ResponseDTO<object> { Status = 40, Message = "Demande refusée" });
+                return BadRequest(new ResponseDTO<object> { Status = 40, Message = "Demande refusÃ©e" });
             }
 
             try
             {
                 var result = await slotService.UpdateSlot(slotUpdateDTO, user.Id);
-                return Ok(new ResponseDTO<object> { Data = result, Message = "Créneau ajoutée", Status = 200 });
+                return Ok(new ResponseDTO<object> { Data = result, Message = "CrÃ©neau mis Ã  jour", Status = 200 });
             }
             catch (Exception ex)
             {
@@ -192,12 +192,12 @@ namespace TerminalApi.Controllers
         }
 
         /// <summary>
-        /// Supprime un créneau existant.
+        /// Supprime un crÃ©neau existant.
         /// </summary>
-        /// <param name="slotId">Identifiant du créneau à supprimer.</param>
+        /// <param name="slotId">Identifiant du crÃ©neau Ã  supprimer.</param>
         /// <returns>Un message de confirmation sous forme de <see cref="ResponseDTO"/>.</returns>
-        /// <response code="204">Créneau supprimé avec succès.</response>
-        /// <response code="400">Requête invalide ou erreur interne.</response>
+        /// <response code="204">CrÃ©neau supprimÃ© avec succÃ¨s.</response>
+        /// <response code="400">RequÃªte invalide ou erreur interne.</response>
         [HttpDelete]
         [Authorize(Roles = "Admin")]
         public async Task<ActionResult<ResponseDTO<object>>> DeleteSlot([FromQuery] string slotId)
@@ -206,15 +206,15 @@ namespace TerminalApi.Controllers
             {
                 if (slotId.IsNullOrEmpty())
                 {
-                    return BadRequest(new ResponseDTO<object> { Status = 40, Message = "Demande refusée" });
+                    return BadRequest(new ResponseDTO<object> { Status = 40, Message = "Demande refusÃ©e" });
                 }
                 var user = CheckUser.GetUserFromClaim(HttpContext.User, context);
                 if (user is null)
                 {
-                    return BadRequest(new ResponseDTO<object> { Status = 40, Message = "Demande refusée" });
+                    return BadRequest(new ResponseDTO<object> { Status = 40, Message = "Demande refusÃ©e" });
                 }
                 var resultDelete = await slotService.DeleteSlot(user.Id, slotId);
-                return Ok(new ResponseDTO<object> { Message = "l'addresse est supprimée", Status = 204 });
+                return Ok(new ResponseDTO<object> { Message = "Le crÃ©neau est supprimÃ©", Status = 204 });
             }
             catch (Exception ex)
             {

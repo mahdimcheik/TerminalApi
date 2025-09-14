@@ -11,8 +11,8 @@ using TerminalApi.Utilities;
 namespace TerminalApi.Controllers
 {
     /// <summary>
-    /// Contrôleur responsable de la gestion des formations des utilisateurs.
-    /// Permet de récupérer, ajouter, mettre à jour et supprimer des formations.
+    /// ContrÃ´leur responsable de la gestion des formations des utilisateurs.
+    /// Permet de rÃ©cupÃ©rer, ajouter, mettre Ã  jour et supprimer des formations.
     /// </summary>
     [Route("[controller]")]
     [Authorize]
@@ -23,10 +23,10 @@ namespace TerminalApi.Controllers
         private readonly IFormationService formationService;
 
         /// <summary>
-        /// Initialise une nouvelle instance du contrôleur avec les services nécessaires.
+        /// Initialise une nouvelle instance du contrÃ´leur avec les services nÃ©cessaires.
         /// </summary>
-        /// <param name="context">Contexte de base de données injecté.</param>
-        /// <param name="formationService">Service de gestion des formations injecté.</param>
+        /// <param name="context">Contexte de base de donnÃ©es injectÃ©.</param>
+        /// <param name="formationService">Service de gestion des formations injectÃ©.</param>
         public FormationController(ApiDefaultContext context, IFormationService formationService)
         {
             this.context = context;
@@ -34,7 +34,7 @@ namespace TerminalApi.Controllers
         }
 
         /// <summary>
-        /// Récupère toutes les formations associées à un utilisateur donné.
+        /// RÃ©cupÃ¨re toutes les formations associÃ©es Ã  un utilisateur donnÃ©.
         /// </summary>
         /// <param name="userId">Identifiant de l'utilisateur.</param>
         /// <returns>
@@ -57,7 +57,7 @@ namespace TerminalApi.Controllers
                     new ResponseDTO<List<FormationResponseDTO>>
                     {
                         Status = 200,
-                        Message = "Liste d'addresses envoyée",
+                        Message = "Liste de formations envoyÃ©e",
                         Data = result,
                     }
                 );
@@ -69,30 +69,30 @@ namespace TerminalApi.Controllers
         }
 
         /// <summary>
-        /// Ajoute une nouvelle formation pour l'utilisateur connecté.
+        /// Ajoute une nouvelle formation pour l'utilisateur connectÃ©.
         /// </summary>
-        /// <param name="formation">Données de la formation à ajouter.</param>
+        /// <param name="formation">DonnÃ©es de la formation Ã  ajouter.</param>
         /// <returns>
-        /// Un objet <see cref="ResponseDTO"/> contenant la formation ajoutée (200),
-        /// ou un message d'erreur en cas de données invalides (400).
+        /// Un objet <see cref="ResponseDTO"/> contenant la formation ajoutÃ©e (200),
+        /// ou un message d'erreur en cas de donnÃ©es invalides (400).
         /// </returns>
         [HttpPost]
         public async Task<ActionResult<ResponseDTO<FormationResponseDTO>>> AddFormation([FromBody] FormationCreateDTO formation)
         {
             if (formation is null)
             {
-                return BadRequest(new ResponseDTO<object> { Status = 400, Message = "Demande refusée" });
+                return BadRequest(new ResponseDTO<object> { Status = 400, Message = "Demande refusÃ©e" });
             }
             var user = CheckUser.GetUserFromClaim(HttpContext.User, context);
             if (user is null)
             {
-                return BadRequest(new ResponseDTO<object> { Status = 40, Message = "Demande refusée" });
+                return BadRequest(new ResponseDTO<object> { Status = 40, Message = "Demande refusÃ©e" });
             }
 
             try
             {
                 var result = await formationService.AddFormation(formation, user.Id);
-                return Ok(new ResponseDTO<object> { Data = result, Message = "Addresse ajoutée", Status = 200 });
+                return Ok(new ResponseDTO<object> { Data = result, Message = "Formation ajoutÃ©e", Status = 200 });
             }
             catch (Exception ex)
             {
@@ -101,38 +101,38 @@ namespace TerminalApi.Controllers
         }
 
         /// <summary>
-        /// Met à jour une formation existante pour l'utilisateur connecté.
+        /// Met Ã  jour une formation existante pour l'utilisateur connectÃ©.
         /// </summary>
-        /// <param name="formationDTO">Données de la formation à mettre à jour.</param>
+        /// <param name="formationDTO">DonnÃ©es de la formation Ã  mettre Ã  jour.</param>
         /// <returns>
-        /// Un objet <see cref="ResponseDTO"/> contenant la formation mise à jour (200),
-        /// ou un message d'erreur en cas de données invalides ou si la formation n'existe pas (400).
+        /// Un objet <see cref="ResponseDTO"/> contenant la formation mise Ã  jour (200),
+        /// ou un message d'erreur en cas de donnÃ©es invalides ou si la formation n'existe pas (400).
         /// </returns>
         [HttpPut]
         public async Task<ActionResult<ResponseDTO<FormationResponseDTO>>> UpdateFormation([FromBody] FormationUpdateDTO formationDTO)
         {
             if (formationDTO is null)
             {
-                return BadRequest(new ResponseDTO<object> { Status = 40, Message = "Demande refusée" });
+                return BadRequest(new ResponseDTO<object> { Status = 40, Message = "Demande refusÃ©e" });
             }
             var user = CheckUser.GetUserFromClaim(HttpContext.User, context);
 
             if (user is null)
             {
-                return BadRequest(new ResponseDTO<object> { Status = 40, Message = "Demande refusée" });
+                return BadRequest(new ResponseDTO<object> { Status = 40, Message = "Demande refusÃ©e" });
             }
 
             var formationFromDb = await context.Formations.FirstOrDefaultAsync(x => x.Id == Guid.Parse(formationDTO.Id) && x.UserId == user.Id);
 
             if (formationFromDb is null)
             {
-                return BadRequest(new ResponseDTO<object> { Status = 40, Message = "Demande refusée" });
+                return BadRequest(new ResponseDTO<object> { Status = 40, Message = "Demande refusÃ©e" });
             }
 
             try
             {
                 var result = await formationService.UpdateFormation(formationDTO, formationFromDb);
-                return Ok(new ResponseDTO<object> { Data = result, Message = "Addresse ajoutée", Status = 200 });
+                return Ok(new ResponseDTO<object> { Data = result, Message = "Formation mise Ã  jour", Status = 200 });
             }
             catch (Exception ex)
             {
@@ -141,12 +141,12 @@ namespace TerminalApi.Controllers
         }
 
         /// <summary>
-        /// Supprime une formation existante pour l'utilisateur connecté.
+        /// Supprime une formation existante pour l'utilisateur connectÃ©.
         /// </summary>
-        /// <param name="formationId">Identifiant de la formation à supprimer.</param>
+        /// <param name="formationId">Identifiant de la formation Ã  supprimer.</param>
         /// <returns>
-        /// Un objet <see cref="ResponseDTO"/> indiquant le succès de l'opération (204),
-        /// ou un message d'erreur en cas de données invalides ou d'erreur (400).
+        /// Un objet <see cref="ResponseDTO"/> indiquant le succÃ¨s de l'opÃ©ration (204),
+        /// ou un message d'erreur en cas de donnÃ©es invalides ou d'erreur (400).
         /// </returns>
         [HttpDelete]
         public async Task<ActionResult<ResponseDTO<object>>> DeleteFormation([FromQuery] string formationId)
@@ -155,15 +155,15 @@ namespace TerminalApi.Controllers
             {
                 if (formationId.IsNullOrEmpty())
                 {
-                    return BadRequest(new ResponseDTO<object> { Status = 40, Message = "Demande refusée" });
+                    return BadRequest(new ResponseDTO<object> { Status = 40, Message = "Demande refusÃ©e" });
                 }
                 var user = CheckUser.GetUserFromClaim(HttpContext.User, context);
                 if (user is null)
                 {
-                    return BadRequest(new ResponseDTO<object> { Status = 40, Message = "Demande refusée" });
+                    return BadRequest(new ResponseDTO<object> { Status = 40, Message = "Demande refusÃ©e" });
                 }
                 var resultDelete = await formationService.DeleteFormation(user.Id, formationId);
-                return Ok(new ResponseDTO<object> { Message = "l'addresse est supprimée", Status = 204 });
+                return Ok(new ResponseDTO<object> { Message = "La formation est supprimÃ©e", Status = 204 });
             }
             catch (Exception ex)
             {
