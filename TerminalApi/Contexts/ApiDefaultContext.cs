@@ -1,16 +1,22 @@
 ﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using System.Reflection.Emit;
+using System.Text.Json;
 using System.Xml;
 using TerminalApi.Models;
+using TerminalApi.Models.Bookings;
 using TerminalApi.Utilities;
 
 namespace TerminalApi.Contexts
 {
     public class ApiDefaultContext : IdentityDbContext<UserApp>
     {
-        public ApiDefaultContext(DbContextOptions<ApiDefaultContext> options)
-            : base(options) { }
+        private readonly bool _ignoreJsonb;
+        public ApiDefaultContext(DbContextOptions<ApiDefaultContext> options, bool ignoreJsonb = false)
+            : base(options) 
+        {
+            _ignoreJsonb = ignoreJsonb;
+        }
 
         protected override void OnModelCreating(ModelBuilder builder)
         {
@@ -368,9 +374,24 @@ namespace TerminalApi.Contexts
                     .WithMany(x => x.Bookings)
                     .HasForeignKey(x => x.OrderId)
                     .OnDelete(DeleteBehavior.Restrict);
+                if (!_ignoreJsonb)
+                {
 
                 entity.Property(r => r.Communications)
                     .HasColumnType("jsonb");
+                }
+                else
+                {
+                    {
+                        // Mapping normal (jsonb / value converter)
+                        builder.Entity<Booking>()
+                            .Property(b => b.Communications)
+                            .HasColumnType("jsonb")
+                            .HasConversion(
+                                v => JsonSerializer.Serialize(v, (JsonSerializerOptions?)null),
+                                v => JsonSerializer.Deserialize<List<ChatMessage>>(v, (JsonSerializerOptions?)null)!);
+                    }
+                }
             });
 
             // Order entity configuration

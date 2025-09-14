@@ -28,7 +28,7 @@ namespace TerminalTest
                 .UseInMemoryDatabase(databaseName: Guid.NewGuid().ToString())
                 .Options;
 
-            _context = new ApiDefaultContext(options);
+            _context = new ApiDefaultContext(options, true);
             _formationService = new FormationService(_context);
         }
 

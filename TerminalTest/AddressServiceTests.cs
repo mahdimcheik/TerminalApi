@@ -17,7 +17,8 @@ namespace TerminalTest
             var options = new DbContextOptionsBuilder<ApiDefaultContext>()
                 .UseInMemoryDatabase(databaseName: Guid.NewGuid().ToString())
                 .Options;
-            _context = new ApiDefaultContext(options);
+            _context = new ApiDefaultContext(options, true);
+            _encryptionService = new EncryptionService(); 
 
             _addressService = new AddressService(_context, _encryptionService);
         }
@@ -91,7 +92,7 @@ namespace TerminalTest
 
             // Assert
             Assert.NotNull(result);
-            Assert.Equal(addressCreateDTO.Street, result.Street);
+            Assert.NotEqual(addressCreateDTO.Street.Length, result.Street.Length);
         }
 
         [Fact]

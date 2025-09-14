@@ -21,7 +21,7 @@ namespace TerminalTest
             var options = new DbContextOptionsBuilder<ApiDefaultContext>()
                 .UseInMemoryDatabase(databaseName: Guid.NewGuid().ToString())
                 .Options;
-            _context = new ApiDefaultContext(options);
+            _context = new ApiDefaultContext(options, true);
 
             _slotService = new SlotService(_context);
         }
