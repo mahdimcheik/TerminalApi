@@ -2,17 +2,14 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 using TerminalApi;
 using TerminalApi.Contexts;
+using TerminalApi.Interfaces;
 using TerminalApi.Models;
 using TerminalApi.Utilities;
-using TerminalApi.Interfaces;
 using Testcontainers.PostgreSql;
-using System.Collections.Generic;
-using Hangfire;
-using TerminalTestIntegration.Tests;
 
 namespace TerminalTestIntegration;
 
@@ -43,9 +40,9 @@ public class CustomWebApplicationFactory : WebApplicationFactory<Program>, IAsyn
         Environment.SetEnvironmentVariable("SMTP_BREVO_LOGIN", "test@example.com");
         Environment.SetEnvironmentVariable("SMTP_BREVO_KEY", "test-key");
         Environment.SetEnvironmentVariable("ASPNETCORE_ENVIRONMENT", "Testing");
-        
+
         Environment.SetEnvironmentVariable("JWT_KEY", "i7RdBacZPsi7RdBacZPsi7RdBacZPsi7RdBacZPsi7RdBacZPsi7RdBacZPsi7RdBacZPsi7RdBacZPsi7RdBacZPsi7RdBacZPs");
-        
+
         Environment.SetEnvironmentVariable("TEACHER_GUID", "44ea5267-31c5-44a6-94a3-bac6efd009c7");
         Environment.SetEnvironmentVariable("TEACHER_EMAIL", "teacher@skillhive.fr");
         Environment.SetEnvironmentVariable("TOKEN_AUDIENCE", "https://localhost:7113");
@@ -54,7 +51,7 @@ public class CustomWebApplicationFactory : WebApplicationFactory<Program>, IAsyn
         Environment.SetEnvironmentVariable("DO_NO_REPLY_MAIL", "test@skillhive.com");
         Environment.SetEnvironmentVariable("COOKIES_VALIDITY_DAYS", "7");
         Environment.SetEnvironmentVariable("DOCKER_ENVIRONMENT", "false");
-        
+
         await Task.Delay(1000);
     }
 
@@ -117,14 +114,14 @@ public class CustomWebApplicationFactory : WebApplicationFactory<Program>, IAsyn
             var configuration = tempServiceProvider.GetService<IConfiguration>();
 
             // hangfire me causer des problemes dans les tests, on le vire
-            var hangfireServices = services.Where(s => 
-                s.ServiceType.Name.Contains("Hangfire") || 
+            var hangfireServices = services.Where(s =>
+                s.ServiceType.Name.Contains("Hangfire") ||
                 s.ServiceType.Name.Contains("BackgroundJob") ||
                 s.ServiceType.Name.Contains("JobStorage") ||
                 s.ServiceType.Name.Contains("IBackgroundJobServer") ||
                 s.ServiceType.Name.Contains("IGlobalConfiguration")
             ).ToList();
-            
+
             foreach (var service in hangfireServices)
             {
                 services.Remove(service);
