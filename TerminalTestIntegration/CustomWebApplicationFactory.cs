@@ -109,6 +109,7 @@ public class CustomWebApplicationFactory : WebApplicationFactory<Program>, IAsyn
         {
             // Ajouter le service provider pour injjecter les services necessaires
             var tempServiceProvider = services.BuildServiceProvider();
+            //using var scope = tempServiceProvider.CreateScope();
             var configuration = tempServiceProvider.GetService<IConfiguration>();
 
             // hangfire me causer des problemes dans les tests, on le vire
