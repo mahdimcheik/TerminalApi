@@ -1,4 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using Microsoft.AspNetCore.Identity;
 using TerminalApi.Models;
@@ -104,14 +104,26 @@ namespace TerminalApi.Models
 
     }
 
+    /// <summary>
+    /// Modèle de données pour la connexion utilisateur
+    /// </summary>
     public class UserLoginDTO
     {
-        [Required]
-        [EmailAddress]
-        public string Email { get; set; } = null!;
+        /// <summary>
+        /// Adresse email de l'utilisateur (format email valide requis)
+        /// </summary>
+        /// <example>utilisateur@exemple.com</example>
+        [Required(ErrorMessage = "L'email est requis")]
+        [EmailAddress(ErrorMessage = "Format d'email invalide")]
+        public string Email { get; set; }
 
-        [Required]
-        public string Password { get; set; } = null!;
+        /// <summary>
+        /// Mot de passe (minimum 8 caractères avec majuscules, minuscules, chiffres)
+        /// </summary>
+        /// <example>MonMotDePasse123!</example>
+        [Required(ErrorMessage = "Le mot de passe est requis")]
+        [MinLength(8, ErrorMessage = "Le mot de passe doit contenir au moins 8 caractères")]
+        public string Password { get; set; }
     }
 
     public class ConfirmAccountInput
