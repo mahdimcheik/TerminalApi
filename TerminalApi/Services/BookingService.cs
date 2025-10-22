@@ -1,4 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using TerminalApi.Contexts;
 using TerminalApi.Interfaces;
@@ -166,6 +166,7 @@ namespace TerminalApi.Services
                 .Bookings.Include(re => re.Slot)
                 .Include(re => re.Order) 
                 .Include(re => re.Booker)
+                .OrderByDescending(re => re.Slot.StartAt)
                 .Where(x => x != null);
 
             if (!string.IsNullOrEmpty(query.StudentId))
@@ -218,6 +219,7 @@ namespace TerminalApi.Services
                 .Bookings.Include(re => re.Slot)
                 .Include(re => re.Order)
                 .Include(re => re.Booker)
+                .OrderByDescending(re => re.Slot.StartAt)
                 .Where(x => x != null && x.BookedById == student.Id);
 
             if (query.FromDate.HasValue)
@@ -264,7 +266,6 @@ namespace TerminalApi.Services
                     EF.Functions.ILike(re.Order.OrderNumber.ToLower(), $"%{searchTerm}%")
                 );
             }
-
 
             var count = await sqlQuery.CountAsync();
 
