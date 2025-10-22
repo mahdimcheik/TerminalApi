@@ -190,7 +190,6 @@ namespace TerminalTest
             Assert.Equal("Création échouée", result.Message);
             Assert.Null(result.Data);
 
-            // Vérification que l'email n'a pas été envoyé
             _mockMailService.Verify(x => x.ScheduleSendConfirmationEmail(It.IsAny<Mail>(), It.IsAny<string>()), Times.Never);
         }
 

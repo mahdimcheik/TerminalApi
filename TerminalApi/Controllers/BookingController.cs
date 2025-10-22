@@ -230,12 +230,12 @@ namespace TerminalApi.Controllers
             {
                 if (slotIds is null || !slotIds.Any())
                 {
-                    return BadRequest(new ResponseDTO<string?> { Status = 40, Message = "Demande refusée" });
+                    return BadRequest(new ResponseDTO<string?> { Status = 400, Message = "Demande refusée" });
                 }
                 var user = CheckUser.GetUserFromClaim(HttpContext.User, context);
                 if (user is null)
                 {
-                    return BadRequest(new ResponseDTO<string?> { Status = 40, Message = "Demande refusée ?" });
+                    return BadRequest(new ResponseDTO<string?> { Status = 400, Message = "Demande refusée ?" });
                 }
 
                 var checkAvailability = await context.Slots
@@ -243,14 +243,14 @@ namespace TerminalApi.Controllers
                     .ToListAsync();
                 if (checkAvailability.Count != slotIds.Count)
                 {
-                    return BadRequest(new ResponseDTO<string?> { Status = 40, Message = "Demande refusée ?" });
+                    return BadRequest(new ResponseDTO<string?> { Status = 400, Message = "Demande refusée ?" });
                 }
                 else
                 {
                     var bookings = new List<Booking>();
                     foreach (var slotId in slotIds)
                     {
-                        // vérifications ici
+                        // TODO vérifications ici
                     }
                     await context.Bookings.AddRangeAsync(bookings);
                     await context.SaveChangesAsync();
