@@ -140,11 +140,11 @@ namespace TerminalApi
 
             services.Configure<IdentityOptions>(options =>
             {
-                options.Password.RequireDigit = false;
-                options.Password.RequireLowercase = false;
-                options.Password.RequireNonAlphanumeric = false;
-                options.Password.RequireUppercase = false;
-                options.Password.RequiredLength = 8;
+                options.Password.RequireDigit = true;
+                options.Password.RequireLowercase = true;
+                options.Password.RequireNonAlphanumeric = true;
+                options.Password.RequireUppercase = true;
+                options.Password.RequiredLength = 12;
                 options.Password.RequiredUniqueChars = 1;
 
                 options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(2);
@@ -152,7 +152,13 @@ namespace TerminalApi
                 options.Lockout.AllowedForNewUsers = true;
 
                 options.User.AllowedUserNameCharacters =
+                    " abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-._@";
+
+#if DEBUG
+                options.User.AllowedUserNameCharacters =
                     " abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-._@+";
+#endif
+
                 options.User.RequireUniqueEmail = true;
 
                 options.SignIn.RequireConfirmedAccount = false;
@@ -238,7 +244,6 @@ namespace TerminalApi
 
             QuestPDF.Settings.License = LicenseType.Community;
 
-            // NEW: Add SignalR notification service instead of ChatHub directly
             services.AddScoped<ISignalRNotificationService, SignalRNotificationService>();
 
             services.AddSignalR(options =>
